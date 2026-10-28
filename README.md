@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿# Cauca INNOVA · Festival de Semilleros de Investigación
 
 Landing en Next.js 16 App Router, React 19, TypeScript estricto, Tailwind CSS 4 y GSAP. Incluye portada tipo póster, intro omisible, navbar centrado conectado al footer, menú a pantalla completa, parallax por capas, recorrido fijado al scroll e impresora interactiva. Conserva requisitos, selección, FAQ y descarga de términos.
@@ -27,3 +28,6 @@ La impresora y el prototipo modular son ilustraciones. El logo es una restauraci
 ## Verificación en el entorno
 
 TypeScript y Biome pasan. La compilación completa de producción finalizó correctamente en esta actualización. El servidor de desarrollo había sido bloqueado por el sandbox (`spawn EPERM`); la revisión real de navegador sigue pendiente.
+=======
+# landing_bootcamp_innova
+>>>>>>> ad205c36f57896461244c584fe1d3d9ba91982ac
