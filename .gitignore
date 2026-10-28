@@ -1,0 +1,10 @@
+node_modules/
+.next/
+.npm-cache/
+.pnpm-store/
+*.log
+*.tsbuildinfo
+next-env.d.ts
+.design-v2
+referencia.jpg
+archivo.docx
