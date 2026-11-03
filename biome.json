@@ -6,6 +6,7 @@
       "app/**",
       "components/**",
       "lib/**",
+      "tests/**",
       "*.json",
       "!package.json",
       "!pnpm-lock.yaml",

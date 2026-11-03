@@ -27,7 +27,7 @@ export const requisitos = [
   "Estar matriculados en una institución educativa o de educación superior del departamento del Cauca.",
   "Pertenecer a un semillero de investigación reconocido, registrado o avalado por la institución.",
   "Conformar un equipo de tres estudiantes con interés en la investigación, la innovación, la creatividad y la solución de problemas.",
-  "Tener disponibilidad para asistir presencialmente a las dos jornadas completas.",
+  "Tener disponibilidad para asistir presencialmente a la jornada completa del 15 de noviembre.",
   "Presentar el aval del docente líder, tutor o responsable del semillero; diligenciar información veraz y completa y aceptar los términos de participación.",
   "Para menores de edad: presentar autorización escrita del padre, madre o representante legal y los documentos adicionales solicitados por la organización.",
 ] as const;
@@ -71,7 +71,7 @@ export const preguntas = [
   },
   {
     q: "¿Cuándo, dónde y cuánto cuesta?",
-    a: "El Festival se realizará el 13 y 14 de noviembre de 2026. Se requiere asistencia presencial a ambas jornadas completas. La sede, los horarios y el costo o gratuidad no están especificados en los términos y deben ser comunicados por la organización.",
+    a: "El Festival se realizará el 15 de noviembre de 2026. Se requiere asistencia presencial a la jornada completa. La sede, los horarios y el costo o gratuidad no están especificados en los términos y deben ser comunicados por la organización.",
   },
   {
     q: "¿Cómo y hasta cuándo se presenta el equipo?",
@@ -95,6 +95,6 @@ export const preguntas = [
   },
   {
     q: "¿Qué compromisos asume el equipo?",
-    a: "Participar en las dos jornadas, aportar información veraz, seguir las instrucciones de facilitadores y mentores, colaborar con respeto, cuidar instalaciones y materiales, presentar propuestas de manera ética y transparente y cumplir las autorizaciones y condiciones comunicadas por la organización.",
+    a: "Participar en la jornada completa del 15 de noviembre, aportar información veraz, seguir las instrucciones de facilitadores y mentores, colaborar con respeto, cuidar instalaciones y materiales, presentar propuestas de manera ética y transparente y cumplir las autorizaciones y condiciones comunicadas por la organización.",
   },
 ] as const;

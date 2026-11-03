@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useEffect, useRef } from "react";
 import { gsap, ScrollTrigger, useGSAP } from "@/lib/motion";
 export function Portada() {
@@ -156,7 +156,7 @@ export function Portada() {
     <section className="poster-hero" ref={raiz} aria-labelledby="hero-title">
       <div className="hero-corners">
         <p>
-          13—14
+          15
           <br />
           NOVIEMBRE
           <br />
@@ -231,7 +231,7 @@ export function Portada() {
           de Investigación
         </h2>
         <p>
-          Dos jornadas para convertir
+          Una jornada para convertir
           <br />
           preguntas en prototipos.
         </p>

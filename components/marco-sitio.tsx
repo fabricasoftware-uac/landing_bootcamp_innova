@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import {
   type ReactNode,
   useCallback,
@@ -25,7 +25,7 @@ export function Logo() {
 const enlaces = [
   ["EXPERIENCIA", "experiencia"],
   ["EL LABORATORIO", "laboratorio"],
-  ["DOS JORNADAS", "agenda"],
+  ["LA JORNADA", "agenda"],
   ["PARTICIPA", "preparacion"],
 ] as const;
 export function MarcoSitio({ children }: { children: ReactNode }) {
@@ -335,13 +335,15 @@ export function MarcoSitio({ children }: { children: ReactNode }) {
       <header ref={cabecera} className="site-header">
         <nav className="header-left" aria-label="Accesos principales">
           <a href="#experiencia">El festival</a>
-          <a href="#agenda">13—14 NOV. 2026</a>
+          <a href="#agenda">15 NOV. 2026</a>
         </nav>
         <a className="brand" href="#inicio" aria-label="Cauca Innova, inicio">
           <Logo />
         </a>
         <div className="header-right">
-          <a href="#preparacion">Participa ↗</a>
+          <a href="/postulacion" className="header-postular">
+            Postular Equipo ↗
+          </a>
           <button
             ref={burger}
             className="burger"
@@ -379,11 +381,11 @@ export function MarcoSitio({ children }: { children: ReactNode }) {
           <div className="closing-info">
             <p>
               <strong>
-                13—14
+                15
                 <br />
                 noviembre 2026
               </strong>
-              <span>Dos jornadas. Un territorio que crea.</span>
+              <span>Una jornada. Un territorio que crea.</span>
             </p>
             <a className="button light" href={documentoTerminos} download>
               Leer términos de participación ↗
@@ -391,11 +393,11 @@ export function MarcoSitio({ children }: { children: ReactNode }) {
           </div>
           <div className="closing-status">
             <p>
-              Formulario, plazos, sede y horarios por publicar.
+              Inscripciones abiertas para semilleros de investigación del Cauca.
               <br />
-              Prepara tu equipo de tres estudiantes.
+              Siete equipos de tres estudiantes. Una jornada presencial.
             </p>
-            <a href="#preparacion">Revisa los requisitos ↗</a>
+            <a href="/postulacion">Inscribir equipo ahora ↗</a>
           </div>
           <div className="footer-baseline">
             <p>
@@ -483,6 +485,36 @@ export function MarcoSitio({ children }: { children: ReactNode }) {
                   </span>
                 </a>
               ))}
+              <a
+                href="/postulacion"
+                onClick={() => {
+                  cerrar();
+                }}
+              >
+                <span className="menu-number" aria-hidden="true">
+                  05
+                </span>
+                <span className="menu-label">
+                  <span className="sr-only">POSTULAR EQUIPO</span>
+                  {[..."POSTULAR EQUIPO"]
+                    .map((letra, indice) => ({
+                      letra,
+                      clave: `postular-${indice}`,
+                    }))
+                    .map(({ letra, clave }) => (
+                      <span
+                        className="menu-link-letter"
+                        aria-hidden="true"
+                        key={clave}
+                      >
+                        {letra === " " ? "\u00a0" : letra}
+                      </span>
+                    ))}
+                </span>
+                <span className="menu-arrow" aria-hidden="true">
+                  ↗
+                </span>
+              </a>
             </nav>
             <img
               className="menu-prototype"
@@ -493,7 +525,7 @@ export function MarcoSitio({ children }: { children: ReactNode }) {
               aria-hidden="true"
             />
             <div className="menu-bottom">
-              <span>13—14 noviembre 2026</span>
+              <span>15 noviembre 2026</span>
               <span>Del conocimiento a la solución</span>
             </div>
           </div>,

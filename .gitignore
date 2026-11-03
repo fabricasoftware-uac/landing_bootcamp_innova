@@ -8,3 +8,5 @@ next-env.d.ts
 .design-v2
 referencia.jpg
 archivo.docx
+.env*.local
+.env

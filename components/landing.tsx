@@ -1,4 +1,4 @@
-﻿import {
+import {
   agenda,
   criterios,
   documentos,
@@ -78,13 +78,13 @@ export function Landing() {
         aria-labelledby="agenda-title"
       >
         <div className="section-top">
-          <span>Dos jornadas presenciales</span>
-          <span>13 y 14 de noviembre de 2026</span>
+          <span>Jornada presencial intensiva</span>
+          <span>15 de noviembre de 2026</span>
         </div>
         <div className="agenda-layout">
           <div>
             <h2 id="agenda-title">
-              DOS DÍAS.
+              UN DÍA.
               <br />
               <em>MODO CREAR.</em>
             </h2>
@@ -93,7 +93,7 @@ export function Landing() {
               reales del territorio.
             </p>
             <div className="agenda-date">
-              13—14
+              15
               <span>
                 NOVIEMBRE
                 <br />
@@ -101,8 +101,7 @@ export function Landing() {
               </span>
             </div>
             <small>
-              Asistencia a las dos jornadas completas. Sede y horarios por
-              publicar.
+              Asistencia a la jornada completa. Sede y horarios por publicar.
             </small>
           </div>
           <ol className="agenda-list">
@@ -135,8 +134,9 @@ export function Landing() {
             PASO ES <em>JUNTOS.</em>
           </h2>
           <p>
-            Reúne a tu equipo y prepara los documentos. El formulario oficial y
-            los plazos están pendientes de publicación por la organización.
+            Inscripciones oficiales abiertas. Reúne a tu equipo de tres
+            estudiantes, solicita el aval institucional a tu tutor y diligencia
+            el formulario en línea para participar.
           </p>
         </div>
         <div className="preparation-details">
@@ -166,9 +166,14 @@ export function Landing() {
             <li key={paso}>{paso}</li>
           ))}
         </ol>
-        <a className="button" href={documentoTerminos} download>
-          Descargar términos (DOCX) <span aria-hidden="true">↗</span>
-        </a>
+        <div className="flex flex-wrap items-center gap-4 mt-6">
+          <a className="button" href="/postulacion">
+            Postular Equipo al Festival <span aria-hidden="true">↗</span>
+          </a>
+          <a className="button light" href={documentoTerminos} download>
+            Descargar términos (DOCX) <span aria-hidden="true">↓</span>
+          </a>
+        </div>
       </section>
       <section
         className="selection chapter"

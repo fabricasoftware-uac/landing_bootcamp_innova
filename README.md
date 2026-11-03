@@ -1,33 +1,94 @@
-<<<<<<< HEAD
-﻿# Cauca INNOVA · Festival de Semilleros de Investigación
+# Cauca INNOVA · Festival de Semilleros de Investigación 2026
 
-Landing en Next.js 16 App Router, React 19, TypeScript estricto, Tailwind CSS 4 y GSAP. Incluye portada tipo póster, intro omisible, navbar centrado conectado al footer, menú a pantalla completa, parallax por capas, recorrido fijado al scroll e impresora interactiva. Conserva requisitos, selección, FAQ y descarga de términos.
+Plataforma oficial de divulgación, postulación en línea y evaluación técnica para el **Festival de Semilleros de Investigación Cauca INNOVA**, convocado por la **Gobernación del Cauca** (Secretaría de Desarrollo Económico y Competitividad) en alianza con la **Corporación Universitaria Autónoma del Cauca (Uniautónoma)**.
 
-## Desarrollo
+* **Fecha Oficial del Evento:** 15 de noviembre de 2026 (Jornada única presencial de formación, mentoría y prototipado).
+* **Cupos Convocatoria:** 7 semilleros de investigación seleccionados (21 estudiantes participantes en total, 3 por equipo).
+* **Público Objetivo:** Estudiantes activos de colegios (Educación Básica y Media) y universidades o tecnológicos (Educación Superior) del departamento del Cauca.
 
-Node.js 22 o posterior. Gestor preferido: pnpm.
+---
 
-```sh
-pnpm install
-pnpm dev
-pnpm lint
-pnpm typecheck
-pnpm build
+## 🗺️ Mapa de Rutas de la Aplicación
+
+| Ruta | Acceso | Descripción y Funcionalidad |
+| :--- | :---: | :--- |
+| **`/`** | Público | **Portal Principal / Landing Page:** Portada editorial tipo póster con parallax desacoplado, introducción omisible, agenda temática, descarga de Términos de Referencia oficiales y simulador de prototipado en laboratorio. |
+| **`/postulacion`** | Público | **Formulario Multi-paso de Inscripción:** Wizard interactivo de 5 pasos con validación en tiempo real (Zod), registro de tutor, equipo de 3 estudiantes, justificación de intereses, carga segura de soportes al bucket privado de Supabase Storage y generación de radicado oficial (`INNOVA-2026-XXXX`). |
+| **`/admin`** | Restringido | **Panel de Evaluación y Administración:** Tablero de métricas en tiempo real (cupos ocupados, distribución colegios/universidades), buscador reactivo, expediente digital con enlaces temporales seguros (Signed URLs), calificación ponderada oficial TDR (Motivación 30%, Pertinencia 30%, Diversidad 20%, Representación 20%) y exportación a Excel (.xlsx). |
+
+---
+
+## 🛠️ Stack Tecnológico
+
+* **Framework:** Next.js 16 (App Router con Server Components y Server Actions)
+* **Librería UI:** React 19 y Tailwind CSS v4
+* **Lenguaje:** TypeScript estricto
+* **Base de Datos & Backend:** Supabase (PostgreSQL 15+, Row Level Security estricto y Supabase Storage)
+* **Autenticación & Autorización:** Supabase Auth con claim `app_metadata.role = 'admin'`
+* **Validación de Esquemas:** Zod con refinamiento dinámico para menores de edad
+* **Reportes & Exportación:** ExcelJS para libros nativos de cálculo estructurados en 3 hojas
+* **Animaciones:** GSAP y @gsap/react con soporte de accesibilidad (`prefers-reduced-motion`)
+* **Linter & Formateador:** Biome
+* **Testing:** Vitest para pruebas unitarias y de integración
+
+---
+
+## ⚙️ Variables de Entorno Requeridas
+
+Cree un archivo `.env.local` en la raíz del proyecto tomando como referencia [`.env.example`](file:///Users/salomontilla/Fabrica_Software/bootcamp_innova/.env.example):
+
+```env
+# URL base del proyecto Supabase (Dashboard -> Settings -> API)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+
+# Llave anónima pública (segura para exponer en cliente mediante prefijo NEXT_PUBLIC_)
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.your-anon-key
+
+# Llave de rol de servicio (SECRETA: uso exclusivo en servidor / Server Actions)
+# NUNCA exponer en cliente ni prefijar con NEXT_PUBLIC_
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.your-service-role-key
 ```
 
-En este entorno la instalación pnpm no pudo acceder al registry; se instaló con npm y se conserva `package-lock.json` reproducible. Alternativa: `npm ci`, `npm run dev`, `npm run lint`, `npm run typecheck`, `npm run build`. No se incluye un pnpm-lock ficticio.
+---
 
-## Contenido y publicación
+## 🚀 Comandos del Proyecto
 
-La fuente vigente es `TERMINOS DE REFERENCIA.docx`: Festival el **13 y 14 de noviembre de 2026**, dos jornadas completas presenciales, máximo **21 participantes en siete equipos de tres**. Esta actualización reemplaza la fecha y cupos del afiche inicial. La extracción completa y diferencias están en docs/terms-source.md.
+Se requiere **Node.js 22 o superior** y el gestor de paquetes **pnpm** (o npm como alternativa).
 
-Sede, horarios, costo o gratuidad, URL oficial y plazos no están especificados. No se reciben datos ni se simulan inscripciones. Se permite preparar la postulación y descargar una copia fiel en public/documentos/terminos-de-referencia.docx. Los criterios publicados seleccionan equipos, no evalúan soluciones finales. Las imágenes no prometen equipos ni premios específicos. Consultar docs/design.md y docs/qa.md.
+```sh
+# 1. Instalar dependencias
+pnpm install
 
-La impresora y el prototipo modular son ilustraciones. El logo es una restauración generada a partir de la referencia, con fondo transparente; ya no se recorta el afiche. El laboratorio usa una impresora SVG con cabezal, bobina y capas animables. La tipografía Anton se aloja localmente con su licencia OFL en `public/fonts/anton`. No se usaron fotografías de asistentes o testimonios inventados.
+# 2. Iniciar servidor de desarrollo en http://127.0.0.1:3000
+pnpm dev
 
-## Verificación en el entorno
+# 3. Ejecutar suite de pruebas unitarias y de integración
+pnpm test
 
-TypeScript y Biome pasan. La compilación completa de producción finalizó correctamente en esta actualización. El servidor de desarrollo había sido bloqueado por el sandbox (`spawn EPERM`); la revisión real de navegador sigue pendiente.
-=======
-# landing_bootcamp_innova
->>>>>>> ad205c36f57896461244c584fe1d3d9ba91982ac
+# 4. Validar formato y calidad de código con Biome
+pnpm lint
+
+# 5. Comprobar tipos TypeScript
+pnpm typecheck
+
+# 6. Compilar build optimizado para producción
+pnpm build
+
+# 7. Iniciar servidor compilado en producción
+pnpm start
+```
+
+---
+
+## 📚 Documentación Técnica Especializada
+
+Para consultar el detalle técnico y operativo, remítase a los siguientes documentos:
+
+* 📖 **[Manual Operativo de Administración y Evaluación (`docs/manual-administracion.md`)](file:///Users/salomontilla/Fabrica_Software/bootcamp_innova/docs/manual-administracion.md):**  
+  Guía paso a paso para el comité técnico evaluador: acceso seguro, interpretación de métricas, búsqueda/filtrado, apertura de expedientes, previsualización de documentos confidenciales con Signed URLs de 5 minutos, aplicación de la rúbrica de calificación TDR y exportación a Excel.
+
+* 🏗️ **[Arquitectura Integral del Sistema (`docs/arquitectura-sistema.md`)](file:///Users/salomontilla/Fabrica_Software/bootcamp_innova/docs/arquitectura-sistema.md):**  
+  Diagramas Mermaid (`flowchart TD`, `sequenceDiagram`, `erDiagram`), diccionario de datos de las cuatro tablas (`postulaciones`, `integrantes`, `documentos_postulacion`, `evaluaciones`), políticas de Row Level Security (RLS) a prueba de IDOR/BOLA, cumplimiento de la Ley 1581 (Habeas Data) y Código de la Infancia, y flujo transaccional con reversión preventiva (rollback).
+
+* 📄 **[Términos de Referencia Originales (`docs/terms-source.md`)](file:///Users/salomontilla/Fabrica_Software/bootcamp_innova/docs/terms-source.md):**  
+  Transcripción y análisis analítico del documento rector de la convocatoria.
