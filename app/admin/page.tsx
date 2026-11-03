@@ -153,7 +153,7 @@ export default function AdminPage() {
             </a>
             <div className="hidden sm:block border-l border-[#10384f]/20 pl-4">
               <span className="block text-[11px] font-bold uppercase tracking-wider text-[#006b5c]">
-                Festival Cauca INNOVA 2026
+                Bootcamp Cauca INNOVA 2026
               </span>
               <h1 className="text-sm font-black text-[#10384f]">
                 Panel de Evaluación y Administración

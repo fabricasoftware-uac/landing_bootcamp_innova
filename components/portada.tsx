@@ -226,7 +226,7 @@ export function Portada() {
       </div>
       <div className="hero-description">
         <h2>
-          Festival de Semilleros
+          Bootcamp de Semilleros
           <br />
           de Investigación
         </h2>
@@ -241,7 +241,7 @@ export function Portada() {
         <strong>
           Conoce
           <br />
-          el festival
+          el bootcamp
         </strong>
       </a>
       <div className="hero-baseline">

@@ -53,7 +53,7 @@ export const pasos = [
 export const criterios = [
   ["Motivación e interés por la investigación y la innovación", "30 %"],
   [
-    "Pertinencia de los intereses del equipo frente a los retos del Festival",
+    "Pertinencia de los intereses del equipo frente a los retos del Bootcamp",
     "30 %",
   ],
   ["Diversidad de conocimientos, habilidades y perspectivas", "20 %"],
@@ -71,7 +71,7 @@ export const preguntas = [
   },
   {
     q: "¿Cuándo, dónde y cuánto cuesta?",
-    a: "El Festival se realizará el 15 de noviembre de 2026. Se requiere asistencia presencial a la jornada completa. La sede, los horarios y el costo o gratuidad no están especificados en los términos y deben ser comunicados por la organización.",
+    a: "El Bootcamp se realizará el 15 de noviembre de 2026. Se requiere asistencia presencial a la jornada completa. La sede, los horarios y el costo o gratuidad no están especificados en los términos y deben ser comunicados por la organización.",
   },
   {
     q: "¿Cómo y hasta cuándo se presenta el equipo?",
@@ -91,7 +91,7 @@ export const preguntas = [
   },
   {
     q: "¿Hay certificación y premiación?",
-    a: "Quienes cumplan las condiciones de asistencia y participación recibirán un diploma o certificado del Festival. Al culminar, un jurado especializado seleccionará la propuesta ganadora del premio. Los términos no precisan el premio ni los criterios de evaluación final: las condiciones de evaluación y premiación serán comunicadas por la organización.",
+    a: "Quienes cumplan las condiciones de asistencia y participación recibirán un diploma o certificado del Bootcamp. Al culminar, un jurado especializado seleccionará la propuesta ganadora del premio. Los términos no precisan el premio ni los criterios de evaluación final: las condiciones de evaluación y premiación serán comunicadas por la organización.",
   },
   {
     q: "¿Qué compromisos asume el equipo?",

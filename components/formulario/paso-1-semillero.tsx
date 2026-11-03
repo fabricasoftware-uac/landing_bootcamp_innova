@@ -17,19 +17,19 @@ export function Paso1Semillero({
 
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-black tracking-tight text-[#10384f] md:text-3xl">
+      <div className="mb-6 sm:mb-8">
+        <h2 className="font-sans text-xl font-bold tracking-tight text-[#10384f] sm:text-2xl">
           Datos de la Institución y Semillero
         </h2>
-        <p className="mt-2 text-sm text-[#10384f]/80 md:text-base">
+        <p className="mt-2 text-sm leading-relaxed text-[#10384f]/75 sm:text-base">
           Ingresa la información oficial de la institución educativa del Cauca,
           el semillero de investigación participante y el docente tutor
           responsable del aval.
         </p>
       </div>
 
-      <div className="rounded-xl border border-[#10384f]/15 bg-white/70 p-5 shadow-xs backdrop-blur-xs md:p-7">
-        <h3 className="mb-4 text-base font-bold uppercase tracking-wider text-[#006b5c]">
+      <div className="rounded-2xl border border-[#10384f]/15 bg-[#faf9f5] p-6 shadow-2xs sm:p-7 md:p-8">
+        <h3 className="mb-5 border-b border-[#10384f]/10 pb-3 text-sm font-bold uppercase tracking-wider text-[#006b5c] sm:text-base">
           1.1 Institución Educativa
         </h3>
 
@@ -38,7 +38,7 @@ export function Paso1Semillero({
           <div className="md:col-span-2">
             <label
               htmlFor="institucion_nombre"
-              className="block text-xs font-bold uppercase tracking-wider text-[#10384f]"
+              className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#10384f]"
             >
               Nombre de la Institución Educativa{" "}
               <span className="text-rose-600">*</span>
@@ -53,10 +53,10 @@ export function Paso1Semillero({
                 handleChange("institucion_nombre", e.target.value)
               }
               placeholder="Ej: Institución Educativa Técnica San José / Universidad del Cauca"
-              className={`mt-2 w-full rounded-md border px-4 py-3 text-sm text-[#10384f] placeholder:text-[#10384f]/40 focus:outline-hidden focus:ring-2 ${
+              className={`w-full rounded-xl border px-4 py-3 text-sm text-[#10384f] placeholder:text-[#10384f]/40 transition focus:outline-hidden focus:ring-2 ${
                 errores.institucion_nombre
                   ? "border-rose-500 bg-rose-50/50 focus:ring-rose-500"
-                  : "border-[#10384f]/25 bg-white focus:border-[#006b5c] focus:ring-[#006b5c]"
+                  : "border-[#10384f]/20 bg-white focus:border-[#006b5c] focus:ring-[#006b5c]"
               }`}
               aria-invalid={Boolean(errores.institucion_nombre)}
               aria-describedby={
@@ -79,13 +79,13 @@ export function Paso1Semillero({
           {/* Tipo de institución */}
           <div className="md:col-span-2">
             <fieldset>
-              <legend className="block text-xs font-bold uppercase tracking-wider text-[#10384f]">
+              <legend className="mb-2.5 block text-xs font-bold uppercase tracking-wider text-[#10384f]">
                 Nivel / Tipo de Institución{" "}
                 <span className="text-rose-600">*</span>
               </legend>
-              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <label
-                  className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-all ${
+                  className={`flex cursor-pointer items-start gap-3.5 rounded-xl border p-4.5 transition-all sm:p-5 ${
                     datos.institucion_tipo === "basica_media"
                       ? "border-[#006b5c] bg-[#006b5c]/10 text-[#10384f] shadow-xs"
                       : "border-[#10384f]/20 bg-white hover:border-[#10384f]/40"
@@ -105,14 +105,14 @@ export function Paso1Semillero({
                     <span className="block text-sm font-bold text-[#10384f]">
                       Educación Básica y Media
                     </span>
-                    <span className="mt-0.5 block text-xs text-[#10384f]/70">
+                    <span className="mt-1 block text-xs leading-relaxed text-[#10384f]/70">
                       Colegios públicos y privados del departamento del Cauca
                     </span>
                   </div>
                 </label>
 
                 <label
-                  className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-all ${
+                  className={`flex cursor-pointer items-start gap-3.5 rounded-xl border p-4.5 transition-all sm:p-5 ${
                     datos.institucion_tipo === "superior"
                       ? "border-[#006b5c] bg-[#006b5c]/10 text-[#10384f] shadow-xs"
                       : "border-[#10384f]/20 bg-white hover:border-[#10384f]/40"
@@ -132,7 +132,7 @@ export function Paso1Semillero({
                     <span className="block text-sm font-bold text-[#10384f]">
                       Educación Superior
                     </span>
-                    <span className="mt-0.5 block text-xs text-[#10384f]/70">
+                    <span className="mt-1 block text-xs leading-relaxed text-[#10384f]/70">
                       Universidades, instituciones técnicas o tecnológicas
                     </span>
                   </div>
@@ -153,7 +153,7 @@ export function Paso1Semillero({
           <div className="md:col-span-2">
             <label
               htmlFor="semillero_nombre"
-              className="block text-xs font-bold uppercase tracking-wider text-[#10384f]"
+              className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#10384f]"
             >
               Nombre del Semillero de Investigación{" "}
               <span className="text-rose-600">*</span>
@@ -166,10 +166,10 @@ export function Paso1Semillero({
               value={datos.semillero_nombre}
               onChange={(e) => handleChange("semillero_nombre", e.target.value)}
               placeholder="Ej: Semillero de Robótica y Sostenibilidad Territorial - BIOBOT"
-              className={`mt-2 w-full rounded-md border px-4 py-3 text-sm text-[#10384f] placeholder:text-[#10384f]/40 focus:outline-hidden focus:ring-2 ${
+              className={`w-full rounded-xl border px-4 py-3 text-sm text-[#10384f] placeholder:text-[#10384f]/40 transition focus:outline-hidden focus:ring-2 ${
                 errores.semillero_nombre
                   ? "border-rose-500 bg-rose-50/50 focus:ring-rose-500"
-                  : "border-[#10384f]/25 bg-white focus:border-[#006b5c] focus:ring-[#006b5c]"
+                  : "border-[#10384f]/20 bg-white focus:border-[#006b5c] focus:ring-[#006b5c]"
               }`}
               aria-invalid={Boolean(errores.semillero_nombre)}
               aria-describedby={
@@ -189,11 +189,11 @@ export function Paso1Semillero({
         </div>
       </div>
 
-      <div className="rounded-xl border border-[#10384f]/15 bg-white/70 p-5 shadow-xs backdrop-blur-xs md:p-7">
-        <h3 className="mb-2 text-base font-bold uppercase tracking-wider text-[#006b5c]">
+      <div className="rounded-2xl border border-[#10384f]/15 bg-[#faf9f5] p-6 shadow-2xs sm:p-7 md:p-8">
+        <h3 className="mb-2 text-sm font-bold uppercase tracking-wider text-[#006b5c] sm:text-base">
           1.2 Docente Tutor / Asesor del Semillero
         </h3>
-        <p className="mb-5 text-xs text-[#10384f]/70">
+        <p className="mb-6 text-xs leading-relaxed text-[#10384f]/70 sm:text-sm">
           El docente tutor es el responsable académico que emite la
           certificación y aval del equipo de tres estudiantes.
         </p>
@@ -203,7 +203,7 @@ export function Paso1Semillero({
           <div className="md:col-span-2">
             <label
               htmlFor="tutor_nombre"
-              className="block text-xs font-bold uppercase tracking-wider text-[#10384f]"
+              className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#10384f]"
             >
               Nombre y Apellidos del Tutor{" "}
               <span className="text-rose-600">*</span>
@@ -216,10 +216,10 @@ export function Paso1Semillero({
               value={datos.tutor_nombre}
               onChange={(e) => handleChange("tutor_nombre", e.target.value)}
               placeholder="Ej: Profa. Claudia Marcela Gómez Paz"
-              className={`mt-2 w-full rounded-md border px-4 py-3 text-sm text-[#10384f] placeholder:text-[#10384f]/40 focus:outline-hidden focus:ring-2 ${
+              className={`w-full rounded-xl border px-4 py-3 text-sm text-[#10384f] placeholder:text-[#10384f]/40 transition focus:outline-hidden focus:ring-2 ${
                 errores.tutor_nombre
                   ? "border-rose-500 bg-rose-50/50 focus:ring-rose-500"
-                  : "border-[#10384f]/25 bg-white focus:border-[#006b5c] focus:ring-[#006b5c]"
+                  : "border-[#10384f]/20 bg-white focus:border-[#006b5c] focus:ring-[#006b5c]"
               }`}
               aria-invalid={Boolean(errores.tutor_nombre)}
               aria-describedby={
@@ -241,7 +241,7 @@ export function Paso1Semillero({
           <div>
             <label
               htmlFor="tutor_email"
-              className="block text-xs font-bold uppercase tracking-wider text-[#10384f]"
+              className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#10384f]"
             >
               Correo Institucional / de Contacto{" "}
               <span className="text-rose-600">*</span>
@@ -254,10 +254,10 @@ export function Paso1Semillero({
               value={datos.tutor_email}
               onChange={(e) => handleChange("tutor_email", e.target.value)}
               placeholder="docente@institucion.edu.co"
-              className={`mt-2 w-full rounded-md border px-4 py-3 text-sm text-[#10384f] placeholder:text-[#10384f]/40 focus:outline-hidden focus:ring-2 ${
+              className={`w-full rounded-xl border px-4 py-3 text-sm text-[#10384f] placeholder:text-[#10384f]/40 transition focus:outline-hidden focus:ring-2 ${
                 errores.tutor_email
                   ? "border-rose-500 bg-rose-50/50 focus:ring-rose-500"
-                  : "border-[#10384f]/25 bg-white focus:border-[#006b5c] focus:ring-[#006b5c]"
+                  : "border-[#10384f]/20 bg-white focus:border-[#006b5c] focus:ring-[#006b5c]"
               }`}
               aria-invalid={Boolean(errores.tutor_email)}
               aria-describedby={
@@ -279,7 +279,7 @@ export function Paso1Semillero({
           <div>
             <label
               htmlFor="tutor_telefono"
-              className="block text-xs font-bold uppercase tracking-wider text-[#10384f]"
+              className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#10384f]"
             >
               Teléfono Celular de Contacto{" "}
               <span className="text-rose-600">*</span>
@@ -292,10 +292,10 @@ export function Paso1Semillero({
               value={datos.tutor_telefono}
               onChange={(e) => handleChange("tutor_telefono", e.target.value)}
               placeholder="310 123 4567"
-              className={`mt-2 w-full rounded-md border px-4 py-3 text-sm text-[#10384f] placeholder:text-[#10384f]/40 focus:outline-hidden focus:ring-2 ${
+              className={`w-full rounded-xl border px-4 py-3 text-sm text-[#10384f] placeholder:text-[#10384f]/40 transition focus:outline-hidden focus:ring-2 ${
                 errores.tutor_telefono
                   ? "border-rose-500 bg-rose-50/50 focus:ring-rose-500"
-                  : "border-[#10384f]/25 bg-white focus:border-[#006b5c] focus:ring-[#006b5c]"
+                  : "border-[#10384f]/20 bg-white focus:border-[#006b5c] focus:ring-[#006b5c]"
               }`}
               aria-invalid={Boolean(errores.tutor_telefono)}
               aria-describedby={

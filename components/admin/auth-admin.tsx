@@ -64,7 +64,7 @@ export function AuthAdmin({ alAutenticar }: AuthAdminProps) {
             Panel Administrativo
           </h1>
           <p className="mt-2 text-xs text-[#10384f]/70">
-            Ingreso restringido a coordinadores y evaluadores del Festival Cauca
+            Ingreso restringido a coordinadores y evaluadores del Bootcamp Cauca
             INNOVA 2026.
           </p>
         </div>
@@ -126,10 +126,10 @@ export function AuthAdmin({ alAutenticar }: AuthAdminProps) {
                   className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
                   aria-hidden="true"
                 />
-                <span>Verificando credenciales...</span>
+                <span className="text-amber-50">Verificando credenciales...</span>
               </>
             ) : (
-              <span>Ingresar al Sistema ↗</span>
+              <span className="text-amber-50">Ingresar al Sistema ↗</span>
             )}
           </button>
         </form>

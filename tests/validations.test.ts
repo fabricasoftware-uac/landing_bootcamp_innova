@@ -277,7 +277,7 @@ describe("Validaciones de Paso 3: Motivación e Intereses", () => {
     const textosCortos = [
       "",
       "Nos gusta innovar",
-      "Queremos participar en el Festival de semilleros.", // 49 chars
+      "Queremos participar en el Bootcamp de semilleros.", // 49 chars
     ];
 
     for (const texto of textosCortos) {

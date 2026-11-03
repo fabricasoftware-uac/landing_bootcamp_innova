@@ -334,7 +334,7 @@ export function MarcoSitio({ children }: { children: ReactNode }) {
       </a>
       <header ref={cabecera} className="site-header">
         <nav className="header-left" aria-label="Accesos principales">
-          <a href="#experiencia">El festival</a>
+          <a href="#experiencia">El bootcamp</a>
           <a href="#agenda">15 NOV. 2026</a>
         </nav>
         <a className="brand" href="#inicio" aria-label="Cauca Innova, inicio">
@@ -395,7 +395,7 @@ export function MarcoSitio({ children }: { children: ReactNode }) {
             <p>
               Inscripciones abiertas para semilleros de investigación del Cauca.
               <br />
-              Siete equipos de tres estudiantes. Una jornada presencial.
+              Seis equipos de tres estudiantes. Una jornada presencial.
             </p>
             <a href="/postulacion">Inscribir equipo ahora ↗</a>
           </div>
@@ -436,7 +436,7 @@ export function MarcoSitio({ children }: { children: ReactNode }) {
             aria-hidden={!abierto}
           >
             <div className="menu-top">
-              <span>Festival de semilleros</span>
+              <span>Bootcamp de semilleros</span>
               <a
                 href="#inicio"
                 onClick={(e) => {
@@ -450,7 +450,7 @@ export function MarcoSitio({ children }: { children: ReactNode }) {
                 Cerrar ×
               </button>
             </div>
-            <nav aria-label="Secciones del festival">
+            <nav aria-label="Secciones del bootcamp">
               {enlaces.map(([texto, id], i) => (
                 <a
                   key={id}

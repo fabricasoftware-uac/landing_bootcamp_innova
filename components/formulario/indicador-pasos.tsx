@@ -24,24 +24,26 @@ export function IndicadorPasos({
   return (
     <nav
       aria-label="Progreso de la postulación"
-      className="mb-8 w-full border-b border-[#10384f]/15 pb-6"
+      className="mb-8 w-full border-b border-[#10384f]/15 pb-6 sm:mb-10"
     >
       {/* Vista móvil compacta */}
       <div className="md:hidden">
-        <div className="flex items-center justify-between text-xs font-semibold tracking-wider uppercase text-[#10384f]">
+        <div className="flex items-center justify-between text-xs font-bold tracking-wider uppercase text-[#10384f]/75">
           <span>
             Paso {pasoActual} de {totalPasos}
           </span>
-          <span className="font-mono text-[#006b5c]">{porcentaje}%</span>
+          <span className="font-mono text-xs font-extrabold text-[#006b5c] bg-[#006b5c]/10 px-2 py-0.5 rounded-md">
+            {porcentaje}%
+          </span>
         </div>
-        <div className="mt-2 text-base font-bold text-[#10384f]">
+        <div className="mt-2.5 text-base font-extrabold text-[#10384f]">
           {PASOS_INFO[pasoActual - 1]?.titulo} —{" "}
-          <span className="text-xs font-normal text-[#10384f]/70">
+          <span className="text-xs font-medium text-[#10384f]/70">
             {PASOS_INFO[pasoActual - 1]?.subtitulo}
           </span>
         </div>
         <div
-          className="mt-3 h-2 w-full overflow-hidden rounded-full bg-[#10384f]/10"
+          className="mt-3.5 h-2 w-full overflow-hidden rounded-full bg-[#10384f]/10"
           role="progressbar"
           aria-valuenow={porcentaje}
           aria-valuemin={0}
@@ -56,7 +58,7 @@ export function IndicadorPasos({
       </div>
 
       {/* Vista desktop estructurada */}
-      <ol className="hidden md:grid md:grid-cols-5 md:gap-3">
+      <ol className="hidden md:grid md:grid-cols-5 md:gap-2.5">
         {PASOS_INFO.map((paso) => {
           const estaCompletado = pasoActual > paso.numero;
           const esActual = pasoActual === paso.numero;
@@ -65,12 +67,12 @@ export function IndicadorPasos({
           return (
             <li
               key={paso.numero}
-              className={`group relative flex flex-col rounded-lg p-3 transition-colors ${
+              className={`group relative flex flex-col rounded-xl p-2.5 sm:p-3 transition-all ${
                 esActual
-                  ? "border border-[#006b5c] bg-[#006b5c]/5"
+                  ? "border-2 border-[#006b5c] bg-[#006b5c]/8 shadow-2xs"
                   : estaCompletado
-                    ? "bg-[#10384f]/5 hover:bg-[#10384f]/10"
-                    : "opacity-60"
+                    ? "border border-[#10384f]/15 bg-[#10384f]/5 hover:bg-[#10384f]/10"
+                    : "border border-[#10384f]/10 bg-white/40 opacity-60"
               }`}
               aria-current={esActual ? "step" : undefined}
             >
@@ -78,12 +80,12 @@ export function IndicadorPasos({
                 type="button"
                 disabled={!esClickable}
                 onClick={() => esClickable && alSeleccionarPaso(paso.numero)}
-                className={`flex w-full items-center gap-3 text-left ${
+                className={`flex w-full items-center gap-2.5 text-left ${
                   esClickable ? "cursor-pointer" : "cursor-default"
                 }`}
               >
                 <span
-                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors ${
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-colors ${
                     estaCompletado
                       ? "bg-[#006b5c] text-[#f5f4ec]"
                       : esActual
@@ -97,7 +99,7 @@ export function IndicadorPasos({
 
                 <div className="min-w-0">
                   <div
-                    className={`truncate text-xs font-bold uppercase tracking-wider ${
+                    className={`text-xs font-bold leading-tight ${
                       esActual
                         ? "text-[#006b5c]"
                         : estaCompletado
@@ -107,7 +109,7 @@ export function IndicadorPasos({
                   >
                     {paso.titulo}
                   </div>
-                  <div className="truncate text-[11px] text-[#10384f]/60">
+                  <div className="mt-0.5 text-[11px] leading-tight text-[#10384f]/60 whitespace-nowrap overflow-hidden text-ellipsis">
                     {paso.subtitulo}
                   </div>
                 </div>

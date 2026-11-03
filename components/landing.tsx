@@ -23,10 +23,10 @@ export function Landing() {
           <span>Semilleros del Cauca</span>
         </div>
         <div className="equipos-poster">
-          <strong aria-hidden="true">7</strong>
+          <strong aria-hidden="true">6</strong>
           <div>
             <h2 id="equipos-title">
-              <span className="sr-only">7 </span>
+              <span className="sr-only">6 </span>
               EQUIPOS.
               <br />
               MUCHAS
@@ -34,7 +34,7 @@ export function Landing() {
               <em>POSIBILIDADES.</em>
             </h2>
             <p>
-              Tres estudiantes por equipo. Máximo 21 participantes de semilleros
+              Tres estudiantes por equipo. Máximo 18 participantes de semilleros
               de colegios e instituciones de educación superior del Cauca.
             </p>
           </div>
@@ -168,7 +168,7 @@ export function Landing() {
         </ol>
         <div className="flex flex-wrap items-center gap-4 mt-6">
           <a className="button" href="/postulacion">
-            Postular Equipo al Festival <span aria-hidden="true">↗</span>
+            Postular Equipo al Bootcamp <span aria-hidden="true">↗</span>
           </a>
           <a className="button light" href={documentoTerminos} download>
             Descargar términos (DOCX) <span aria-hidden="true">↓</span>

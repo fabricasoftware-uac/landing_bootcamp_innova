@@ -45,7 +45,7 @@ export function ComprobanteExito({
         <p className="mx-auto mt-3 max-w-xl text-xs text-[#10384f]/80 md:text-sm">
           El semillero ha completado exitosamente su registro oficial para el{" "}
           <strong>
-            Festival de Semilleros de Investigación Cauca INNOVA 2026
+            Bootcamp de Semilleros de Investigación Cauca INNOVA 2026
           </strong>
           .
         </p>
@@ -70,7 +70,7 @@ export function ComprobanteExito({
           </h2>
 
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-lg bg-[#10384f]/5 p-3">
+            <div className="rounded-xl border border-[#10384f]/10 bg-[#10384f]/5 p-4">
               <span className="block font-semibold text-[#10384f]/60">
                 Institución Educativa:
               </span>
@@ -85,7 +85,7 @@ export function ComprobanteExito({
               </span>
             </div>
 
-            <div className="rounded-lg bg-[#10384f]/5 p-3">
+            <div className="rounded-xl border border-[#10384f]/10 bg-[#10384f]/5 p-4">
               <span className="block font-semibold text-[#10384f]/60">
                 Semillero de Investigación:
               </span>
@@ -98,7 +98,7 @@ export function ComprobanteExito({
             </div>
           </div>
 
-          <div className="mt-4 rounded-lg bg-[#10384f]/5 p-3">
+          <div className="mt-4 rounded-xl border border-[#10384f]/10 bg-[#10384f]/5 p-4">
             <span className="block font-semibold text-[#10384f]/60 mb-2">
               Equipo de 3 Estudiantes Participantes:
             </span>
@@ -119,8 +119,8 @@ export function ComprobanteExito({
             </ol>
           </div>
 
-          <div className="mt-4 rounded-lg bg-[#10384f]/5 p-3">
-            <span className="block font-semibold text-[#10384f]/60 mb-1">
+          <div className="mt-4 rounded-xl border border-[#10384f]/10 bg-[#10384f]/5 p-4">
+            <span className="block font-semibold text-[#10384f]/60 mb-1.5">
               Documentos de Soporte Verificados:
             </span>
             <ul className="grid gap-1 sm:grid-cols-2 text-[11px] text-[#006b5c] font-medium">
@@ -136,7 +136,7 @@ export function ComprobanteExito({
             </ul>
           </div>
 
-          <div className="mt-6 rounded-lg border border-[#006b5c]/20 bg-[#006b5c]/5 p-4 text-[11px] leading-relaxed text-[#10384f]/80">
+          <div className="mt-6 rounded-xl border border-[#006b5c]/20 bg-[#006b5c]/5 p-4 sm:p-5 text-xs leading-relaxed text-[#10384f]/80">
             <p>
               <strong>Siguientes pasos:</strong> El comité técnico verificará el
               cumplimiento estricto de requisitos habilitantes. En caso de
@@ -154,14 +154,14 @@ export function ComprobanteExito({
           <button
             type="button"
             onClick={handleImprimir}
-            className="inline-flex items-center gap-2 rounded-lg bg-[#10384f] px-6 py-3 text-sm font-bold text-[#f5f4ec] shadow-sm transition hover:bg-[#006b5c]"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#10384f] px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-[#f5f4ec] shadow-sm transition hover:bg-[#006b5c]"
           >
             <span aria-hidden="true">🖨️</span> Imprimir Comprobante Oficial
           </button>
 
           <a
             href="/"
-            className="inline-flex items-center gap-2 rounded-lg border border-[#10384f]/30 bg-white px-6 py-3 text-sm font-bold text-[#10384f] transition hover:bg-[#10384f]/5"
+            className="inline-flex items-center gap-2 rounded-xl border border-[#10384f]/25 bg-white px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-[#10384f] shadow-2xs transition hover:bg-[#10384f]/5"
           >
             ← Volver al Portal Principal
           </a>

@@ -104,8 +104,8 @@ function SelectorArchivo({
   const errorVisible = error || errorLocal;
 
   return (
-    <div className="rounded-xl border border-[#10384f]/15 bg-white/70 p-5 shadow-xs backdrop-blur-xs md:p-6">
-      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+    <div className="rounded-2xl border border-[#10384f]/15 bg-[#faf9f5] p-6 shadow-2xs sm:p-7">
+      <div className="mb-2.5 flex flex-wrap items-baseline justify-between gap-2">
         <label
           htmlFor={id}
           className="block text-xs font-bold uppercase tracking-wider text-[#10384f]"
@@ -119,18 +119,20 @@ function SelectorArchivo({
             </span>
           )}
         </label>
-        <span className="text-[11px] font-medium text-[#10384f]/60">
+        <span className="text-[11px] font-semibold text-[#10384f]/60">
           Máx. 10 MB
         </span>
       </div>
 
-      <p className="mb-4 text-xs text-[#10384f]/70">{descripcion}</p>
+      <p className="mb-5 text-xs leading-relaxed text-[#10384f]/70">
+        {descripcion}
+      </p>
 
       {archivoActual ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#006b5c]/30 bg-[#006b5c]/5 p-3.5">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#006b5c]/30 bg-white p-4 shadow-2xs">
+          <div className="flex items-center gap-3.5">
             <span
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#006b5c] text-sm font-bold text-[#f5f4ec]"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#006b5c] text-xs font-black text-[#f5f4ec]"
               aria-hidden="true"
             >
               {archivoActual.name.endsWith(".pdf") ? "PDF" : "IMG"}
@@ -139,7 +141,7 @@ function SelectorArchivo({
               <p className="truncate text-xs font-bold text-[#10384f]">
                 {archivoActual.name}
               </p>
-              <p className="text-[11px] text-[#10384f]/60">
+              <p className="mt-0.5 text-[11px] text-[#10384f]/60">
                 {formatearTamano(archivoActual.size)}
               </p>
             </div>
@@ -151,7 +153,7 @@ function SelectorArchivo({
               alSeleccionarArchivo(null);
               if (inputRef.current) inputRef.current.value = "";
             }}
-            className="rounded-md border border-rose-200 bg-white px-2.5 py-1 text-xs font-semibold text-rose-600 hover:bg-rose-50"
+            className="rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
           >
             Quitar / Cambiar
           </button>
@@ -161,12 +163,12 @@ function SelectorArchivo({
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 text-center transition-colors ${
+          className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center transition-colors sm:p-10 ${
             arrastrando
               ? "border-[#006b5c] bg-[#006b5c]/10"
               : errorVisible
                 ? "border-rose-400 bg-rose-50/30"
-                : "border-[#10384f]/20 bg-white/50 hover:border-[#006b5c]/50 hover:bg-white"
+                : "border-[#10384f]/20 bg-white/70 hover:border-[#006b5c]/50 hover:bg-white"
           }`}
         >
           <input
@@ -180,11 +182,11 @@ function SelectorArchivo({
             aria-describedby={errorVisible ? `error-${id}` : undefined}
           />
 
-          <span className="mb-2 text-2xl text-[#006b5c]" aria-hidden="true">
+          <span className="mb-3 text-3xl text-[#006b5c]" aria-hidden="true">
             📄
           </span>
 
-          <p className="text-xs font-bold text-[#10384f]">
+          <p className="text-xs font-bold text-[#10384f] sm:text-sm">
             Arrastra el archivo aquí o{" "}
             <button
               type="button"
@@ -195,7 +197,9 @@ function SelectorArchivo({
             </button>
           </p>
 
-          <p className="mt-1 text-[11px] text-[#10384f]/60">{formatosTexto}</p>
+          <p className="mt-2 text-[11px] leading-relaxed text-[#10384f]/60 sm:text-xs">
+            {formatosTexto}
+          </p>
         </div>
       )}
 
@@ -237,11 +241,11 @@ export function Paso4Documentos({
 
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-black tracking-tight text-[#10384f] md:text-3xl">
+      <div className="mb-6 sm:mb-8">
+        <h2 className="font-sans text-xl font-bold tracking-tight text-[#10384f] sm:text-2xl">
           Documentos de Soporte Requeridos
         </h2>
-        <p className="mt-2 text-sm text-[#10384f]/80 md:text-base">
+        <p className="mt-2 text-sm leading-relaxed text-[#10384f]/75 sm:text-base">
           Adjunta los soportes digitales en formato PDF o imagen legible. El
           tamaño máximo por cada archivo es de 10 MB.
         </p>
@@ -249,16 +253,16 @@ export function Paso4Documentos({
 
       {/* Alerta de menores de edad */}
       {hayMenoresDeEdad ? (
-        <div className="rounded-xl border-2 border-amber-500/80 bg-amber-50/90 p-5 text-[#10384f] shadow-xs">
-          <div className="flex items-start gap-3">
-            <span className="text-2xl" aria-hidden="true">
+        <div className="rounded-2xl border-2 border-amber-500/80 bg-amber-50/90 p-5 text-[#10384f] shadow-xs sm:p-6">
+          <div className="flex items-start gap-3.5">
+            <span className="text-2xl shrink-0" aria-hidden="true">
               ⚠️
             </span>
             <div>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-amber-900">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-amber-900 sm:text-base">
                 Atención: Autorización de Menores Obligatoria
               </h3>
-              <p className="mt-1 text-xs leading-relaxed text-amber-900/90 md:text-sm">
+              <p className="mt-1.5 text-xs leading-relaxed text-amber-900/90 sm:text-sm">
                 Has registrado uno o más integrantes menores de 18 años. De
                 acuerdo con la legislación colombiana y los Términos de
                 Referencia, es <strong>estrictamente obligatorio</strong>{" "}
@@ -269,7 +273,7 @@ export function Paso4Documentos({
           </div>
         </div>
       ) : (
-        <div className="rounded-lg border border-[#10384f]/15 bg-[#10384f]/5 p-4 text-xs text-[#10384f]/80">
+        <div className="rounded-xl border border-[#10384f]/15 bg-[#10384f]/5 p-4 text-xs leading-relaxed text-[#10384f]/80 sm:text-sm">
           ℹ️ Todos los integrantes registrados son mayores de edad. La
           autorización de acudientes no es obligatoria para este semillero.
         </div>
@@ -291,18 +295,18 @@ export function Paso4Documentos({
         />
 
         {/* 2. Documentos de Identidad */}
-        <div className="space-y-4 rounded-2xl border border-[#10384f]/15 bg-[#f5f4ec]/50 p-5 md:p-6">
-          <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[#006b5c]">
+        <div className="space-y-5 rounded-2xl border border-[#10384f]/15 bg-white p-6 shadow-2xs sm:p-7">
+          <div className="border-b border-[#10384f]/10 pb-3">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-[#006b5c] sm:text-base">
               2. Documentos de Identidad de los 3 Estudiantes
             </h3>
-            <p className="mt-1 text-xs text-[#10384f]/70">
+            <p className="mt-1 text-xs leading-relaxed text-[#10384f]/70">
               Adjunta copia legible por ambas caras en PDF o imagen de cada
               integrante.
             </p>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-3">
             <SelectorArchivo
               id="doc_identidad_1"
               titulo={`Doc. Integrante 1 (${datos.integrantes[0].nombres_apellidos || "Estudiante 1"})`}

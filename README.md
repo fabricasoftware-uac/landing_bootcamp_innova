@@ -1,9 +1,9 @@
-# Cauca INNOVA · Festival de Semilleros de Investigación 2026
+# Cauca INNOVA · Bootcamp de Semilleros de Investigación 2026
 
-Plataforma oficial de divulgación, postulación en línea y evaluación técnica para el **Festival de Semilleros de Investigación Cauca INNOVA**, convocado por la **Gobernación del Cauca** (Secretaría de Desarrollo Económico y Competitividad) en alianza con la **Corporación Universitaria Autónoma del Cauca (Uniautónoma)**.
+Plataforma oficial de divulgación, postulación en línea y evaluación técnica para el **Bootcamp de Semilleros de Investigación Cauca INNOVA**, convocado por la **Gobernación del Cauca** (Secretaría de Desarrollo Económico y Competitividad) en alianza con la **Corporación Universitaria Autónoma del Cauca (Uniautónoma)**.
 
 * **Fecha Oficial del Evento:** 15 de noviembre de 2026 (Jornada única presencial de formación, mentoría y prototipado).
-* **Cupos Convocatoria:** 7 semilleros de investigación seleccionados (21 estudiantes participantes en total, 3 por equipo).
+* **Cupos Convocatoria:** 6 semilleros de investigación seleccionados (18 estudiantes participantes en total, 3 por equipo).
 * **Público Objetivo:** Estudiantes activos de colegios (Educación Básica y Media) y universidades o tecnológicos (Educación Superior) del departamento del Cauca.
 
 ---

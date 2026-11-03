@@ -531,7 +531,7 @@ export function ExpedienteModal({
                     <option value="habilitado">Habilitado (Cumple TDR)</option>
                     <option value="no_habilitado">No Habilitado</option>
                     <option value="seleccionado">
-                      Seleccionado (Cupo oficial 1 de los 7)
+                      Seleccionado (Cupo oficial 1 de los 6)
                     </option>
                   </select>
                 </div>

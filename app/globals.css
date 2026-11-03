@@ -1,4 +1,5 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
+/* v2.1 - layout and typography scope fix */
 @font-face {
   font-family: Anton;
   src: url("/fonts/anton/Anton-Regular.ttf") format("truetype");
@@ -61,32 +62,33 @@ h3,
 p {
   margin: 0;
 }
-h1,
-h2 {
+.site-shell h1,
+.site-shell h2 {
   font-family: var(--display);
   font-weight: 400;
   letter-spacing: -0.025em;
   line-height: 1.02;
 }
-h2 {
+.site-shell h2 {
   font-size: clamp(48px, 6.5vw, 110px);
 }
-h3 {
+.site-shell h3 {
   font-size: clamp(25px, 2.5vw, 40px);
   line-height: 1.12;
   letter-spacing: -0.04em;
 }
-em {
+.site-shell em {
   font-style: normal;
   color: var(--teal);
 }
-img {
-  display: block;
-  max-width: 100%;
-  height: auto;
-}
-button {
+.site-shell button {
   border: 0;
+}
+@layer base {
+  img {
+    display: block;
+    max-width: 100%;
+  }
 }
 small,
 .caption {

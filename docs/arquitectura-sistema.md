@@ -1,10 +1,10 @@
 # Arquitectura Integral del Sistema
-## Festival de Semilleros de Investigación Cauca INNOVA 2026
+## Bootcamp de Semilleros de Investigación Cauca INNOVA 2026
 
 **Documento:** Especificación Técnica de Arquitectura, Modelo de Datos, Seguridad y Transaccionalidad.  
 **Fecha de Publicación:** 28 de octubre de 2026.  
 **Fecha del Evento Oficial:** 15 de noviembre de 2026 (Jornada única presencial).  
-**Capacidad Oficial:** 7 semilleros de investigación seleccionados (21 estudiantes participantes en total).  
+**Capacidad Oficial:** 6 semilleros de investigación seleccionados (18 estudiantes participantes en total).  
 
 ---
 
@@ -388,7 +388,7 @@ El sistema fue diseñado en concordancia con el marco jurídico colombiano de pr
 
 ### 5.1 Ley Estatutaria 1581 de 2012 y Decreto 1377 de 2013 (Habeas Data)
 * **Consentimiento Expreso:** En el Paso 5 del formulario (`paso-5-revision-terminos.tsx`), el aspirante debe marcar de forma obligatoria e informada la aceptación de los Términos de Referencia, la Política de Tratamiento de Datos Personales y la Declaración juramentada de veracidad.
-* **Principio de Libertad y Finalidad:** Los datos recaudados (identificación, teléfonos, correos y filiación académica) se utilizan exclusivamente para los fines logísticos y de evaluación del Festival Cauca INNOVA 2026.
+* **Principio de Libertad y Finalidad:** Los datos recaudados (identificación, teléfonos, correos y filiación académica) se utilizan exclusivamente para los fines logísticos y de evaluación del Bootcamp Cauca INNOVA 2026.
 
 ### 5.2 Código de la Infancia y la Adolescencia (Ley 1098 de 2006)
 * **Detección Automática de Menores de Edad:**  

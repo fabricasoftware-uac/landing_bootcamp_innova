@@ -84,7 +84,7 @@ export function MetricasDashboard({ metricas }: MetricasDashboardProps) {
         </div>
       </div>
 
-      {/* 4. Cupos Ocupados (7 Equipos Oficiales TDR) */}
+      {/* 4. Cupos Ocupados (6 Equipos Oficiales TDR) */}
       <div className="rounded-xl border-2 border-[#10384f] bg-[#10384f] p-5 text-[#f5f4ec] shadow-sm">
         <div className="flex items-center justify-between text-[#d1ef3d]">
           <span className="text-xs font-bold uppercase tracking-wider">

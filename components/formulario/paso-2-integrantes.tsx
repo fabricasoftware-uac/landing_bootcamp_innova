@@ -57,11 +57,11 @@ export function Paso2Integrantes({
 
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-black tracking-tight text-[#10384f] md:text-3xl">
+      <div className="mb-6 sm:mb-8">
+        <h2 className="font-sans text-xl font-bold tracking-tight text-[#10384f] sm:text-2xl">
           Equipo de Tres Estudiantes
         </h2>
-        <p className="mt-2 text-sm text-[#10384f]/80 md:text-base">
+        <p className="mt-2 text-sm leading-relaxed text-[#10384f]/75 sm:text-base">
           De acuerdo con los Términos de Referencia, el equipo debe estar
           integrado por <strong>exactamente 3 estudiantes</strong> vinculados al
           semillero y matriculados en una institución del Cauca.
@@ -70,7 +70,7 @@ export function Paso2Integrantes({
 
       {errores.integrantes && (
         <div
-          className="rounded-lg border border-rose-300 bg-rose-50 p-4 text-sm font-semibold text-rose-800"
+          className="rounded-xl border border-rose-300 bg-rose-50 p-4 text-sm font-semibold text-rose-800"
           role="alert"
         >
           {errores.integrantes}
@@ -78,10 +78,7 @@ export function Paso2Integrantes({
       )}
 
       {hayMenoresDeEdad && (
-        <div className="flex items-start gap-3 rounded-lg border border-[#006b5c]/30 bg-[#006b5c]/10 p-4 text-sm text-[#10384f]">
-          <span className="text-lg" aria-hidden="true">
-            ℹ️
-          </span>
+        <div className="flex items-start gap-3.5 rounded-2xl border border-[#006b5c]/30 bg-[#006b5c]/10 p-5 text-sm text-[#10384f] leading-relaxed">
           <p>
             Has indicado que uno o más integrantes son menores de 18 años. En el{" "}
             <strong>Paso 4 (Documentos)</strong> se habilitará con carácter
@@ -102,23 +99,25 @@ export function Paso2Integrantes({
           return (
             <div
               key={indice}
-              className="rounded-xl border border-[#10384f]/15 bg-white/70 p-5 shadow-xs backdrop-blur-xs md:p-7"
+              className="rounded-2xl border border-[#10384f]/15 bg-[#faf9f5] p-6 shadow-2xs sm:p-7 md:p-8"
             >
-              <div className="mb-5 flex flex-wrap items-center justify-between gap-2 border-b border-[#10384f]/10 pb-3">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#10384f] text-xs font-bold text-[#d1ef3d]">
+              <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#10384f]/10 pb-4">
+                <div className="flex items-center gap-3.5">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#10384f] text-xs font-black text-[#d1ef3d]">
                     0{indice + 1}
                   </span>
                   <div>
-                    <h3 className="text-base font-bold text-[#10384f]">
+                    <h3 className="text-base font-extrabold text-[#10384f]">
                       {info.label}
                     </h3>
-                    <p className="text-xs text-[#10384f]/60">{info.desc}</p>
+                    <p className="mt-0.5 text-xs text-[#10384f]/60">
+                      {info.desc}
+                    </p>
                   </div>
                 </div>
 
                 {/* Switch menor de edad */}
-                <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-[#10384f]/20 bg-white px-3 py-1 text-xs font-semibold text-[#10384f] transition-colors hover:border-[#10384f]/40">
+                <label className="inline-flex cursor-pointer items-center gap-2.5 rounded-full border border-[#10384f]/20 bg-white px-3.5 py-1.5 text-xs font-semibold text-[#10384f] shadow-2xs transition-colors hover:border-[#10384f]/40 hover:bg-[#f5f4ec]">
                   <input
                     type="checkbox"
                     checked={integrante.es_menor_edad}
@@ -135,12 +134,12 @@ export function Paso2Integrantes({
                 </label>
               </div>
 
-              <div className="grid gap-5 md:grid-cols-2">
+              <div className="grid gap-6 md:grid-cols-2">
                 {/* Nombres y Apellidos */}
                 <div className="md:col-span-2">
                   <label
                     htmlFor={`integrante_${indice}_nombres`}
-                    className="block text-xs font-bold uppercase tracking-wider text-[#10384f]"
+                    className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#10384f]"
                   >
                     Nombres y Apellidos Completos{" "}
                     <span className="text-rose-600">*</span>
@@ -158,10 +157,10 @@ export function Paso2Integrantes({
                       )
                     }
                     placeholder="Ej: Sofia Valentina Muñoz Burbano"
-                    className={`mt-2 w-full rounded-md border px-4 py-2.5 text-sm text-[#10384f] placeholder:text-[#10384f]/40 focus:outline-hidden focus:ring-2 ${
+                    className={`w-full rounded-xl border px-4 py-3 text-sm text-[#10384f] placeholder:text-[#10384f]/40 transition focus:outline-hidden focus:ring-2 ${
                       getError(indice, "nombres_apellidos")
                         ? "border-rose-500 bg-rose-50/50 focus:ring-rose-500"
-                        : "border-[#10384f]/25 bg-white focus:border-[#006b5c] focus:ring-[#006b5c]"
+                        : "border-[#10384f]/20 bg-white focus:border-[#006b5c] focus:ring-[#006b5c]"
                     }`}
                     aria-invalid={Boolean(
                       getError(indice, "nombres_apellidos"),
@@ -169,7 +168,7 @@ export function Paso2Integrantes({
                   />
                   {getError(indice, "nombres_apellidos") && (
                     <p
-                      className="mt-1 text-xs font-semibold text-rose-600"
+                      className="mt-1.5 text-xs font-semibold text-rose-600"
                       role="alert"
                     >
                       {getError(indice, "nombres_apellidos")}
@@ -181,7 +180,7 @@ export function Paso2Integrantes({
                 <div>
                   <label
                     htmlFor={`integrante_${indice}_tipo_doc`}
-                    className="block text-xs font-bold uppercase tracking-wider text-[#10384f]"
+                    className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#10384f]"
                   >
                     Tipo de Documento <span className="text-rose-600">*</span>
                   </label>
@@ -195,7 +194,7 @@ export function Paso2Integrantes({
                         e.target.value as TipoDocumentoIdentidad,
                       )
                     }
-                    className="mt-2 w-full rounded-md border border-[#10384f]/25 bg-white px-4 py-2.5 text-sm text-[#10384f] focus:border-[#006b5c] focus:outline-hidden focus:ring-2 focus:ring-[#006b5c]"
+                    className="w-full rounded-xl border border-[#10384f]/20 bg-white px-4 py-3 text-sm text-[#10384f] focus:border-[#006b5c] focus:outline-hidden focus:ring-2 focus:ring-[#006b5c] transition"
                   >
                     {TIPOS_DOCUMENTO_IDENTIDAD.map((tipo) => (
                       <option key={tipo} value={tipo}>
@@ -215,7 +214,7 @@ export function Paso2Integrantes({
                 <div>
                   <label
                     htmlFor={`integrante_${indice}_numero_doc`}
-                    className="block text-xs font-bold uppercase tracking-wider text-[#10384f]"
+                    className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#10384f]"
                   >
                     Número de Documento <span className="text-rose-600">*</span>
                   </label>
@@ -232,16 +231,16 @@ export function Paso2Integrantes({
                       )
                     }
                     placeholder="Ej: 1061789456"
-                    className={`mt-2 w-full rounded-md border px-4 py-2.5 text-sm text-[#10384f] placeholder:text-[#10384f]/40 focus:outline-hidden focus:ring-2 ${
+                    className={`w-full rounded-xl border px-4 py-3 text-sm text-[#10384f] placeholder:text-[#10384f]/40 transition focus:outline-hidden focus:ring-2 ${
                       getError(indice, "numero_documento")
                         ? "border-rose-500 bg-rose-50/50 focus:ring-rose-500"
-                        : "border-[#10384f]/25 bg-white focus:border-[#006b5c] focus:ring-[#006b5c]"
+                        : "border-[#10384f]/20 bg-white focus:border-[#006b5c] focus:ring-[#006b5c]"
                     }`}
                     aria-invalid={Boolean(getError(indice, "numero_documento"))}
                   />
                   {getError(indice, "numero_documento") && (
                     <p
-                      className="mt-1 text-xs font-semibold text-rose-600"
+                      className="mt-1.5 text-xs font-semibold text-rose-600"
                       role="alert"
                     >
                       {getError(indice, "numero_documento")}
@@ -253,7 +252,7 @@ export function Paso2Integrantes({
                 <div>
                   <label
                     htmlFor={`integrante_${indice}_correo`}
-                    className="block text-xs font-bold uppercase tracking-wider text-[#10384f]"
+                    className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#10384f]"
                   >
                     Correo Electrónico <span className="text-rose-600">*</span>
                   </label>
@@ -270,10 +269,10 @@ export function Paso2Integrantes({
                       )
                     }
                     placeholder="estudiante@correo.com"
-                    className={`mt-2 w-full rounded-md border px-4 py-2.5 text-sm text-[#10384f] placeholder:text-[#10384f]/40 focus:outline-hidden focus:ring-2 ${
+                    className={`w-full rounded-xl border px-4 py-3 text-sm text-[#10384f] placeholder:text-[#10384f]/40 transition focus:outline-hidden focus:ring-2 ${
                       getError(indice, "correo_electronico")
                         ? "border-rose-500 bg-rose-50/50 focus:ring-rose-500"
-                        : "border-[#10384f]/25 bg-white focus:border-[#006b5c] focus:ring-[#006b5c]"
+                        : "border-[#10384f]/20 bg-white focus:border-[#006b5c] focus:ring-[#006b5c]"
                     }`}
                     aria-invalid={Boolean(
                       getError(indice, "correo_electronico"),
@@ -281,7 +280,7 @@ export function Paso2Integrantes({
                   />
                   {getError(indice, "correo_electronico") && (
                     <p
-                      className="mt-1 text-xs font-semibold text-rose-600"
+                      className="mt-1.5 text-xs font-semibold text-rose-600"
                       role="alert"
                     >
                       {getError(indice, "correo_electronico")}
@@ -293,7 +292,7 @@ export function Paso2Integrantes({
                 <div>
                   <label
                     htmlFor={`integrante_${indice}_telefono`}
-                    className="block text-xs font-bold uppercase tracking-wider text-[#10384f]"
+                    className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#10384f]"
                   >
                     Teléfono Celular <span className="text-rose-600">*</span>
                   </label>
@@ -306,16 +305,16 @@ export function Paso2Integrantes({
                       actualizarIntegrante(indice, "telefono", e.target.value)
                     }
                     placeholder="312 456 7890"
-                    className={`mt-2 w-full rounded-md border px-4 py-2.5 text-sm text-[#10384f] placeholder:text-[#10384f]/40 focus:outline-hidden focus:ring-2 ${
+                    className={`w-full rounded-xl border px-4 py-3 text-sm text-[#10384f] placeholder:text-[#10384f]/40 transition focus:outline-hidden focus:ring-2 ${
                       getError(indice, "telefono")
                         ? "border-rose-500 bg-rose-50/50 focus:ring-rose-500"
-                        : "border-[#10384f]/25 bg-white focus:border-[#006b5c] focus:ring-[#006b5c]"
+                        : "border-[#10384f]/20 bg-white focus:border-[#006b5c] focus:ring-[#006b5c]"
                     }`}
                     aria-invalid={Boolean(getError(indice, "telefono"))}
                   />
                   {getError(indice, "telefono") && (
                     <p
-                      className="mt-1 text-xs font-semibold text-rose-600"
+                      className="mt-1.5 text-xs font-semibold text-rose-600"
                       role="alert"
                     >
                       {getError(indice, "telefono")}

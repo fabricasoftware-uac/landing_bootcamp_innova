@@ -415,14 +415,14 @@ export function FormularioPostulacion() {
       </div>
 
       {/* Barra de controles de navegación */}
-      <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-[#10384f]/15 pt-6">
+      <div className="mt-10 sm:mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-[#10384f]/15 pt-6 sm:pt-8">
         <div>
           {pasoActual > 1 ? (
             <button
               type="button"
               disabled={isPending}
               onClick={retrocederPaso}
-              className="inline-flex items-center gap-2 rounded-lg border border-[#10384f]/30 bg-white px-5 py-3 text-xs font-bold uppercase tracking-wider text-[#10384f] transition hover:bg-[#10384f]/5 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl border border-[#10384f]/25 bg-white px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-[#10384f] shadow-2xs transition hover:bg-[#10384f]/5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               ← Anterior
             </button>
@@ -441,17 +441,18 @@ export function FormularioPostulacion() {
             <button
               type="button"
               onClick={avanzarPaso}
-              className="inline-flex items-center gap-3 rounded-lg bg-[#10384f] px-7 py-3 text-xs font-bold uppercase tracking-wider text-[#f5f4ec] shadow-sm transition hover:bg-[#006b5c]"
+              className="inline-flex items-center gap-3 rounded-xl bg-[#10384f] px-7 py-3.5 text-xs font-bold uppercase tracking-wider shadow-sm transition hover:bg-[#006b5c]"
             >
-              <span>Continuar al Paso {pasoActual + 1}</span>
-              <span aria-hidden="true">→</span>
+              <span className="text-amber-50">
+                Continuar al Paso {pasoActual + 1}
+              </span>
             </button>
           ) : (
             <button
               type="button"
               disabled={isPending}
               onClick={manejarEnvio}
-              className="inline-flex items-center gap-3 rounded-lg bg-[#006b5c] px-8 py-3.5 text-sm font-black uppercase tracking-wider text-[#d1ef3d] shadow-md transition hover:bg-[#10384f] hover:text-[#f5f4ec] disabled:cursor-wait disabled:opacity-75"
+              className="inline-flex items-center gap-3 rounded-xl bg-[#006b5c] px-8 py-3.5 text-sm font-black uppercase tracking-wider text-[#d1ef3d] shadow-md transition hover:bg-[#10384f] hover:text-[#f5f4ec] disabled:cursor-wait disabled:opacity-75"
             >
               {isPending ? (
                 <>

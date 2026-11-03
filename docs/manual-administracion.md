@@ -1,16 +1,16 @@
 # Manual Operativo de Administración y Evaluación
-## Festival de Semilleros de Investigación Cauca INNOVA 2026
+## Bootcamp de Semilleros de Investigación Cauca INNOVA 2026
 
 **Entidades Convocantes:** Gobernación del Cauca (Secretaría de Desarrollo Económico y Competitividad) en alianza académica con la Corporación Universitaria Autónoma del Cauca (Uniautónoma).  
 **Fecha Oficial del Evento:** 15 de noviembre de 2026 (Jornada única presencial intensiva de co-creación y prototipado).  
-**Cupos Convocatoria:** 7 equipos de semilleros seleccionados (exactamente 3 estudiantes y 1 docente tutor por equipo, 21 participantes en total).  
+**Cupos Convocatoria:** 6 equipos de semilleros seleccionados (exactamente 3 estudiantes y 1 docente tutor por equipo, 18 participantes en total).  
 **Módulo Web:** Panel Administrativo y de Evaluación Técnica (`/admin`).
 
 ---
 
 ## 1. Introducción y Alcance
 
-Este manual tiene como propósito orientar a los miembros del **Comité Técnico y Evaluadores Oficiales** en el uso integral de la plataforma de evaluación y gestión de postulaciones del **Festival Cauca INNOVA 2026**. 
+Este manual tiene como propósito orientar a los miembros del **Comité Técnico y Evaluadores Oficiales** en el uso integral de la plataforma de evaluación y gestión de postulaciones del **Bootcamp Cauca INNOVA 2026**. 
 
 El sistema proporciona una interfaz centralizada, segura y reactiva que permite:
 1. Monitorear el progreso de la convocatoria en tiempo real mediante indicadores clave de rendimiento (KPIs).
@@ -49,14 +49,14 @@ Para terminar su jornada de trabajo y garantizar que no queden sesiones abiertas
 
 ---
 
-## 3. Tablero de Control y Métricas del Festival
+## 3. Tablero de Control y Métricas del Bootcamp
 
 En la parte superior del panel se despliega el componente de **Métricas Consolidadas** (`MetricasDashboard`), el cual resume el estado del proceso de selección:
 
 ```
 ┌─────────────────────────┬─────────────────────────┬─────────────────────────┬─────────────────────────┐
 │   TOTAL POSTULACIONES   │  PENDIENTES DE REVISIÓN │     HABILITADOS TDR     │     CUPOS OFICIALES     │
-│           XX            │           XX            │           XX            │          X / 7          │
+│           XX            │           XX            │           XX            │          X / 6          │
 │ Colegios: X | Univ: X   │ Requieren validación    │   Cumplen requisitos    │   [████████░░░░] %      │
 └─────────────────────────┴─────────────────────────┴─────────────────────────┴─────────────────────────┘
 ```
@@ -67,7 +67,7 @@ En la parte superior del panel se despliega el componente de **Métricas Consoli
   * **Educación Superior:** Universidades, instituciones tecnológicas o técnicas del departamento.
 * **Pendientes de Revisión:** Postulaciones en estado `pendiente` que aún no han sido dictaminadas por el comité evaluador o que requieren validación de su aval institucional.
 * **Habilitados TDR:** Postulaciones que cumplen con la totalidad de los requisitos de participación y documentación exigida en los TDR.
-* **Cupos Oficiales (7 Equipos TDR 2026):** Indicador visual con barra de progreso que refleja el número de equipos en estado `seleccionado` frente al límite estricto de **7 cupos** (21 estudiantes en total) estipulados para el Festival del **15 de noviembre de 2026**.
+* **Cupos Oficiales (6 Equipos TDR 2026):** Indicador visual con barra de progreso que refleja el número de equipos en estado `seleccionado` frente al límite estricto de **6 cupos** (18 estudiantes en total) estipulados para el Bootcamp del **15 de noviembre de 2026**.
 
 ---
 
@@ -89,7 +89,7 @@ El menú desplegable **"Todos los Estados"** permite segmentar el listado según
 * `Pendientes`: Equipos recién radicados en espera de calificación.
 * `Habilitados`: Equipos aprobados en fase documental que pueden ser ponderados.
 * `No Habilitados`: Equipos que no presentaron aval o incumplieron requisitos de elegibilidad.
-* `Seleccionados (7 cupos)`: Los 7 semilleros elegidos formalmente para asistir al Festival el 15 de noviembre.
+* `Seleccionados (6 cupos)`: Los 6 semilleros elegidos formalmente para asistir al Bootcamp el 15 de noviembre.
 
 ### 4.3 Filtro por Nivel Formativo
 Permite filtrar entre:
@@ -169,7 +169,7 @@ Seleccione el dictamen formal en el menú **"Asignar Estado de Postulación"**:
 1. `Pendiente de revisión`: Aún en estudio.
 2. `Habilitado (Cumple TDR)`: Aprobó requisitos y cuenta con puntaje asignado.
 3. `No Habilitado`: Rechazado por inconsistencia documental o incumplimiento de TDR.
-4. `Seleccionado (Cupo oficial 1 de los 7)`: Asignado oficialmente como uno de los 7 equipos que asistirán a la jornada presencial del **15 de noviembre de 2026**.
+4. `Seleccionado (Cupo oficial 1 de los 6)`: Asignado oficialmente como uno de los 6 equipos que asistirán a la jornada presencial del **15 de noviembre de 2026**.
 
 Por último, haga clic en **"Guardar Calificación y Estado ✓"**. El sistema actualizará la base de datos de inmediato y refrescará el tablero de métricas.
 
@@ -243,4 +243,4 @@ Contiene el informe de dictamen técnico del comité evaluador con 10 columnas:
   * Solución: Asegúrese de usar el correo institucional exacto y sin espacios adicionales.
 * **El botón de Exportar a Excel no descarga el archivo**:
   * Causa: Bloqueador de ventanas emergentes o descargas automáticas en el navegador.
-  * Solución: Autorice las descargas desde el dominio del festival en la barra de direcciones de su navegador web.
+  * Solución: Autorice las descargas desde el dominio del bootcamp en la barra de direcciones de su navegador web.

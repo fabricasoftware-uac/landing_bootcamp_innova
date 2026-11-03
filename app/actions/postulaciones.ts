@@ -7,6 +7,7 @@ import {
   parseBooleanValue,
   sanitizeFileName,
 } from "@/lib/utils/formatters";
+import { optimizarPdf } from "@/lib/utils/optimizar-pdf";
 import {
   type ActionResult,
   type PostulacionCompletaInput,
@@ -212,16 +213,25 @@ export async function crearPostulacionAction(
 
     const documentosSubidos: UploadedDocumentRecord[] = [];
 
-    // Subir cada archivo a Supabase Storage con prefijo único sanitizado
+    // Subir cada archivo a Supabase Storage con prefijo único sanitizado y optimización de PDF
     for (const item of archivosPorSubir) {
       const ext = getFileExtension(item.file);
       const storagePath = `${radicadoTemporal}/${item.tipo}_${timestamp}.${ext}`;
-      const fileBuffer = Buffer.from(await item.file.arrayBuffer());
+      const rawBuffer = Buffer.from(await item.file.arrayBuffer());
+      let fileBuffer: Buffer = rawBuffer;
+      let finalSize = item.file.size;
+
+      // Optimizar y empaquetar flujos de objetos si es PDF
+      if (item.file.type === "application/pdf" || ext.toLowerCase() === "pdf") {
+        const optimizado = await optimizarPdf(rawBuffer);
+        fileBuffer = optimizado.buffer;
+        finalSize = optimizado.tamanoFinal;
+      }
 
       const { error: uploadError } = await adminClient.storage
         .from("postulaciones_docs")
         .upload(storagePath, fileBuffer, {
-          contentType: item.file.type,
+          contentType: item.file.type || "application/pdf",
           upsert: false,
         });
 
@@ -238,8 +248,8 @@ export async function crearPostulacionAction(
         nombre_original: sanitizeFileName(
           item.file.name || `${item.tipo}.${ext}`,
         ),
-        tamano_bytes: item.file.size,
-        mime_type: item.file.type,
+        tamano_bytes: finalSize,
+        mime_type: item.file.type || "application/pdf",
       });
     }
 
