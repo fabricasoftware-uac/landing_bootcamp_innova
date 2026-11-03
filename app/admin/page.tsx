@@ -26,29 +26,44 @@ export default function AdminPage() {
 
   // 1. Verificar sesión existente con Supabase Auth
   useEffect(() => {
-    const supabase = createClient();
+    let unsubscribeFn: (() => void) | null = null;
 
-    const verificarSesion = async () => {
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+    try {
+      const supabase = createClient();
+
+      const verificarSesion = async () => {
+        try {
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+          setAutenticado(Boolean(session));
+        } catch {
+          setAutenticado(false);
+        }
+      };
+
+      verificarSesion();
+
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
         setAutenticado(Boolean(session));
-      } catch {
-        setAutenticado(false);
-      }
-    };
-
-    verificarSesion();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setAutenticado(Boolean(session));
-    });
+      });
+      unsubscribeFn = () => subscription.unsubscribe();
+    } catch (err) {
+      console.error("Error al inicializar sesión admin:", err);
+      setAutenticado(false);
+      setErrorCarga(
+        err instanceof Error
+          ? err.message
+          : "Error de configuración de Supabase en este entorno.",
+      );
+    }
 
     return () => {
-      subscription.unsubscribe();
+      if (unsubscribeFn) {
+        unsubscribeFn();
+      }
     };
   }, []);
 
@@ -89,8 +104,12 @@ export default function AdminPage() {
   }, [autenticado, cargarPostulaciones]);
 
   const handleCerrarSesion = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error("Error cerrando sesión:", err);
+    }
     setAutenticado(false);
     setPostulaciones([]);
     setMetricas(null);
@@ -131,6 +150,18 @@ export default function AdminPage() {
             </a>
           </div>
         </header>
+
+        {errorCarga && (
+          <div className="mx-auto mt-6 max-w-md px-4">
+            <div className="rounded-xl border border-rose-300 bg-rose-50 p-4 text-xs font-semibold text-rose-800 shadow-sm">
+              <div className="flex items-center gap-2 font-bold uppercase tracking-wider">
+                <span>⚠️</span> Configuración requerida
+              </div>
+              <p className="mt-1">{errorCarga}</p>
+            </div>
+          </div>
+        )}
+
         <AuthAdmin alAutenticar={() => setAutenticado(true)} />
       </div>
     );

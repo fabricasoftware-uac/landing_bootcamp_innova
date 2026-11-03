@@ -126,7 +126,9 @@ export function AuthAdmin({ alAutenticar }: AuthAdminProps) {
                   className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
                   aria-hidden="true"
                 />
-                <span className="text-amber-50">Verificando credenciales...</span>
+                <span className="text-amber-50">
+                  Verificando credenciales...
+                </span>
               </>
             ) : (
               <span className="text-amber-50">Ingresar al Sistema ↗</span>

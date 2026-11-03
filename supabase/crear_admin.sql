@@ -1,22 +1,25 @@
 -- ==============================================================================
--- Creación / Aprovisionamiento de Usuario Administrador en Supabase Auth
--- Proyecto: Bootcamp de Semilleros de Investigación Cauca INNOVA 2026
--- ==============================================================================
--- Este script permite aprovisionar de forma segura un usuario administrador con
--- el rol 'admin' en `app_metadata`, habilitando el acceso a /admin y a las
--- políticas RLS de postulaciones, evaluaciones y documentos privados.
---
--- Ejecuta este script en el SQL Editor de tu Dashboard de Supabase.
+-- Creación / Aprovisionamiento Seguro de Administrador en Supabase Auth
+-- Proyecto: Bootcamp Cauca INNOVA 2026
 -- ==============================================================================
 
+-- 1. Saneamiento de campos NULL en auth.users
+UPDATE auth.users
+SET 
+  confirmation_token = COALESCE(confirmation_token, ''),
+  recovery_token = COALESCE(recovery_token, ''),
+  email_change = COALESCE(email_change, ''),
+  email_change_token_new = COALESCE(email_change_token_new, ''),
+  email_change_token_current = COALESCE(email_change_token_current, ''),
+  reauthentication_token = COALESCE(reauthentication_token, '');
+
+-- 2. Creación / Actualización del usuario administrador
 DO $$
 DECLARE
   v_user_id uuid := gen_random_uuid();
-  -- Configura aquí las credenciales iniciales deseadas:
-  v_email text := 'admin@caucainnova.gov.co';
-  v_password text := 'CaucaInnova2026*';
+  v_email text := 'admin@caucainnova.gov.co';     -- Define aquí tu correo
+  v_password text := 'CaucaInnova2026*';           -- Define aquí tu contraseña
 BEGIN
-  -- 1. Si el usuario no existe, se inserta en auth.users y auth.identities
   IF NOT EXISTS (SELECT 1 FROM auth.users WHERE email = v_email) THEN
     INSERT INTO auth.users (
       instance_id,
@@ -31,7 +34,12 @@ BEGIN
       created_at,
       updated_at,
       confirmation_token,
-      recovery_token
+      recovery_token,
+      email_change_token_new,
+      email_change,
+      email_change_token_current,
+      reauthentication_token,
+      is_super_admin
     ) VALUES (
       '00000000-0000-0000-0000-000000000000',
       v_user_id,
@@ -45,7 +53,12 @@ BEGIN
       now(),
       now(),
       '',
-      ''
+      '',
+      '',
+      '',
+      '',
+      '',
+      false
     );
 
     INSERT INTO auth.identities (
@@ -68,13 +81,19 @@ BEGIN
       now()
     );
 
-    RAISE NOTICE 'Usuario administrador creado exitosamente: %', v_email;
+    RAISE NOTICE 'Administrador creado exitosamente: %', v_email;
   ELSE
-    -- 2. Si el usuario ya existe, asegurar que cuente con el rol 'admin' en app_metadata
     UPDATE auth.users
-    SET raw_app_meta_data = COALESCE(raw_app_meta_data, '{}'::jsonb) || jsonb_build_object('role', 'admin')
+    SET 
+      raw_app_meta_data = COALESCE(raw_app_meta_data, '{}'::jsonb) || jsonb_build_object('role', 'admin'),
+      confirmation_token = COALESCE(confirmation_token, ''),
+      recovery_token = COALESCE(recovery_token, ''),
+      email_change = COALESCE(email_change, ''),
+      email_change_token_new = COALESCE(email_change_token_new, ''),
+      email_change_token_current = COALESCE(email_change_token_current, ''),
+      reauthentication_token = COALESCE(reauthentication_token, '')
     WHERE email = v_email;
 
-    RAISE NOTICE 'Rol admin asignado exitosamente al usuario existente: %', v_email;
+    RAISE NOTICE 'Rol admin asignado exitosamente y campos saneados para: %', v_email;
   END IF;
 END $$;
