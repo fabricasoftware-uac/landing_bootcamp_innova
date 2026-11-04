@@ -13,13 +13,23 @@ import { gsap, ScrollTrigger, useGSAP } from "@/lib/motion";
 
 export function Logo() {
   return (
-    <img
-      className="brand-image"
-      src="/images/redesign/cauca-innova-logo.png"
-      width="280"
-      height="140"
-      alt="Cauca INNOVA"
-    />
+    <div className="brand-lockup">
+      <img
+        className="brand-image"
+        src="/images/redesign/cauca-innova-logo.png"
+        width="280"
+        height="140"
+        alt="Cauca INNOVA"
+      />
+      <span className="brand-divider" aria-hidden="true" />
+      <img
+        className="brand-gov"
+        src="/images/gobernacion-cauca.png"
+        width="137"
+        height="90"
+        alt="Gobernación del Cauca - Secretaría de Desarrollo Económico y Competitividad"
+      />
+    </div>
   );
 }
 const enlaces = [
@@ -80,7 +90,7 @@ export function MarcoSitio({ children }: { children: ReactNode }) {
       }
       const seguridad = window.setTimeout(terminarIntro, 2800);
       const destino = cabecera.current
-        ?.querySelector(".brand-image")
+        ?.querySelector(".brand")
         ?.getBoundingClientRect();
       const origen = entrada.current
         .querySelector(".intro-logo")
@@ -400,19 +410,38 @@ export function MarcoSitio({ children }: { children: ReactNode }) {
             <a href="/postulacion">Inscribir equipo ahora ↗</a>
           </div>
           <div className="footer-baseline">
-            <p>
-              Secretaría de Desarrollo Económico
-              <br />
-              Gobernación del Cauca
-            </p>
+            <div className="footer-institution">
+              <a
+                href="https://www.cauca.gov.co"
+                target="_blank"
+                rel="noreferrer"
+                className="footer-gov-card"
+                title="Gobernación del Cauca - Portal Oficial"
+              >
+                <img
+                  src="/images/gobernacion-cauca.png"
+                  alt="Gobernación del Cauca - Secretaría de Desarrollo Económico y Competitividad"
+                  className="footer-gov-logo"
+                  width="137"
+                  height="90"
+                />
+              </a>
+              <p>
+                Secretaría de Desarrollo Económico
+                <br />
+                <strong>Gobernación del Cauca</strong>
+              </p>
+            </div>
             <a className="back-top" href="#inicio">
               <span aria-hidden="true">↑</span>Volver al inicio
             </a>
-            <p>
-              Uniautónoma
-              <br />
-              del Cauca
-            </p>
+            <div className="footer-institution footer-institution-right">
+              <p>
+                Corporación Universitaria
+                <br />
+                <strong>Autónoma del Cauca</strong>
+              </p>
+            </div>
           </div>
           <button
             className="motion-control"

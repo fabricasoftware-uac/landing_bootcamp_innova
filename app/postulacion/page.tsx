@@ -32,12 +32,19 @@ export default function PostulacionPage() {
             className="flex items-center gap-3 transition hover:opacity-85"
             aria-label="Ir al inicio del Bootcamp Cauca INNOVA"
           >
-            <div className="flex h-8 sm:h-9 items-center">
+            <div className="flex h-8 sm:h-9 items-center gap-2.5 sm:gap-3">
               <img
                 src="/images/redesign/cauca-innova-logo.png"
                 alt="Cauca INNOVA"
                 className="h-8 w-auto object-contain sm:h-8"
                 style={{ maxHeight: "32px", width: "auto" }}
+              />
+              <span className="h-5 w-px bg-[#10384f]/25" aria-hidden="true" />
+              <img
+                src="/images/gobernacion-cauca.png"
+                alt="Gobernación del Cauca - Secretaría de Desarrollo Económico y Competitividad"
+                className="h-7 w-auto object-contain sm:h-8"
+                style={{ maxHeight: "28px", width: "auto" }}
               />
             </div>
           </a>

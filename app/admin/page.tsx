@@ -133,13 +133,21 @@ export default function AdminPage() {
       <div className="min-h-screen bg-[#f5f4ec]">
         <header className="border-b border-[#10384f]/15 bg-white/70 px-6 py-4 backdrop-blur-md">
           <div className="mx-auto flex max-w-6xl items-center justify-between">
-            <a href="/" className="flex items-center gap-2">
+            <a href="/" className="flex items-center gap-3">
               <img
                 src="/images/redesign/cauca-innova-logo.png"
                 width="140"
                 height="70"
                 alt="Cauca INNOVA"
                 className="h-8 w-auto object-contain"
+              />
+              <span className="h-5 w-px bg-[#10384f]/25" aria-hidden="true" />
+              <img
+                src="/images/gobernacion-cauca.png"
+                width="110"
+                height="72"
+                alt="Gobernación del Cauca"
+                className="h-7 w-auto object-contain"
               />
             </a>
             <a
@@ -172,14 +180,26 @@ export default function AdminPage() {
       {/* Cabecera Superior del Panel */}
       <header className="sticky top-0 z-30 border-b border-[#10384f]/15 bg-white/90 px-4 py-3 backdrop-blur-md sm:px-6">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <a href="/" title="Ir a la portada pública">
+          <div className="flex items-center gap-3">
+            <a
+              href="/"
+              title="Ir a la portada pública"
+              className="flex items-center gap-2.5"
+            >
               <img
                 src="/images/redesign/cauca-innova-logo.png"
                 width="140"
                 height="70"
                 alt="Cauca INNOVA"
                 className="h-8 w-auto object-contain"
+              />
+              <span className="h-5 w-px bg-[#10384f]/25" aria-hidden="true" />
+              <img
+                src="/images/gobernacion-cauca.png"
+                width="110"
+                height="72"
+                alt="Gobernación del Cauca"
+                className="h-7 w-auto object-contain"
               />
             </a>
             <div className="hidden sm:block border-l border-[#10384f]/20 pl-4">
