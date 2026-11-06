@@ -6,6 +6,7 @@ import { VideoPerezoso } from "@/components/sitio/video-perezoso";
 import {
   criterios,
   documentos,
+  documentoTerminos,
   paginaTerminos,
   pasosRecorrido,
 } from "@/lib/contenido";
@@ -246,12 +247,12 @@ export function Recorrido() {
           ))}
 
           <div className="recorrido-cierre">
-            <h3>¿Listos?</h3>
-            <a className="boton boton-lima boton-grande" href="/postulacion">
-              Empezar la postulación <span className="flecha">→</span>
+            <h3>Información oficial</h3>
+            <a className="boton boton-lima boton-grande" href={paginaTerminos}>
+              Leer los términos de referencia <span className="flecha">→</span>
             </a>
-            <a className="enlace-banner" href={paginaTerminos}>
-              Leer los términos de referencia
+            <a className="enlace-banner" href={documentoTerminos} download>
+              Descargar documento PDF oficial
             </a>
           </div>
         </div>

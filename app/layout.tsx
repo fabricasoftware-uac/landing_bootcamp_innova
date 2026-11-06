@@ -17,7 +17,7 @@ const museo = localFont({
 export const metadata: Metadata = {
   title: "Bootcamp Cauca INNOVA · Del conocimiento al prototipo",
   description:
-    "14 de noviembre de 2026. Jornada presencial de prototipado para semilleros de colegios y universidades del Cauca: seis equipos de tres estudiantes.",
+    "14 de noviembre de 2026. Jornada presencial de prototipado para semilleros de colegios y universidades del Cauca: siete equipos de tres estudiantes (21 participantes en total). Conoce los requisitos y términos de referencia oficiales.",
 };
 
 export const viewport: Viewport = { themeColor: "#0f3550" };

@@ -30,7 +30,22 @@ export default function PostulacionPage() {
             </h1>
             <p>
               Cinco pasos. Tu avance queda guardado 24 horas en este equipo, sin
-              los documentos.
+              los documentos. Consulta también los{" "}
+              <a
+                href="/terminos-de-referencia"
+                style={{ textDecoration: "underline" }}
+              >
+                términos de referencia
+              </a>{" "}
+              o{" "}
+              <a
+                href="/documentos/terminos-de-referencia.pdf"
+                download
+                style={{ textDecoration: "underline" }}
+              >
+                descarga el PDF oficial
+              </a>
+              .
             </p>
           </header>
           <FormularioPostulacion />

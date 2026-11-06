@@ -167,9 +167,9 @@ export const preguntas = [
 ] as const;
 
 export const cifras = [
-  { valor: "6", etiqueta: "equipos" },
+  { valor: "7", etiqueta: "equipos seleccionados" },
   { valor: "3", etiqueta: "estudiantes por equipo" },
-  { valor: "18", etiqueta: "cupos en total" },
+  { valor: "21", etiqueta: "cupos en total" },
 ] as const;
 
 export const territorios = [

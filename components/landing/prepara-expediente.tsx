@@ -6,7 +6,7 @@ import {
   PiezaCauca,
   SiluetaCauca,
 } from "@/components/sitio/pieza-cauca";
-import { requisitos } from "@/lib/contenido";
+import { paginaTerminos, requisitos } from "@/lib/contenido";
 import { gsap, prefiereMenosMovimiento, useGSAP } from "@/lib/motion";
 import { CAPAS_PIEZA } from "@/lib/pieza-cauca";
 
@@ -95,10 +95,10 @@ export function PreparaExpediente() {
             <a
               className="boton requisitos-accion"
               data-listo={completa ? "" : undefined}
-              href="/postulacion"
+              href={paginaTerminos}
             >
               <SiluetaCauca clase="sello-mapa" />
-              Postular a mi equipo <span className="flecha">→</span>
+              Ver términos de referencia <span className="flecha">→</span>
             </a>
           </div>
         </div>

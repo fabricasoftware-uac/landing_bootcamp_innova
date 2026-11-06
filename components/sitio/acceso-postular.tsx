@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { paginaTerminos } from "@/lib/contenido";
 
-/* Quien solo viene a postularse no debe buscar el botón: pasado el banner, queda bajo el pulgar. */
+/* Botón flotante accesible que acompaña el scroll hacia la información de la convocatoria. */
 export function AccesoPostular() {
   const [visible, setVisible] = useState(false);
 
@@ -32,9 +33,9 @@ export function AccesoPostular() {
 
   return (
     <div className="acceso-postular" data-visible={visible ? "" : undefined}>
-      <a href="/postulacion" tabIndex={visible ? 0 : -1}>
-        <span>Postular a mi equipo</span>
-        <small>5 pasos · 21 cupos</small>
+      <a href={paginaTerminos} tabIndex={visible ? 0 : -1}>
+        <span>Términos de referencia</span>
+        <small>14 nov · 21 cupos</small>
       </a>
     </div>
   );

@@ -2,7 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { rutaVideo } from "@/components/sitio/video-perezoso";
-import { versionesPrototipo } from "@/lib/contenido";
+import {
+  documentoTerminos,
+  paginaTerminos,
+  versionesPrototipo,
+} from "@/lib/contenido";
 import { prefiereMenosMovimiento } from "@/lib/motion";
 import { CONTORNO_SILUETA } from "@/lib/pieza-cauca";
 
@@ -135,11 +139,11 @@ export function Portada() {
             salen con un prototipo. 14 de noviembre de 2026.
           </p>
           <div className="banner-acciones">
-            <a className="boton boton-lima boton-grande" href="/postulacion">
-              Postular a mi equipo <span className="flecha">→</span>
+            <a className="boton boton-lima boton-grande" href={paginaTerminos}>
+              Términos de referencia <span className="flecha">→</span>
             </a>
-            <a className="enlace-banner" href="#jornada">
-              Ver el recorrido
+            <a className="enlace-banner" href={documentoTerminos} download>
+              Descargar PDF oficial
             </a>
           </div>
         </div>
