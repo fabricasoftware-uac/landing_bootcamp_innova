@@ -1,7 +1,9 @@
+import { PDFDocument } from "pdf-lib";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { guardarEvaluacionAction } from "@/app/actions/admin";
 import { crearPostulacionAction } from "@/app/actions/postulaciones";
 import { getAdminSupabaseClient } from "@/lib/supabase/admin";
+import { obtenerAdministrador } from "@/lib/supabase/autorizacion";
 
 // Mockear el cliente admin de Supabase para pruebas aisladas y determinísticas
 vi.mock("@/lib/supabase/admin", () => ({
@@ -9,12 +11,25 @@ vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: vi.fn(),
 }));
 
-function crearArchivoMock(
-  nombre: string,
-  size = 1024,
-  type = "application/pdf",
-): File {
-  return new File([new Uint8Array(size)], nombre, { type });
+vi.mock("@/lib/supabase/autorizacion", () => ({
+  obtenerAdministrador: vi.fn(),
+}));
+
+vi.mock("next/headers", () => ({
+  headers: vi.fn(async () => new Headers()),
+}));
+
+const ADMIN_ID = "6f1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d";
+const POSTULACION_ID = "11111111-2222-4333-8444-555555555555";
+
+const pdfVacio = await (async () => {
+  const documento = await PDFDocument.create();
+  documento.addPage();
+  return documento.save();
+})();
+
+function crearArchivoMock(nombre: string, type = "application/pdf"): File {
+  return new File([Buffer.from(pdfVacio)], nombre, { type });
 }
 
 describe("Server Actions: crearPostulacionAction y Rollback Preventivo", () => {
@@ -89,7 +104,8 @@ describe("Server Actions: crearPostulacionAction y Rollback Preventivo", () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error).toContain("JSON malformado");
+      expect(result.error).not.toContain("JSON");
+      expect(result.error).toContain("No pudimos leer los datos");
     }
   });
 
@@ -323,6 +339,10 @@ describe("Server Actions: crearPostulacionAction y Rollback Preventivo", () => {
 });
 
 describe("Server Actions: guardarEvaluacionAction", () => {
+  beforeEach(() => {
+    vi.mocked(obtenerAdministrador).mockResolvedValue({ id: ADMIN_ID });
+  });
+
   it("clamp y valida que los puntajes no superen los topes de los TDR (30/30/20/20)", async () => {
     const upsertMock = vi.fn().mockReturnValue({
       select: vi.fn().mockReturnValue({
@@ -346,7 +366,7 @@ describe("Server Actions: guardarEvaluacionAction", () => {
     } as never);
 
     const input = {
-      postulacion_id: "post-1",
+      postulacion_id: POSTULACION_ID,
       cumple_requisitos_habilitante: true,
       puntaje_motivacion: 50, // excede 30 -> debe ser limitado a 30
       puntaje_pertinencia: -10, // menor que 0 -> limitado a 0
@@ -364,5 +384,7 @@ describe("Server Actions: guardarEvaluacionAction", () => {
     expect(callArgs.puntaje_pertinencia).toBe(0);
     expect(callArgs.puntaje_diversidad).toBe(20);
     expect(callArgs.puntaje_representacion).toBe(15);
+    // El autor sale de la sesión: evaluado_por es uuid con FK a auth.users.
+    expect(callArgs.evaluado_por).toBe(ADMIN_ID);
   });
 });

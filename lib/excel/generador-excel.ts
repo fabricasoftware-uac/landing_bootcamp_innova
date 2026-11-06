@@ -1,5 +1,6 @@
 import ExcelJS from "exceljs";
 import type { PostulacionAdminDetalle } from "@/app/actions/admin";
+import { esTelefono } from "@/lib/validations/texto-seguro";
 
 export interface GeneracionExcelResultado {
   workbook: ExcelJS.Workbook;
@@ -51,6 +52,33 @@ export const COLUMNAS_EVALUACION = [
   "Observaciones del Comité",
   "Fecha Evaluación",
 ] as const;
+
+// También el ancho completo: Excel y LibreOffice pueden convertirlos al editar la celda.
+const INICIO_DE_FORMULA = /^[\s\p{Cc}]*[=+\-@＝＋－＠]/u;
+// Excepto \t, \n y \r: el XML de xlsx no admite los demás y corrompen el archivo.
+const CONTROLES_NO_XML = /(?![\t\n\r])\p{Cc}/gu;
+
+/**
+ * Neutraliza un texto para Excel con un apóstrofo inicial (recomendación de OWASP).
+ * Los teléfonos con + se conservan porque no pueden ejecutar ninguna función.
+ */
+export function neutralizarCelda(valor: string): string {
+  const limpio = valor.replace(CONTROLES_NO_XML, "");
+  if (esTelefono(limpio.trim())) return limpio;
+  return INICIO_DE_FORMULA.test(limpio) ? `'${limpio}` : limpio;
+}
+
+/** Barre la hoja entera para que una columna nueva quede cubierta sin recordarlo. */
+function neutralizarHoja(hoja: ExcelJS.Worksheet): void {
+  hoja.eachRow((fila, numeroFila) => {
+    if (numeroFila === 1) return;
+    fila.eachCell((celda) => {
+      if (typeof celda.value === "string") {
+        celda.value = neutralizarCelda(celda.value);
+      }
+    });
+  });
+}
 
 /**
  * Construye el objeto Workbook de ExcelJS con las tres hojas oficiales requeridas para Cauca INNOVA:
@@ -263,6 +291,8 @@ export function construirWorkbookPostulaciones(
       celda.alignment = { vertical: "middle" };
     }
   }
+
+  workbook.eachSheet(neutralizarHoja);
 
   return workbook;
 }

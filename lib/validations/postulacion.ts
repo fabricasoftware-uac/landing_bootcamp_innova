@@ -1,4 +1,13 @@
 import { z } from "zod";
+import {
+  contieneMarcado,
+  esNombreDeEntidad,
+  esNombreDePersona,
+  esNumeroDeDocumento,
+  esTelefono,
+  limpiarLinea,
+  limpiarParrafo,
+} from "./texto-seguro";
 
 export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 export const ALLOWED_FILE_MIME_TYPES = [
@@ -84,101 +93,154 @@ export const archivoOpcionalSchema = z
   );
 
 // ==============================================================================
+// CAMPOS DE TEXTO: longitud máxima, sin invisibles y con lista blanca
+// ==============================================================================
+export const MAX_NOMBRE = 150;
+export const MAX_NUMERO_DOCUMENTO = 20;
+export const MAX_CORREO = 254;
+export const MAX_MOTIVACION = 2500;
+
+const MENSAJE_CARACTERES_NOMBRE =
+  "Usa solo letras, espacios, puntos, apóstrofes o guiones";
+const MENSAJE_CARACTERES_ENTIDAD =
+  "El nombre contiene caracteres no permitidos, como < o >";
+
+function campoPersona(mensajeMinimo: string) {
+  return z
+    .string()
+    .overwrite(limpiarLinea)
+    .min(3, mensajeMinimo)
+    .max(MAX_NOMBRE, `No puede superar los ${MAX_NOMBRE} caracteres`)
+    .refine(esNombreDePersona, MENSAJE_CARACTERES_NOMBRE);
+}
+
+function campoEntidad(mensajeMinimo: string) {
+  return z
+    .string()
+    .overwrite(limpiarLinea)
+    .min(3, mensajeMinimo)
+    .max(MAX_NOMBRE, `No puede superar los ${MAX_NOMBRE} caracteres`)
+    .refine(esNombreDeEntidad, MENSAJE_CARACTERES_ENTIDAD);
+}
+
+function campoCorreo(mensaje: string) {
+  return z
+    .string()
+    .overwrite(limpiarLinea)
+    .toLowerCase()
+    .max(MAX_CORREO, mensaje)
+    .email(mensaje);
+}
+
+function campoTelefono(mensaje: string) {
+  return z.string().overwrite(limpiarLinea).refine(esTelefono, mensaje);
+}
+
+function campoMotivacion(mensajeMinimo: string, mensajeMaximo: string) {
+  return z
+    .string()
+    .overwrite(limpiarParrafo)
+    .min(50, mensajeMinimo)
+    .max(MAX_MOTIVACION, mensajeMaximo)
+    .refine(
+      (valor) => !contieneMarcado(valor),
+      "El texto no puede incluir etiquetas HTML ni código",
+    );
+}
+
+// ==============================================================================
 // 1. PASO 1: SEMILLERO E INSTITUCIÓN
 // ==============================================================================
-export const paso1SemilleroSchema = z.object({
-  institucion_nombre: z
-    .string()
-    .trim()
-    .min(3, "El nombre de la institución debe tener al menos 3 caracteres"),
+const camposSemillero = {
+  institucion_nombre: campoEntidad(
+    "El nombre de la institución debe tener al menos 3 caracteres",
+  ),
   institucion_tipo: institucionTipoSchema,
-  semillero_nombre: z
-    .string()
-    .trim()
-    .min(3, "El nombre del semillero debe tener al menos 3 caracteres"),
-  tutor_nombre: z
-    .string()
-    .trim()
-    .min(3, "El nombre del docente tutor debe tener al menos 3 caracteres"),
-  tutor_email: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .email("Debe proporcionar un correo electrónico válido para el tutor"),
-  tutor_telefono: z
-    .string()
-    .trim()
-    .min(7, "El teléfono de contacto del tutor debe tener al menos 7 dígitos"),
-});
+  semillero_nombre: campoEntidad(
+    "El nombre del semillero debe tener al menos 3 caracteres",
+  ),
+  tutor_nombre: campoPersona(
+    "El nombre del docente tutor debe tener al menos 3 caracteres",
+  ),
+  tutor_email: campoCorreo(
+    "Debe proporcionar un correo electrónico válido para el tutor",
+  ),
+  tutor_telefono: campoTelefono(
+    "El teléfono de contacto del tutor debe tener al menos 7 dígitos",
+  ),
+};
+
+export const paso1SemilleroSchema = z.object(camposSemillero);
 
 // ==============================================================================
 // 2. PASO 2: INTEGRANTES (EQUIPO DE 3 ESTUDIANTES)
 // ==============================================================================
-export const integranteSchema = z.object({
-  nombres_apellidos: z
-    .string()
-    .trim()
-    .min(3, "Nombres y apellidos deben tener al menos 3 caracteres"),
+export const integranteSchema = z.strictObject({
+  nombres_apellidos: campoPersona(
+    "Nombres y apellidos deben tener al menos 3 caracteres",
+  ),
   tipo_documento: tipoDocumentoIdentidadSchema,
   numero_documento: z
     .string()
-    .trim()
-    .min(4, "El número de documento debe tener al menos 4 caracteres"),
-  correo_electronico: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .email("Debe proporcionar un correo electrónico válido"),
-  telefono: z
-    .string()
-    .trim()
-    .min(7, "El teléfono de contacto debe tener al menos 7 dígitos"),
+    .overwrite(limpiarLinea)
+    .min(4, "El número de documento debe tener al menos 4 caracteres")
+    .max(
+      MAX_NUMERO_DOCUMENTO,
+      `El número de documento no puede superar los ${MAX_NUMERO_DOCUMENTO} caracteres`,
+    )
+    .refine(
+      esNumeroDeDocumento,
+      "El número de documento solo admite letras, números, puntos o guiones",
+    ),
+  correo_electronico: campoCorreo(
+    "Debe proporcionar un correo electrónico válido",
+  ),
+  telefono: campoTelefono(
+    "El teléfono de contacto debe tener al menos 7 dígitos",
+  ),
   es_menor_edad: z.boolean({
     message: "Debe indicar si el participante es menor de edad",
   }),
 });
 
+const listaIntegrantes = z
+  .array(integranteSchema)
+  .length(
+    3,
+    "El equipo de semillero debe estar conformado por exactamente 3 integrantes",
+  );
+
 export const paso2IntegrantesSchema = z.object({
-  integrantes: z
-    .array(integranteSchema)
-    .length(
-      3,
-      "El equipo de semillero debe estar conformado por exactamente 3 integrantes",
-    ),
+  integrantes: listaIntegrantes,
 });
 
 // ==============================================================================
 // 3. PASO 3: MOTIVACIÓN E INTERESES
 // ==============================================================================
 export const paso3MotivacionSchema = z.object({
-  motivacion_intereses: z
-    .string()
-    .trim()
-    .min(
-      50,
-      "La descripción de motivación e intereses debe tener al menos 50 caracteres para argumentar adecuadamente su postulación",
-    )
-    .max(
-      2500,
-      "La descripción de motivación no debe exceder los 2500 caracteres",
-    ),
+  motivacion_intereses: campoMotivacion(
+    "La descripción de motivación e intereses debe tener al menos 50 caracteres para argumentar adecuadamente su postulación",
+    "La descripción de motivación no debe exceder los 2500 caracteres",
+  ),
 });
 
 // ==============================================================================
 // 4. PASO 4: DOCUMENTOS ADJUNTOS
 // ==============================================================================
-export const paso4DocumentosSchema = z.object({
+const camposDocumentos = {
   aval_semillero: archivoRequeridoSchema,
   doc_identidad_1: archivoRequeridoSchema,
   doc_identidad_2: archivoRequeridoSchema,
   doc_identidad_3: archivoRequeridoSchema,
   autorizacion_menores: archivoOpcionalSchema,
-});
+};
+
+export const paso4DocumentosSchema = z.object(camposDocumentos);
 
 // ==============================================================================
 // 5. PASO 5: DECLARACIÓN Y TÉRMINOS
 // ==============================================================================
-export const paso5DeclaracionSchema = z.object({
+const camposDeclaracion = {
   acepta_terminos: z.literal(true, {
     message:
       "Debes aceptar los Términos de Referencia oficiales de Cauca INNOVA",
@@ -191,74 +253,32 @@ export const paso5DeclaracionSchema = z.object({
     message:
       "Debes certificar bajo la gravedad de juramento la veracidad de la información diligenciada",
   }),
-});
+};
+
+export const paso5DeclaracionSchema = z.object(camposDeclaracion);
 
 // ==============================================================================
 // 6. POSTULACIÓN COMPLETA (INTEGRAL)
 // ==============================================================================
 export const postulacionCompletaSchema = z
-  .object({
-    // Paso 1
-    institucion_nombre: z
-      .string()
-      .trim()
-      .min(3, "El nombre de la institución debe tener al menos 3 caracteres"),
-    institucion_tipo: institucionTipoSchema,
-    semillero_nombre: z
-      .string()
-      .trim()
-      .min(3, "El nombre del semillero debe tener al menos 3 caracteres"),
-    tutor_nombre: z
-      .string()
-      .trim()
-      .min(3, "El nombre del docente tutor debe tener al menos 3 caracteres"),
-    tutor_email: z
-      .string()
-      .trim()
-      .toLowerCase()
-      .email("Debe proporcionar un correo electrónico válido para el tutor"),
-    tutor_telefono: z
-      .string()
-      .trim()
-      .min(7, "El teléfono del tutor debe tener al menos 7 dígitos"),
-
-    // Paso 2
-    integrantes: z
-      .array(integranteSchema)
-      .length(
-        3,
-        "El equipo de semillero debe estar conformado por exactamente 3 integrantes",
-      ),
-
-    // Paso 3
-    motivacion_intereses: z
-      .string()
-      .trim()
-      .min(
-        50,
+  .strictObject(
+    {
+      ...camposSemillero,
+      integrantes: listaIntegrantes,
+      motivacion_intereses: campoMotivacion(
         "La motivación e intereses debe tener al menos 50 caracteres para justificar la postulación",
-      )
-      .max(2500, "La motivación no puede exceder 2500 caracteres"),
-
-    // Paso 4
-    aval_semillero: archivoRequeridoSchema,
-    doc_identidad_1: archivoRequeridoSchema,
-    doc_identidad_2: archivoRequeridoSchema,
-    doc_identidad_3: archivoRequeridoSchema,
-    autorizacion_menores: archivoOpcionalSchema,
-
-    // Paso 5
-    acepta_terminos: z.literal(true, {
-      message: "Debes aceptar los Términos de Referencia de Cauca INNOVA",
-    }),
-    acepta_tratamiento_datos: z.literal(true, {
-      message:
-        "Debes aceptar la autorización de tratamiento de datos personales",
-    }),
-    declara_veracidad: z.literal(true, {
-      message: "Debes certificar la veracidad de la información registrada",
-    }),
-  })
+        "La motivación no puede exceder 2500 caracteres",
+      ),
+      ...camposDocumentos,
+      ...camposDeclaracion,
+    },
+    {
+      error: (problema) =>
+        problema.code === "unrecognized_keys"
+          ? "El formulario incluye campos no reconocidos. Recarga la página e inténtalo de nuevo."
+          : undefined,
+    },
+  )
   .superRefine((val, ctx) => {
     const hayMenoresDeEdad = val.integrantes.some(
       (integrante) => integrante.es_menor_edad,
@@ -274,7 +294,7 @@ export const postulacionCompletaSchema = z
 
       if (!esArchivoValido) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           path: ["autorizacion_menores"],
           message:
             "Al menos uno de los integrantes es menor de 18 años. Es obligatorio adjuntar el formato de autorización de padres o acudientes firmado.",
@@ -282,6 +302,19 @@ export const postulacionCompletaSchema = z
       }
     }
   });
+
+/**
+ * A diferencia de parseBooleanValue, deja pasar lo que no reconoce para que Zod lo
+ * rechace: un valor raro en es_menor_edad no puede volverse "false" y saltarse la
+ * autorización de acudientes.
+ */
+export function normalizarBooleanoEstricto(valor: unknown): unknown {
+  if (typeof valor !== "string") return valor;
+  const texto = valor.trim().toLowerCase();
+  if (["true", "1", "on", "yes", "si", "sí"].includes(texto)) return true;
+  if (["false", "0", "off", "no"].includes(texto)) return false;
+  return valor;
+}
 
 // ==============================================================================
 // TIPOS INFERIDOS Y RESULTADOS DE ACCIÓN

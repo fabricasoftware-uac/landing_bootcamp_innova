@@ -1,12 +1,23 @@
 "use client";
 
-import { type DragEvent, useRef, useState } from "react";
+import { type ChangeEvent, type DragEvent, useRef, useState } from "react";
 import { comprimirImagenEnNavegador } from "@/lib/utils/optimizar-imagen-cliente";
 import {
   ALLOWED_FILE_MIME_TYPES,
   MAX_FILE_SIZE_BYTES,
 } from "@/lib/validations/postulacion";
+import { TituloPaso } from "./campos";
 import type { PasoProps } from "./tipos";
+
+type CampoArchivo =
+  | "aval_semillero"
+  | "doc_identidad_1"
+  | "doc_identidad_2"
+  | "doc_identidad_3"
+  | "autorizacion_menores";
+
+/* Aviso antes del tope de 4,4 MB con que el formulario frena el envío. */
+const PESO_RECOMENDADO_BYTES = 4.2 * 1024 * 1024;
 
 function formatearTamano(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -22,7 +33,7 @@ interface SelectorArchivoProps {
   soloPdf?: boolean;
   archivoActual: File | null;
   alSeleccionarArchivo: (archivo: File | null) => void;
-  error?: string;
+  error?: string | undefined;
 }
 
 function SelectorArchivo({
@@ -35,18 +46,15 @@ function SelectorArchivo({
   alSeleccionarArchivo,
   error,
 }: SelectorArchivoProps) {
-  const [arrastrando, setArrastrando] = useState(false);
-  const [comprimiendo, setComprimiendo] = useState(false);
   const [errorLocal, setErrorLocal] = useState<string | null>(null);
+  const [comprimiendo, setComprimiendo] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const formatosAceptados = soloPdf
     ? "application/pdf"
     : ".pdf,image/jpeg,image/png,image/jpg";
 
-  const formatosTexto = soloPdf
-    ? "Solo formato PDF (.pdf)"
-    : "Formatos admitidos: PDF, JPEG, PNG";
+  const formatosTexto = soloPdf ? "Solo PDF" : "PDF, JPEG o PNG";
 
   const validarYAsignar = async (archivo: File) => {
     setErrorLocal(null);
@@ -74,164 +82,104 @@ function SelectorArchivo({
       return;
     }
 
-    let archivoProcesado = archivo;
+    let procesado = archivo;
     if (archivo.type.startsWith("image/")) {
+      setComprimiendo(true);
       try {
-        setComprimiendo(true);
-        archivoProcesado = await comprimirImagenEnNavegador(archivo);
+        procesado = await comprimirImagenEnNavegador(archivo);
       } catch {
-        archivoProcesado = archivo;
+        // Si no se puede comprimir, sirve el original: el tope de peso lo revisa después.
       } finally {
         setComprimiendo(false);
       }
     }
 
-    alSeleccionarArchivo(archivoProcesado);
+    alSeleccionarArchivo(procesado);
   };
 
-  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setArrastrando(true);
+  const alArrastrarSobre = (evento: DragEvent<HTMLDivElement>) => {
+    // Sin esto el navegador abre el archivo en lugar de entregárnoslo.
+    evento.preventDefault();
   };
 
-  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setArrastrando(false);
+  const alSoltar = (evento: DragEvent<HTMLDivElement>) => {
+    evento.preventDefault();
+    const archivo = evento.dataTransfer.files?.[0];
+    if (archivo) validarYAsignar(archivo);
   };
 
-  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setArrastrando(false);
-    const files = e.dataTransfer.files;
-    if (files?.[0]) {
-      validarYAsignar(files[0]);
-    }
+  const alElegir = (evento: ChangeEvent<HTMLInputElement>) => {
+    const archivo = evento.target.files?.[0];
+    if (archivo) validarYAsignar(archivo);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files?.[0]) {
-      validarYAsignar(files[0]);
-    }
+  const quitar = () => {
+    alSeleccionarArchivo(null);
+    setErrorLocal(null);
+    if (inputRef.current) inputRef.current.value = "";
   };
 
   const errorVisible = error || errorLocal;
 
   return (
-    <div className="rounded-2xl border border-[#10384f]/15 bg-[#faf9f5] p-6 shadow-2xs sm:p-7">
-      <div className="mb-2.5 flex flex-wrap items-baseline justify-between gap-2">
-        <label
-          htmlFor={id}
-          className="block text-xs font-bold uppercase tracking-wider text-[#10384f]"
-        >
-          {titulo}{" "}
-          {obligatorio ? (
-            <span className="text-rose-600">*</span>
-          ) : (
-            <span className="text-xs font-normal lowercase text-[#10384f]/60">
-              (opcional)
-            </span>
-          )}
-        </label>
-        <span className="text-[11px] font-semibold text-[#10384f]/60">
-          Máx. 10 MB
-        </span>
+    <div
+      className="adjunto"
+      data-listo={archivoActual ? "" : undefined}
+      data-error={errorVisible ? "" : undefined}
+      onDragOver={alArrastrarSobre}
+      onDrop={alSoltar}
+    >
+      <div>
+        <strong>{titulo}</strong>
+        <small>
+          {obligatorio ? "Obligatorio" : "Opcional"}. {descripcion}{" "}
+          {formatosTexto}, máximo 10 MB.
+        </small>
+        {comprimiendo && (
+          <small role="status">Reduciendo el peso de la imagen…</small>
+        )}
+        {archivoActual && (
+          <small>
+            Adjunto: {archivoActual.name} ({formatearTamano(archivoActual.size)}
+            )
+          </small>
+        )}
+        {errorVisible && (
+          <small id={`error-${id}`} className="campo-error" role="alert">
+            {errorVisible}
+          </small>
+        )}
       </div>
 
-      <p className="mb-5 text-xs leading-relaxed text-[#10384f]/70">
-        {descripcion}
-      </p>
-
-      {comprimiendo && (
-        <div className="mb-4 animate-pulse rounded-xl border border-teal-200 bg-teal-50 p-3 text-xs font-semibold text-[#006b5c]">
-          ⏳ Optimizando y reduciendo peso de la imagen...
-        </div>
-      )}
-
-      {archivoActual ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#006b5c]/30 bg-white p-4 shadow-2xs">
-          <div className="flex items-center gap-3.5">
-            <span
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#006b5c] text-xs font-black text-[#f5f4ec]"
-              aria-hidden="true"
-            >
-              {archivoActual.name.endsWith(".pdf") ? "PDF" : "IMG"}
-            </span>
-            <div className="min-w-0">
-              <p className="truncate text-xs font-bold text-[#10384f]">
-                {archivoActual.name}
-              </p>
-              <p className="mt-0.5 text-[11px] text-[#10384f]/60">
-                {formatearTamano(archivoActual.size)}
-              </p>
-            </div>
-          </div>
-
+      <div className="adjunto-acciones">
+        <input
+          ref={inputRef}
+          id={id}
+          name={id}
+          type="file"
+          accept={formatosAceptados}
+          onChange={alElegir}
+          className="peer sr-only"
+          aria-describedby={errorVisible ? `error-${id}` : undefined}
+        />
+        <label
+          htmlFor={id}
+          className="boton boton-suave peer-focus-visible:outline-3 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-verde"
+        >
+          {archivoActual ? "Cambiar archivo" : "Elegir archivo"}
+          <span className="sr-only">: {titulo}</span>
+        </label>
+        {archivoActual && (
           <button
             type="button"
-            onClick={() => {
-              alSeleccionarArchivo(null);
-              if (inputRef.current) inputRef.current.value = "";
-            }}
-            className="rounded-lg border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
+            className="enlace-texto min-h-11"
+            onClick={quitar}
           >
-            Quitar / Cambiar
+            Quitar
+            <span className="sr-only"> {titulo}</span>
           </button>
-        </div>
-      ) : (
-        <div
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center transition-colors sm:p-10 ${
-            arrastrando
-              ? "border-[#006b5c] bg-[#006b5c]/10"
-              : errorVisible
-                ? "border-rose-400 bg-rose-50/30"
-                : "border-[#10384f]/20 bg-white/70 hover:border-[#006b5c]/50 hover:bg-white"
-          }`}
-        >
-          <input
-            ref={inputRef}
-            id={id}
-            name={id}
-            type="file"
-            accept={formatosAceptados}
-            onChange={handleFileChange}
-            className="sr-only"
-            aria-describedby={errorVisible ? `error-${id}` : undefined}
-          />
-
-          <span className="mb-3 text-3xl text-[#006b5c]" aria-hidden="true">
-            📄
-          </span>
-
-          <p className="text-xs font-bold text-[#10384f] sm:text-sm">
-            Arrastra el archivo aquí o{" "}
-            <button
-              type="button"
-              onClick={() => inputRef.current?.click()}
-              className="text-[#006b5c] underline underline-offset-2 hover:text-[#10384f]"
-            >
-              selecciónalo desde tu equipo
-            </button>
-          </p>
-
-          <p className="mt-2 text-[11px] leading-relaxed text-[#10384f]/60 sm:text-xs">
-            {formatosTexto}
-          </p>
-        </div>
-      )}
-
-      {errorVisible && (
-        <p
-          id={`error-${id}`}
-          className="mt-2 text-xs font-semibold text-rose-600"
-          role="alert"
-        >
-          {errorVisible}
-        </p>
-      )}
+        )}
+      </div>
     </div>
   );
 }
@@ -244,180 +192,121 @@ export function Paso4Documentos({
 }: PasoProps) {
   const hayMenoresDeEdad = datos.integrantes.some((i) => i.es_menor_edad);
 
-  const actualizarArchivo = (
-    campo:
-      | "aval_semillero"
-      | "doc_identidad_1"
-      | "doc_identidad_2"
-      | "doc_identidad_3"
-      | "autorizacion_menores",
-    archivo: File | null,
-  ) => {
+  const actualizarArchivo = (campo: CampoArchivo, archivo: File | null) => {
     actualizarDatos({ [campo]: archivo });
-    if (limpiarError) {
-      limpiarError(campo);
-    }
+    limpiarError?.(campo);
   };
 
-  const pesoTotalBytes =
-    (datos.aval_semillero?.size || 0) +
-    (datos.doc_identidad_1?.size || 0) +
-    (datos.doc_identidad_2?.size || 0) +
-    (datos.doc_identidad_3?.size || 0) +
-    (datos.autorizacion_menores?.size || 0);
+  const documentosIdentidad = [
+    { campo: "doc_identidad_1", archivo: datos.doc_identidad_1 },
+    { campo: "doc_identidad_2", archivo: datos.doc_identidad_2 },
+    { campo: "doc_identidad_3", archivo: datos.doc_identidad_3 },
+  ] as const;
 
-  const pesoExcedeLimite = pesoTotalBytes > 4.2 * 1024 * 1024;
+  const pesoTotal =
+    (datos.aval_semillero?.size ?? 0) +
+    (datos.doc_identidad_1?.size ?? 0) +
+    (datos.doc_identidad_2?.size ?? 0) +
+    (datos.doc_identidad_3?.size ?? 0) +
+    (datos.autorizacion_menores?.size ?? 0);
+  const excedePeso = pesoTotal > PESO_RECOMENDADO_BYTES;
 
   return (
-    <div className="space-y-8">
-      <div className="mb-6 sm:mb-8">
-        <h2 className="font-sans text-xl font-bold tracking-tight text-[#10384f] sm:text-2xl">
-          Documentos de Soporte Requeridos
-        </h2>
-        <p className="mt-2 text-sm leading-relaxed text-[#10384f]/75 sm:text-base">
-          Adjunta los soportes digitales en formato PDF o imagen legible. El
-          tamaño máximo por cada archivo es de 10 MB.
-        </p>
-      </div>
+    <div className="paso">
+      <TituloPaso titulo="Los documentos">
+        Adjunta cada soporte en PDF o en una imagen legible. Cada archivo pesa
+        máximo 10&nbsp;MB y entre todos no deben pasar de 4,2&nbsp;MB. Las fotos
+        se reducen solas.
+      </TituloPaso>
 
-      {pesoTotalBytes > 0 && (
-        <div
-          className={`rounded-xl border p-4 text-xs transition-colors sm:text-sm ${
-            pesoExcedeLimite
-              ? "border-rose-300 bg-rose-50 text-rose-900"
-              : "border-[#006b5c]/30 bg-white text-[#10384f]"
-          }`}
-        >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <span>
-              <strong>Peso acumulado de documentos:</strong>{" "}
-              {formatearTamano(pesoTotalBytes)} / Máx. 4.2 MB recomendado
-            </span>
-            {pesoExcedeLimite ? (
-              <span className="font-bold text-rose-700">
-                ⚠️ Supera el límite de subida. Por favor comprime tus archivos
-                PDF.
-              </span>
-            ) : (
-              <span className="text-xs font-semibold text-[#006b5c]">
-                ✓ Dentro del límite de subida
-              </span>
-            )}
+      {pesoTotal > 0 && (
+        <div className="peso-total" data-excede={excedePeso ? "" : undefined}>
+          <p>
+            <strong>Peso total:</strong> {formatearTamano(pesoTotal)} de
+            4,2&nbsp;MB
+          </p>
+          <div className="medidor" aria-hidden="true">
+            <span
+              style={{
+                transform: `scaleX(${Math.min(1, pesoTotal / PESO_RECOMENDADO_BYTES)})`,
+              }}
+            />
           </div>
+          {excedePeso && (
+            <p role="alert">
+              Supera el límite de subida. Comprime los PDF antes de seguir.
+            </p>
+          )}
         </div>
       )}
 
-      {/* Alerta de menores de edad */}
       {hayMenoresDeEdad ? (
-        <div className="rounded-2xl border-2 border-amber-500/80 bg-amber-50/90 p-5 text-[#10384f] shadow-xs sm:p-6">
-          <div className="flex items-start gap-3.5">
-            <span className="text-2xl shrink-0" aria-hidden="true">
-              ⚠️
-            </span>
-            <div>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-amber-900 sm:text-base">
-                Atención: Autorización de Menores Obligatoria
-              </h3>
-              <p className="mt-1.5 text-xs leading-relaxed text-amber-900/90 sm:text-sm">
-                Has registrado uno o más integrantes menores de 18 años. De
-                acuerdo con la legislación colombiana y los Términos de
-                Referencia, es <strong>estrictamente obligatorio</strong>{" "}
-                adjuntar el formato de autorización de padres o acudientes
-                firmado.
-              </p>
-            </div>
-          </div>
-        </div>
+        <p className="aviso aviso-alerta">
+          Hay estudiantes menores de 18 años, así que la autorización firmada
+          por su madre, padre o representante legal es{" "}
+          <strong>obligatoria</strong>.
+        </p>
       ) : (
-        <div className="rounded-xl border border-[#10384f]/15 bg-[#10384f]/5 p-4 text-xs leading-relaxed text-[#10384f]/80 sm:text-sm">
-          ℹ️ Todos los integrantes registrados son mayores de edad. La
-          autorización de acudientes no es obligatoria para este semillero.
-        </div>
+        <p className="aviso">
+          Todo el equipo es mayor de edad: no necesitas la autorización de
+          acudientes.
+        </p>
       )}
 
-      <div className="space-y-6">
-        {/* 1. Aval Institucional */}
+      <section className="paso-bloque" aria-labelledby="bloque-aval">
+        <h3 id="bloque-aval">Aval del semillero</h3>
         <SelectorArchivo
           id="aval_semillero"
-          titulo="1. Aval o Certificación del Semillero (PDF)"
-          descripcion="Carta oficial o constancia expedida por la institución educativa que certifique la vinculación activa del semillero y el aval del docente tutor."
-          obligatorio={true}
-          soloPdf={true}
+          titulo="Aval o certificación del semillero"
+          descripcion="Carta o constancia de la institución que certifique el semillero y el aval del docente tutor."
+          soloPdf
           archivoActual={datos.aval_semillero}
-          alSeleccionarArchivo={(file) =>
-            actualizarArchivo("aval_semillero", file)
+          alSeleccionarArchivo={(archivo) =>
+            actualizarArchivo("aval_semillero", archivo)
           }
           error={errores.aval_semillero}
         />
+      </section>
 
-        {/* 2. Documentos de Identidad */}
-        <div className="space-y-5 rounded-2xl border border-[#10384f]/15 bg-white p-6 shadow-2xs sm:p-7">
-          <div className="border-b border-[#10384f]/10 pb-3">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[#006b5c] sm:text-base">
-              2. Documentos de Identidad de los 3 Estudiantes
-            </h3>
-            <p className="mt-1 text-xs leading-relaxed text-[#10384f]/70">
-              Adjunta copia legible por ambas caras en PDF o imagen de cada
-              integrante.
-            </p>
-          </div>
-
-          <div className="grid gap-5 md:grid-cols-3">
+      <section className="paso-bloque" aria-labelledby="bloque-identidad">
+        <h3 id="bloque-identidad">Documentos de identidad</h3>
+        <p>Copia legible por ambas caras de cada estudiante.</p>
+        {documentosIdentidad.map(({ campo, archivo }, posicion) => {
+          const integrante = datos.integrantes[posicion];
+          const nombre =
+            integrante?.nombres_apellidos || `Estudiante ${posicion + 1}`;
+          return (
             <SelectorArchivo
-              id="doc_identidad_1"
-              titulo={`Doc. Integrante 1 (${datos.integrantes[0].nombres_apellidos || "Estudiante 1"})`}
-              descripcion={`Tipo: ${datos.integrantes[0].tipo_documento} - ${datos.integrantes[0].numero_documento || "Sin número"}`}
-              obligatorio={true}
-              archivoActual={datos.doc_identidad_1}
-              alSeleccionarArchivo={(file) =>
-                actualizarArchivo("doc_identidad_1", file)
-              }
-              error={errores.doc_identidad_1}
+              key={campo}
+              id={campo}
+              titulo={`Documento de ${nombre}`}
+              descripcion={`${integrante?.tipo_documento ?? ""} ${integrante?.numero_documento || "sin número"}.`}
+              archivoActual={archivo}
+              alSeleccionarArchivo={(f) => actualizarArchivo(campo, f)}
+              error={errores[campo]}
             />
+          );
+        })}
+      </section>
 
-            <SelectorArchivo
-              id="doc_identidad_2"
-              titulo={`Doc. Integrante 2 (${datos.integrantes[1].nombres_apellidos || "Estudiante 2"})`}
-              descripcion={`Tipo: ${datos.integrantes[1].tipo_documento} - ${datos.integrantes[1].numero_documento || "Sin número"}`}
-              obligatorio={true}
-              archivoActual={datos.doc_identidad_2}
-              alSeleccionarArchivo={(file) =>
-                actualizarArchivo("doc_identidad_2", file)
-              }
-              error={errores.doc_identidad_2}
-            />
-
-            <SelectorArchivo
-              id="doc_identidad_3"
-              titulo={`Doc. Integrante 3 (${datos.integrantes[2].nombres_apellidos || "Estudiante 3"})`}
-              descripcion={`Tipo: ${datos.integrantes[2].tipo_documento} - ${datos.integrantes[2].numero_documento || "Sin número"}`}
-              obligatorio={true}
-              archivoActual={datos.doc_identidad_3}
-              alSeleccionarArchivo={(file) =>
-                actualizarArchivo("doc_identidad_3", file)
-              }
-              error={errores.doc_identidad_3}
-            />
-          </div>
-        </div>
-
-        {/* 3. Autorización de Menores */}
+      <section className="paso-bloque" aria-labelledby="bloque-autorizacion">
+        <h3 id="bloque-autorizacion">Autorización para menores de edad</h3>
         <SelectorArchivo
           id="autorizacion_menores"
-          titulo="3. Autorización de Padres o Acudientes para Menores de Edad"
+          titulo="Autorización de madre, padre o acudiente"
           descripcion={
             hayMenoresDeEdad
-              ? "Requerido obligatoriamente por incluir participantes menores de 18 años. Documento firmado con fotocopia de cédula del padre, madre o tutor legal."
-              : "Opcional. No requerido ya que todos los integrantes declararon ser mayores de edad."
+              ? "Documento firmado, con fotocopia de la cédula de quien autoriza."
+              : "No la necesitas porque todo el equipo declaró ser mayor de edad."
           }
           obligatorio={hayMenoresDeEdad}
           archivoActual={datos.autorizacion_menores}
-          alSeleccionarArchivo={(file) =>
-            actualizarArchivo("autorizacion_menores", file)
+          alSeleccionarArchivo={(archivo) =>
+            actualizarArchivo("autorizacion_menores", archivo)
           }
           error={errores.autorizacion_menores}
         />
-      </div>
+      </section>
     </div>
   );
 }

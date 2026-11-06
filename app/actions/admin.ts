@@ -2,6 +2,7 @@
 
 import { generarExcelPostulaciones } from "@/lib/excel/generador-excel";
 import { getAdminSupabaseClient } from "@/lib/supabase/admin";
+import { obtenerAdministrador } from "@/lib/supabase/autorizacion";
 import type {
   DocumentoPostulacion,
   Evaluacion,
@@ -9,6 +10,11 @@ import type {
   Postulacion,
   PostulacionEstado,
 } from "@/lib/supabase/types";
+import { sanitizeFileName } from "@/lib/utils/formatters";
+import {
+  evaluacionSchema,
+  rutaDocumentoSchema,
+} from "@/lib/validations/evaluacion";
 
 export interface PostulacionAdminDetalle extends Postulacion {
   integrantes: Integrante[];
@@ -46,16 +52,19 @@ export interface RespuestaAdmin<T> {
   error?: string;
 }
 
-/**
- * Consulta todas las postulaciones con sus integrantes, documentos y evaluaciones,
- * junto con las métricas consolidadas del evento.
- */
-export async function obtenerPostulacionesAdminAction(): Promise<
-  RespuestaAdmin<{
-    postulaciones: PostulacionAdminDetalle[];
-    metricas: MetricasAdmin;
-  }>
-> {
+interface ListadoAdmin {
+  postulaciones: PostulacionAdminDetalle[];
+  metricas: MetricasAdmin;
+}
+
+const MENSAJE_SIN_ACCESO =
+  "Tu sesión no tiene acceso a este panel. Inicia sesión de nuevo.";
+const MENSAJE_DOCUMENTO_NO_DISPONIBLE =
+  "No pudimos abrir el documento. Actualiza la página e inténtalo de nuevo.";
+const VIGENCIA_ENLACE_SEGUNDOS = 60;
+
+/** Sin verificación propia: solo la invocan acciones que ya exigieron administrador. */
+async function consultarListadoAdmin(): Promise<RespuestaAdmin<ListadoAdmin>> {
   try {
     const adminClient = getAdminSupabaseClient();
 
@@ -172,36 +181,68 @@ export async function obtenerPostulacionesAdminAction(): Promise<
       },
     };
   } catch (error) {
-    const msg =
-      error instanceof Error ? error.message : "Error interno del servidor";
+    console.error("Error al consultar postulaciones:", error);
     return {
       success: false,
-      error: msg,
+      error:
+        "No pudimos cargar las postulaciones en este momento. Inténtalo de nuevo en unos minutos.",
     };
   }
 }
 
 /**
- * Genera una Signed URL temporal para visualizar o descargar un documento
- * confidencial almacenado en el bucket privado 'postulaciones_docs'.
+ * Consulta todas las postulaciones con sus integrantes, documentos y evaluaciones,
+ * junto con las métricas consolidadas del evento.
+ */
+export async function obtenerPostulacionesAdminAction(): Promise<
+  RespuestaAdmin<ListadoAdmin>
+> {
+  if (!(await obtenerAdministrador())) {
+    return { success: false, error: MENSAJE_SIN_ACCESO };
+  }
+
+  return consultarListadoAdmin();
+}
+
+/**
+ * Genera una Signed URL de corta vida para descargar un documento del bucket privado
+ * 'postulaciones_docs'. La ruta debe pertenecer a un expediente registrado, así una
+ * ruta manipulada no alcanza otros objetos del bucket.
  */
 export async function generarUrlDocumentoAction(
   storagePath: string,
 ): Promise<RespuestaAdmin<{ signedUrl: string }>> {
+  if (!(await obtenerAdministrador())) {
+    return { success: false, error: MENSAJE_SIN_ACCESO };
+  }
+
+  const ruta = rutaDocumentoSchema.safeParse(storagePath);
+  if (!ruta.success) {
+    return { success: false, error: MENSAJE_DOCUMENTO_NO_DISPONIBLE };
+  }
+
   try {
-    if (!storagePath || storagePath.trim() === "") {
-      return {
-        success: false,
-        error: "Ruta de almacenamiento no especificada",
-      };
+    const adminClient = getAdminSupabaseClient();
+
+    const { data: documento, error: errDocumento } = await adminClient
+      .from("documentos_postulacion")
+      .select("storage_path, nombre_original")
+      .eq("storage_path", ruta.data)
+      .maybeSingle();
+
+    if (errDocumento) {
+      throw new Error(`Error al ubicar el documento: ${errDocumento.message}`);
+    }
+    if (!documento) {
+      return { success: false, error: MENSAJE_DOCUMENTO_NO_DISPONIBLE };
     }
 
-    const adminClient = getAdminSupabaseClient();
-    const expiresInSeconds = 300; // 5 minutos de vigencia segura
-
+    // download fuerza Content-Disposition: attachment en la respuesta de Storage.
     const { data, error } = await adminClient.storage
       .from("postulaciones_docs")
-      .createSignedUrl(storagePath, expiresInSeconds);
+      .createSignedUrl(documento.storage_path, VIGENCIA_ENLACE_SEGUNDOS, {
+        download: sanitizeFileName(documento.nombre_original),
+      });
 
     if (error || !data?.signedUrl) {
       throw new Error(
@@ -215,13 +256,11 @@ export async function generarUrlDocumentoAction(
       data: { signedUrl: data.signedUrl },
     };
   } catch (error) {
-    const msg =
-      error instanceof Error
-        ? error.message
-        : "Error al generar enlace seguro de documento";
+    console.error("Error al generar el enlace del documento:", error);
     return {
       success: false,
-      error: msg,
+      error:
+        "No pudimos abrir el documento en este momento. Inténtalo de nuevo en unos minutos.",
     };
   }
 }
@@ -234,44 +273,38 @@ export async function generarUrlDocumentoAction(
 export async function guardarEvaluacionAction(
   input: EvaluacionInput,
 ): Promise<RespuestaAdmin<Evaluacion>> {
+  const administrador = await obtenerAdministrador();
+  if (!administrador) {
+    return { success: false, error: MENSAJE_SIN_ACCESO };
+  }
+
+  const validacion = evaluacionSchema.safeParse(input);
+  if (!validacion.success) {
+    return {
+      success: false,
+      error: "Revisa los datos de la evaluación e inténtalo de nuevo.",
+    };
+  }
+
+  const evaluacion = validacion.data;
+
   try {
     const adminClient = getAdminSupabaseClient();
-
-    // Sanitizar y validar rangos de puntajes
-    const motivacion = Math.max(
-      0,
-      Math.min(30, Number(input.puntaje_motivacion) || 0),
-    );
-    const pertinencia = Math.max(
-      0,
-      Math.min(30, Number(input.puntaje_pertinencia) || 0),
-    );
-    const diversidad = Math.max(
-      0,
-      Math.min(20, Number(input.puntaje_diversidad) || 0),
-    );
-    const representacion = Math.max(
-      0,
-      Math.min(20, Number(input.puntaje_representacion) || 0),
-    );
 
     // 1. Guardar o actualizar evaluación en la tabla 'evaluaciones'
     const { data: evaluacionGuardada, error: errEval } = await adminClient
       .from("evaluaciones")
       .upsert(
         {
-          postulacion_id: input.postulacion_id,
-          cumple_requisitos_habilitante: Boolean(
-            input.cumple_requisitos_habilitante,
-          ),
-          puntaje_motivacion: motivacion,
-          puntaje_pertinencia: pertinencia,
-          puntaje_diversidad: diversidad,
-          puntaje_representacion: representacion,
-          observaciones: input.observaciones
-            ? input.observaciones.trim()
-            : null,
-          evaluado_por: input.evaluado_por || "Comité Técnico Evaluador",
+          postulacion_id: evaluacion.postulacion_id,
+          cumple_requisitos_habilitante:
+            evaluacion.cumple_requisitos_habilitante,
+          puntaje_motivacion: evaluacion.puntaje_motivacion,
+          puntaje_pertinencia: evaluacion.puntaje_pertinencia,
+          puntaje_diversidad: evaluacion.puntaje_diversidad,
+          puntaje_representacion: evaluacion.puntaje_representacion,
+          observaciones: evaluacion.observaciones || null,
+          evaluado_por: administrador.id,
           evaluado_el: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         },
@@ -290,10 +323,10 @@ export async function guardarEvaluacionAction(
     const { error: errPostulacion } = await adminClient
       .from("postulaciones")
       .update({
-        estado: input.nuevo_estado,
+        estado: evaluacion.nuevo_estado,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", input.postulacion_id);
+      .eq("id", evaluacion.postulacion_id);
 
     if (errPostulacion) {
       console.error(
@@ -307,11 +340,11 @@ export async function guardarEvaluacionAction(
       data: evaluacionGuardada,
     };
   } catch (error) {
-    const msg =
-      error instanceof Error ? error.message : "Error al guardar la evaluación";
+    console.error("Error al guardar la evaluación:", error);
     return {
       success: false,
-      error: msg,
+      error:
+        "No pudimos guardar la evaluación. Inténtalo de nuevo en unos minutos.",
     };
   }
 }
@@ -328,8 +361,12 @@ export async function exportarPostulacionesExcelAction(): Promise<
     nombreArchivo: string;
   }>
 > {
+  if (!(await obtenerAdministrador())) {
+    return { success: false, error: MENSAJE_SIN_ACCESO };
+  }
+
   try {
-    const consulta = await obtenerPostulacionesAdminAction();
+    const consulta = await consultarListadoAdmin();
 
     if (!consulta.success || !consulta.data) {
       throw new Error(
@@ -349,11 +386,11 @@ export async function exportarPostulacionesExcelAction(): Promise<
       },
     };
   } catch (error) {
-    const msg =
-      error instanceof Error ? error.message : "Error al exportar a Excel";
+    console.error("Error al exportar a Excel:", error);
     return {
       success: false,
-      error: msg,
+      error:
+        "No pudimos generar el archivo de Excel en este momento. Inténtalo de nuevo en unos minutos.",
     };
   }
 }

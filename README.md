@@ -12,7 +12,7 @@ Plataforma oficial de divulgación, postulación en línea y evaluación técnic
 
 | Ruta | Acceso | Descripción y Funcionalidad |
 | :--- | :---: | :--- |
-| **`/`** | Público | **Portal Principal / Landing Page:** Portada editorial tipo póster con parallax desacoplado, introducción omisible, agenda temática, descarga de Términos de Referencia oficiales y simulador de prototipado en laboratorio. |
+| **`/`** | Público | **Landing:** banner con el mapa como ventana de video, jornada, mapa interactivo, requisitos, recorrido horizontal y preguntas. Dirección en `docs/design.md`. |
 | **`/postulacion`** | Público | **Formulario Multi-paso de Inscripción:** Wizard interactivo de 5 pasos con validación en tiempo real (Zod), registro de tutor, equipo de 3 estudiantes, justificación de intereses, carga segura de soportes al bucket privado de Supabase Storage y generación de radicado oficial (`INNOVA-2026-XXXX`). |
 | **`/admin`** | Restringido | **Panel de Evaluación y Administración:** Tablero de métricas en tiempo real (cupos ocupados, distribución colegios/universidades), buscador reactivo, expediente digital con enlaces temporales seguros (Signed URLs), calificación ponderada oficial TDR (Motivación 30%, Pertinencia 30%, Diversidad 20%, Representación 20%) y exportación a Excel (.xlsx). |
 

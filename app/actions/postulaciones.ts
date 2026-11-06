@@ -1,15 +1,15 @@
 "use server";
 
+import { headers } from "next/headers";
 import { getAdminSupabaseClient } from "@/lib/supabase/admin";
 import type { TipoDocumentoAdjunto } from "@/lib/supabase/types";
-import {
-  getFileExtension,
-  parseBooleanValue,
-  sanitizeFileName,
-} from "@/lib/utils/formatters";
+import { parseBooleanValue, sanitizeFileName } from "@/lib/utils/formatters";
 import { optimizarPdf } from "@/lib/utils/optimizar-pdf";
+import { revisarArchivo, type TipoDetectado } from "@/lib/validations/archivos";
+import { crearLimitador } from "@/lib/validations/limite-tasa";
 import {
   type ActionResult,
+  normalizarBooleanoEstricto,
   type PostulacionCompletaInput,
   type PostulacionSuccessData,
   postulacionCompletaSchema,
@@ -32,6 +32,59 @@ interface RawIntegrantesInput {
   es_menor_edad?: unknown;
 }
 
+const MENSAJE_ERROR_RADICACION =
+  "No pudimos radicar tu postulación en este momento. Tus datos siguen en el formulario: inténtalo de nuevo en unos minutos.";
+
+const MENSAJE_DATOS_ILEGIBLES =
+  "No pudimos leer los datos del formulario. Recarga la página e inténtalo de nuevo.";
+const MENSAJE_LIMITE =
+  "Recibimos demasiados intentos desde esta conexión. Espera un rato e inténtalo de nuevo.";
+
+const MAX_LONGITUD_JSON = 64 * 1024;
+const MAX_NOMBRE_ARCHIVO = 120;
+const INTENTOS_POR_HORA = 10;
+const UNA_HORA_MS = 60 * 60 * 1000;
+// Trampa para bots: el formulario debe enviarlo vacío y oculto. Ver docs/seguridad.md.
+const CAMPO_TRAMPA = "sitio_web";
+
+const consumirIntento = crearLimitador(INTENTOS_POR_HORA, UNA_HORA_MS);
+
+async function obtenerIp(): Promise<string | null> {
+  const cabeceras = await headers();
+  return (
+    cabeceras.get("x-real-ip") ??
+    cabeceras.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    null
+  );
+}
+
+function leerJson(valor: unknown): { valido: boolean; dato?: unknown } {
+  if (typeof valor !== "string" || valor.trim() === "") return { valido: true };
+  if (valor.length > MAX_LONGITUD_JSON) return { valido: false };
+  try {
+    return { valido: true, dato: JSON.parse(valor) };
+  } catch {
+    return { valido: false };
+  }
+}
+
+function esObjetoPlano(valor: unknown): valor is Record<string, unknown> {
+  return typeof valor === "object" && valor !== null && !Array.isArray(valor);
+}
+
+function nombreOriginalSeguro(
+  nombre: string,
+  respaldo: string,
+  extension: string,
+): string {
+  const base = sanitizeFileName(nombre)
+    .replace(/\.[^.]*$/, "")
+    .replace(/\.{2,}/g, ".")
+    .replace(/^\.+/, "")
+    .slice(0, MAX_NOMBRE_ARCHIVO);
+  return `${base || respaldo}.${extension}`;
+}
+
 /**
  * Server Action principal para registrar una postulación completa con sus 3 integrantes
  * y sus documentos de soporte almacenados de manera segura en Supabase Storage.
@@ -41,39 +94,38 @@ export async function crearPostulacionAction(
 ): Promise<ActionResult> {
   const uploadedStoragePaths: string[] = [];
   let postulacionIdCreada: string | null = null;
-  const adminClient = getAdminSupabaseClient();
+  // Se crea dentro del try: si falta configuración no debe romper la acción con un throw crudo.
+  let adminClient: ReturnType<typeof getAdminSupabaseClient> | null = null;
 
   try {
+    const ip = await obtenerIp();
+    if (ip && !consumirIntento(ip)) {
+      return { success: false, error: MENSAJE_LIMITE };
+    }
+
+    if (formData.get(CAMPO_TRAMPA)) {
+      return { success: false, error: MENSAJE_ERROR_RADICACION };
+    }
+
+    adminClient = getAdminSupabaseClient();
+
     // 1. Extraer datos del FormData (soporta tanto JSON 'datos'/'payload' como campos directos)
     const datosRaw = formData.get("datos") ?? formData.get("payload");
-    let baseData: Record<string, unknown> = {};
-
-    if (typeof datosRaw === "string" && datosRaw.trim() !== "") {
-      try {
-        baseData = JSON.parse(datosRaw) as Record<string, unknown>;
-      } catch {
-        return {
-          success: false,
-          error:
-            "El formato de los datos del formulario es inválido (JSON malformado).",
-        };
-      }
+    const datosLeidos = leerJson(datosRaw);
+    if (
+      !datosLeidos.valido ||
+      (datosLeidos.dato !== undefined && !esObjetoPlano(datosLeidos.dato))
+    ) {
+      return { success: false, error: MENSAJE_DATOS_ILEGIBLES };
     }
+    const baseData: Record<string, unknown> = esObjetoPlano(datosLeidos.dato)
+      ? datosLeidos.dato
+      : {};
 
     // Procesar integrantes
     let rawIntegrantes: unknown = baseData.integrantes;
     if (!rawIntegrantes) {
-      const integrantesRawStr = formData.get("integrantes");
-      if (
-        typeof integrantesRawStr === "string" &&
-        integrantesRawStr.trim() !== ""
-      ) {
-        try {
-          rawIntegrantes = JSON.parse(integrantesRawStr);
-        } catch {
-          rawIntegrantes = null;
-        }
-      }
+      rawIntegrantes = leerJson(formData.get("integrantes")).dato;
     }
 
     // Si aún no hay integrantes, intentar leer por índices (integrantes[0], etc.)
@@ -106,7 +158,7 @@ export async function crearPostulacionAction(
             numero_documento: numDoc,
             correo_electronico: email,
             telefono: tel,
-            es_menor_edad: parseBooleanValue(menor),
+            es_menor_edad: normalizarBooleanoEstricto(menor),
           });
         }
       }
@@ -122,7 +174,7 @@ export async function crearPostulacionAction(
           const rec = item as Record<string, unknown>;
           return {
             ...rec,
-            es_menor_edad: parseBooleanValue(rec.es_menor_edad),
+            es_menor_edad: normalizarBooleanoEstricto(rec.es_menor_edad),
           };
         }
         return item;
@@ -137,7 +189,9 @@ export async function crearPostulacionAction(
     const autorizacionMenores = formData.get("autorizacion_menores");
 
     // Construir objeto crudo para validación con Zod
+    // baseData va primero: sus claves desconocidas llegan a Zod, que las rechaza.
     const rawPostulacion = {
+      ...baseData,
       institucion_nombre:
         baseData.institucion_nombre ?? formData.get("institucion_nombre"),
       institucion_tipo:
@@ -189,10 +243,8 @@ export async function crearPostulacionAction(
 
     const data: PostulacionCompletaInput = validationResult.data;
 
-    // 3. Preparar subida de archivos con radicado temporal
-    const timestamp = Date.now();
-    const randomSuffix = Math.random().toString(36).substring(2, 9);
-    const radicadoTemporal = `postulacion_${timestamp}_${randomSuffix}`;
+    // 3. Preparar subida de archivos en una carpeta con nombre no adivinable
+    const carpeta = `postulacion_${crypto.randomUUID()}`;
 
     const archivosPorSubir: Array<{
       tipo: TipoDocumentoAdjunto;
@@ -211,19 +263,40 @@ export async function crearPostulacionAction(
       });
     }
 
+    // Se revisan todos antes de subir nada: un archivo falso no deja rastro en Storage.
+    const archivosRevisados: Array<{
+      tipo: TipoDocumentoAdjunto;
+      file: File;
+      contenido: Buffer;
+      detectado: TipoDetectado;
+    }> = [];
+
+    for (const item of archivosPorSubir) {
+      const contenido = Buffer.from(await item.file.arrayBuffer());
+      const revision = await revisarArchivo(contenido);
+
+      if (!revision.aceptado) {
+        return {
+          success: false,
+          error: revision.mensaje,
+          fieldErrors: { [item.tipo]: [revision.mensaje] },
+        };
+      }
+
+      archivosRevisados.push({ ...item, contenido, detectado: revision.tipo });
+    }
+
     const documentosSubidos: UploadedDocumentRecord[] = [];
 
-    // Subir cada archivo a Supabase Storage con prefijo único sanitizado y optimización de PDF
-    for (const item of archivosPorSubir) {
-      const ext = getFileExtension(item.file);
-      const storagePath = `${radicadoTemporal}/${item.tipo}_${timestamp}.${ext}`;
-      const rawBuffer = Buffer.from(await item.file.arrayBuffer());
-      let fileBuffer: Buffer = rawBuffer;
-      let finalSize = item.file.size;
+    // Ruta, extensión y tipo salen del servidor; nada del nombre original llega a la ruta.
+    for (const item of archivosRevisados) {
+      const { extension, mime } = item.detectado;
+      const storagePath = `${carpeta}/${item.tipo}.${extension}`;
+      let fileBuffer: Buffer = item.contenido;
+      let finalSize = item.contenido.length;
 
-      // Optimizar y empaquetar flujos de objetos si es PDF
-      if (item.file.type === "application/pdf" || ext.toLowerCase() === "pdf") {
-        const optimizado = await optimizarPdf(rawBuffer);
+      if (mime === "application/pdf") {
+        const optimizado = await optimizarPdf(item.contenido);
         fileBuffer = optimizado.buffer;
         finalSize = optimizado.tamanoFinal;
       }
@@ -231,7 +304,7 @@ export async function crearPostulacionAction(
       const { error: uploadError } = await adminClient.storage
         .from("postulaciones_docs")
         .upload(storagePath, fileBuffer, {
-          contentType: item.file.type || "application/pdf",
+          contentType: mime,
           upsert: false,
         });
 
@@ -245,11 +318,13 @@ export async function crearPostulacionAction(
       documentosSubidos.push({
         tipo_documento: item.tipo,
         storage_path: storagePath,
-        nombre_original: sanitizeFileName(
-          item.file.name || `${item.tipo}.${ext}`,
+        nombre_original: nombreOriginalSeguro(
+          item.file.name,
+          item.tipo,
+          extension,
         ),
         tamano_bytes: finalSize,
-        mime_type: item.file.type || "application/pdf",
+        mime_type: mime,
       });
     }
 
@@ -334,7 +409,7 @@ export async function crearPostulacionAction(
     };
   } catch (error) {
     // 5. Rollback de limpieza preventiva: borrar archivos huérfanos y postulación en caso de falla
-    if (uploadedStoragePaths.length > 0) {
+    if (adminClient && uploadedStoragePaths.length > 0) {
       try {
         await adminClient.storage
           .from("postulaciones_docs")
@@ -347,7 +422,7 @@ export async function crearPostulacionAction(
       }
     }
 
-    if (postulacionIdCreada) {
+    if (adminClient && postulacionIdCreada) {
       try {
         await adminClient
           .from("postulaciones")
@@ -361,14 +436,12 @@ export async function crearPostulacionAction(
       }
     }
 
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Ocurrió un error inesperado al procesar la inscripción.";
+    // El detalle técnico queda solo en el log del servidor; al usuario se le da un mensaje fijo.
+    console.error("Error al radicar la postulación:", error);
 
     return {
       success: false,
-      error: message,
+      error: MENSAJE_ERROR_RADICACION,
     };
   }
 }

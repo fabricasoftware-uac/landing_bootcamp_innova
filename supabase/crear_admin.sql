@@ -18,9 +18,13 @@ DO $$
 DECLARE
   v_user_id uuid := gen_random_uuid();
   v_email text := 'admin@caucainnova.gov.co';     -- Define aquí tu correo
-  v_password text := 'CaucaInnova2026*';           -- Define aquí tu contraseña
+  v_password text := '__DEFINE_CONTRASENA_SEGURA__';  -- Reemplaza antes de ejecutar; no la guardes en el repositorio
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM auth.users WHERE email = v_email) THEN
+    IF v_password = '__DEFINE_CONTRASENA_SEGURA__' THEN
+      RAISE EXCEPTION 'Define v_password antes de ejecutar este script';
+    END IF;
+
     INSERT INTO auth.users (
       instance_id,
       id,

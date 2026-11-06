@@ -1,16 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   type MetricasAdmin,
   obtenerPostulacionesAdminAction,
   type PostulacionAdminDetalle,
 } from "@/app/actions/admin";
 import { AuthAdmin } from "@/components/admin/auth-admin";
-import { ExpedienteModal } from "@/components/admin/expediente-modal";
-import { MetricasDashboard } from "@/components/admin/metricas-dashboard";
-import { TablaPostulaciones } from "@/components/admin/tabla-postulaciones";
+import { PanelPostulaciones } from "@/components/admin/panel-postulaciones";
 import { createClient } from "@/lib/supabase/client";
+import "./admin.css";
+
+const MENSAJE_SIN_SERVICIO =
+  "No pudimos iniciar sesión en este momento. Inténtalo de nuevo en unos minutos.";
 
 export default function AdminPage() {
   const [autenticado, setAutenticado] = useState<boolean | null>(null);
@@ -18,11 +20,8 @@ export default function AdminPage() {
     [],
   );
   const [metricas, setMetricas] = useState<MetricasAdmin | null>(null);
-  const [postulacionSeleccionada, setPostulacionSeleccionada] =
-    useState<PostulacionAdminDetalle | null>(null);
   const [cargandoDatos, setCargandoDatos] = useState(false);
   const [errorCarga, setErrorCarga] = useState<string | null>(null);
-  const [, startTransition] = useTransition();
 
   // 1. Verificar sesión existente con Supabase Auth
   useEffect(() => {
@@ -53,11 +52,8 @@ export default function AdminPage() {
     } catch (err) {
       console.error("Error al inicializar sesión admin:", err);
       setAutenticado(false);
-      setErrorCarga(
-        err instanceof Error
-          ? err.message
-          : "Error de configuración de Supabase en este entorno.",
-      );
+      // Sin configuración mostramos el login normal; el aviso es amable y genérico.
+      setErrorCarga(MENSAJE_SIN_SERVICIO);
     }
 
     return () => {
@@ -77,20 +73,13 @@ export default function AdminPage() {
       if (res.success && res.data) {
         setPostulaciones(res.data.postulaciones);
         setMetricas(res.data.metricas);
-
-        // Si hay una postulación abierta en el modal, actualizarla con los datos frescos
-        setPostulacionSeleccionada((prev) => {
-          if (!prev) return null;
-          return res.data?.postulaciones.find((p) => p.id === prev.id) || null;
-        });
       } else {
         setErrorCarga(res.error || "No se pudieron obtener las postulaciones.");
       }
     } catch (err) {
+      console.error("Error al consultar postulaciones:", err);
       setErrorCarga(
-        err instanceof Error
-          ? err.message
-          : "Error de red al consultar postulaciones.",
+        "No pudimos cargar las postulaciones. Revisa tu conexión e inténtalo de nuevo.",
       );
     } finally {
       setCargandoDatos(false);
@@ -111,6 +100,7 @@ export default function AdminPage() {
       console.error("Error cerrando sesión:", err);
     }
     setAutenticado(false);
+    setErrorCarga(null);
     setPostulaciones([]);
     setMetricas(null);
   };
@@ -118,11 +108,10 @@ export default function AdminPage() {
   // Estado de comprobación de sesión inicial
   if (autenticado === null) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f5f4ec]">
-        <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-wider text-[#10384f]">
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#006b5c] border-t-transparent" />
-          <span>Verificando permisos de acceso...</span>
-        </div>
+      <div className="flex min-h-svh items-center justify-center bg-nube">
+        <p className="text-pequeno font-semibold" role="status">
+          Comprobando la sesión…
+        </p>
       </div>
     );
   }
@@ -130,171 +119,24 @@ export default function AdminPage() {
   // Pantalla de autenticación si no está logueado
   if (!autenticado) {
     return (
-      <div className="min-h-screen bg-[#f5f4ec]">
-        <header className="border-b border-[#10384f]/15 bg-white/70 px-6 py-4 backdrop-blur-md">
-          <div className="mx-auto flex max-w-6xl items-center justify-between">
-            <a href="/" className="flex items-center gap-3">
-              <img
-                src="/images/redesign/cauca-innova-logo.png"
-                width="140"
-                height="70"
-                alt="Cauca INNOVA"
-                className="h-8 w-auto object-contain"
-              />
-              <span className="h-5 w-px bg-[#10384f]/25" aria-hidden="true" />
-              <img
-                src="/images/gobernacion-cauca.png"
-                width="110"
-                height="72"
-                alt="Gobernación del Cauca"
-                className="h-7 w-auto object-contain"
-              />
-            </a>
-            <a
-              href="/"
-              className="text-xs font-bold text-[#10384f] hover:underline"
-            >
-              ← Portal Principal
-            </a>
-          </div>
-        </header>
-
-        {errorCarga && (
-          <div className="mx-auto mt-6 max-w-md px-4">
-            <div className="rounded-xl border border-rose-300 bg-rose-50 p-4 text-xs font-semibold text-rose-800 shadow-sm">
-              <div className="flex items-center gap-2 font-bold uppercase tracking-wider">
-                <span>⚠️</span> Configuración requerida
-              </div>
-              <p className="mt-1">{errorCarga}</p>
-            </div>
-          </div>
-        )}
-
-        <AuthAdmin alAutenticar={() => setAutenticado(true)} />
-      </div>
+      <main className="bg-papel">
+        <AuthAdmin
+          alAutenticar={() => setAutenticado(true)}
+          avisoInicial={errorCarga}
+        />
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f4ec] text-[#10384f]">
-      {/* Cabecera Superior del Panel */}
-      <header className="sticky top-0 z-30 border-b border-[#10384f]/15 bg-white/90 px-4 py-3 backdrop-blur-md sm:px-6">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <a
-              href="/"
-              title="Ir a la portada pública"
-              className="flex items-center gap-2.5"
-            >
-              <img
-                src="/images/redesign/cauca-innova-logo.png"
-                width="140"
-                height="70"
-                alt="Cauca INNOVA"
-                className="h-8 w-auto object-contain"
-              />
-              <span className="h-5 w-px bg-[#10384f]/25" aria-hidden="true" />
-              <img
-                src="/images/gobernacion-cauca.png"
-                width="110"
-                height="72"
-                alt="Gobernación del Cauca"
-                className="h-7 w-auto object-contain"
-              />
-            </a>
-            <div className="hidden sm:block border-l border-[#10384f]/20 pl-4">
-              <span className="block text-[11px] font-bold uppercase tracking-wider text-[#006b5c]">
-                Bootcamp Cauca INNOVA 2026
-              </span>
-              <h1 className="text-sm font-black text-[#10384f]">
-                Panel de Evaluación y Administración
-              </h1>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <a
-              href="/"
-              target="_blank"
-              rel="noreferrer"
-              className="hidden sm:inline-flex rounded-lg border border-[#10384f]/20 px-3 py-1.5 text-xs font-semibold text-[#10384f] hover:bg-[#10384f]/5"
-            >
-              Ver Portal Público ↗
-            </a>
-            <button
-              type="button"
-              onClick={handleCerrarSesion}
-              className="rounded-lg bg-[#10384f] px-3.5 py-1.5 text-xs font-bold text-[#f5f4ec] transition hover:bg-rose-700"
-            >
-              Cerrar Sesión ✕
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Contenedor Principal */}
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 space-y-8">
-        {/* Banner de Estado */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-black tracking-tight text-[#10384f] sm:text-3xl">
-              Expedientes de Postulaciones
-            </h2>
-            <p className="mt-1 text-xs text-[#10384f]/70 sm:text-sm">
-              Revisión técnica, verificación de requisitos habilitantes y
-              calificación ponderada oficial TDR.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#006b5c]/10 px-3 py-1 text-xs font-bold text-[#006b5c]">
-              <span className="h-2 w-2 rounded-full bg-[#006b5c] animate-pulse" />
-              Sincronización en Tiempo Real
-            </span>
-          </div>
-        </div>
-
-        {/* Métricas Consolidadas */}
-        {metricas && <MetricasDashboard metricas={metricas} />}
-
-        {errorCarga && (
-          <div
-            className="rounded-xl border border-rose-300 bg-rose-50 p-4 text-xs font-semibold text-rose-800"
-            role="alert"
-          >
-            {errorCarga}
-          </div>
-        )}
-
-        {/* Tabla Maestra con Filtros y Exportación Excel */}
-        {cargandoDatos && postulaciones.length === 0 ? (
-          <div className="flex min-h-[300px] items-center justify-center rounded-xl border border-[#10384f]/15 bg-white p-12">
-            <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-wider text-[#006b5c]">
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-              <span>Cargando base de postulaciones...</span>
-            </div>
-          </div>
-        ) : (
-          <TablaPostulaciones
-            postulaciones={postulaciones}
-            alSeleccionarPostulacion={(p) => setPostulacionSeleccionada(p)}
-            alRecargar={cargarPostulaciones}
-          />
-        )}
-      </main>
-
-      {/* Modal / Drawer de Expediente Digital */}
-      {postulacionSeleccionada && (
-        <ExpedienteModal
-          postulacion={postulacionSeleccionada}
-          alCerrar={() => setPostulacionSeleccionada(null)}
-          alActualizar={() => {
-            startTransition(() => {
-              cargarPostulaciones();
-            });
-          }}
-        />
-      )}
-    </div>
+    <PanelPostulaciones
+      postulaciones={postulaciones}
+      metricas={metricas}
+      cargando={cargandoDatos || (metricas === null && errorCarga === null)}
+      error={errorCarga}
+      sesion="Comité Técnico Evaluador"
+      alRecargar={cargarPostulaciones}
+      alCerrarSesion={handleCerrarSesion}
+    />
   );
 }

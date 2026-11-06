@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { AnimatePresence, MotionConfig, motion } from "motion/react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { crearPostulacionAction } from "@/app/actions/postulaciones";
 import {
   MAX_FILE_SIZE_BYTES,
@@ -11,16 +12,18 @@ import {
   paso5DeclaracionSchema,
 } from "@/lib/validations/postulacion";
 import { ComprobanteExito } from "./comprobante-exito";
-import { IndicadorPasos } from "./indicador-pasos";
+import { IndicadorPasos, PASOS_INFO } from "./indicador-pasos";
 import { Paso1Semillero } from "./paso-1-semillero";
 import { Paso2Integrantes } from "./paso-2-integrantes";
 import { Paso3Motivacion } from "./paso-3-motivacion";
 import { Paso4Documentos } from "./paso-4-documentos";
 import { Paso5RevisionTerminos } from "./paso-5-revision-terminos";
+import { TallerProgreso } from "./taller-progreso";
 import {
   ESTADO_INICIAL_POSTULACION,
   type FormularioPostulacionState,
 } from "./tipos";
+import { useBorrador, useConexion } from "./use-borrador";
 
 export function FormularioPostulacion() {
   const [pasoActual, setPasoActual] = useState<number>(1);
@@ -32,13 +35,36 @@ export function FormularioPostulacion() {
   const [resultadoExito, setResultadoExito] =
     useState<PostulacionSuccessData | null>(null);
   const [isPending, startTransition] = useTransition();
+  // Trampa para robots: las personas no la ven; el servidor descarta lo que la llene.
+  const [trampa, setTrampa] = useState("");
+
+  const borrador = useBorrador({
+    datos,
+    paso: pasoActual,
+    alRecuperar: (recuperados, paso) => {
+      setDatos(recuperados);
+      setPasoActual(paso);
+    },
+  });
+  const enLinea = useConexion();
 
   const contenedorRef = useRef<HTMLDivElement>(null);
+  const hojaRef = useRef<HTMLDivElement>(null);
+  const pasoAnterior = useRef(pasoActual);
+
+  // Al cambiar de paso, el lector de pantalla y el teclado siguen en la hoja nueva.
+  useEffect(() => {
+    if (pasoAnterior.current === pasoActual) return;
+    pasoAnterior.current = pasoActual;
+    hojaRef.current?.focus({ preventScroll: true });
+  }, [pasoActual]);
 
   const scrollAlInicioFormulario = () => {
     if (contenedorRef.current) {
       contenedorRef.current.scrollIntoView({
-        behavior: "smooth",
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
         block: "start",
       });
     }
@@ -242,6 +268,7 @@ export function FormularioPostulacion() {
           declara_veracidad: datos.declara_veracidad,
         };
 
+        formData.append("sitio_web", trampa);
         formData.append("datos", JSON.stringify(payload));
         formData.append("payload", JSON.stringify(payload));
 
@@ -301,6 +328,7 @@ export function FormularioPostulacion() {
         const respuesta = await crearPostulacionAction(formData);
 
         if (respuesta.success) {
+          borrador.borrar();
           setResultadoExito(respuesta.data);
           scrollAlInicioFormulario();
         } else {
@@ -336,7 +364,7 @@ export function FormularioPostulacion() {
           );
         } else {
           setErrorServidor(
-            `No se pudo conectar con el servidor de inscripciones (${errorMsg || "Error de red"}). Por favor verifica tu conexión e inténtalo de nuevo.`,
+            "No se pudo conectar con el servidor de inscripciones. Por favor verifica tu conexión e inténtalo de nuevo.",
           );
         }
       }
@@ -344,6 +372,7 @@ export function FormularioPostulacion() {
   };
 
   const reiniciarFormulario = () => {
+    borrador.borrar();
     setDatos(ESTADO_INICIAL_POSTULACION);
     setResultadoExito(null);
     setPasoActual(1);
@@ -352,155 +381,171 @@ export function FormularioPostulacion() {
     scrollAlInicioFormulario();
   };
 
-  if (resultadoExito) {
-    return (
-      <div ref={contenedorRef} className="w-full">
-        <ComprobanteExito
-          resultado={resultadoExito}
-          datos={datos}
-          alReiniciar={reiniciarFormulario}
-        />
-      </div>
-    );
-  }
+  const siguientePaso = PASOS_INFO[pasoActual]?.titulo;
 
   return (
-    <div ref={contenedorRef} className="w-full">
-      {/* Indicador de pasos */}
-      <IndicadorPasos
+    <div className="expediente">
+      <TallerProgreso
+        datos={datos}
         pasoActual={pasoActual}
-        totalPasos={5}
-        alSeleccionarPaso={irAPaso}
+        terminado={Boolean(resultadoExito)}
       />
-
-      {/* Alerta de error del servidor si ocurre */}
-      {errorServidor && (
-        <div
-          className="mb-6 rounded-xl border border-rose-400 bg-rose-50 p-4 text-sm font-semibold text-rose-900 shadow-xs"
-          role="alert"
-        >
-          <div className="flex items-start gap-3">
-            <span className="text-xl" aria-hidden="true">
-              ⚠️
-            </span>
-            <div>
-              <p className="font-bold">
-                No fue posible completar la inscripción:
-              </p>
-              <p className="mt-0.5 text-xs font-normal text-rose-800">
-                {errorServidor}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Contenido del paso actual */}
-      <div className="min-h-[460px]">
-        {pasoActual === 1 && (
-          <Paso1Semillero
+      <div ref={contenedorRef} className="expediente-principal">
+        {resultadoExito ? (
+          <ComprobanteExito
+            resultado={resultadoExito}
             datos={datos}
-            actualizarDatos={actualizarDatos}
-            errores={errores}
-            limpiarError={limpiarError}
+            alReiniciar={reiniciarFormulario}
           />
-        )}
-
-        {pasoActual === 2 && (
-          <Paso2Integrantes
-            datos={datos}
-            actualizarDatos={actualizarDatos}
-            errores={errores}
-            limpiarError={limpiarError}
-          />
-        )}
-
-        {pasoActual === 3 && (
-          <Paso3Motivacion
-            datos={datos}
-            actualizarDatos={actualizarDatos}
-            errores={errores}
-            limpiarError={limpiarError}
-          />
-        )}
-
-        {pasoActual === 4 && (
-          <Paso4Documentos
-            datos={datos}
-            actualizarDatos={actualizarDatos}
-            errores={errores}
-            limpiarError={limpiarError}
-          />
-        )}
-
-        {pasoActual === 5 && (
-          <Paso5RevisionTerminos
-            datos={datos}
-            actualizarDatos={actualizarDatos}
-            errores={errores}
-            limpiarError={limpiarError}
-            irAPaso={irAPaso}
-          />
-        )}
-      </div>
-
-      {/* Barra de controles de navegación */}
-      <div className="mt-10 sm:mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-[#10384f]/15 pt-6 sm:pt-8">
-        <div>
-          {pasoActual > 1 ? (
-            <button
-              type="button"
-              disabled={isPending}
-              onClick={retrocederPaso}
-              className="inline-flex items-center gap-2 rounded-xl border border-[#10384f]/25 bg-white px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-[#10384f] shadow-2xs transition hover:bg-[#10384f]/5 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              ← Anterior
-            </button>
-          ) : (
-            <a
-              href="/"
-              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#10384f]/70 hover:text-[#10384f]"
-            >
-              ← Volver al sitio principal
-            </a>
-          )}
-        </div>
-
-        <div>
-          {pasoActual < 5 ? (
-            <button
-              type="button"
-              onClick={avanzarPaso}
-              className="inline-flex items-center gap-3 rounded-xl bg-[#10384f] px-7 py-3.5 text-xs font-bold uppercase tracking-wider shadow-sm transition hover:bg-[#006b5c]"
-            >
-              <span className="text-amber-50">
-                Continuar al Paso {pasoActual + 1}
-              </span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              disabled={isPending}
-              onClick={manejarEnvio}
-              className="inline-flex items-center gap-3 rounded-xl bg-[#006b5c] px-8 py-3.5 text-sm font-black uppercase tracking-wider text-[#d1ef3d] shadow-md transition hover:bg-[#10384f] hover:text-[#f5f4ec] disabled:cursor-wait disabled:opacity-75"
-            >
-              {isPending ? (
-                <>
-                  <span
-                    className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
-                    aria-hidden="true"
-                  />
-                  <span>Radicando Inscripción...</span>
-                </>
-              ) : (
-                <>
-                  <span>Finalizar y Radicar Inscripción</span>
-                  <span aria-hidden="true">✓</span>
-                </>
+        ) : (
+          <>
+            <IndicadorPasos
+              pasoActual={pasoActual}
+              alSeleccionarPaso={irAPaso}
+            />
+            <div ref={hojaRef} className="hoja-paso" tabIndex={-1}>
+              <label className="trampa" aria-hidden="true">
+                Sitio web
+                <input
+                  type="text"
+                  name="sitio_web"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={trampa}
+                  onChange={(evento) => setTrampa(evento.target.value)}
+                />
+              </label>
+              {!enLinea && (
+                <div className="aviso aviso-alerta mb-6" role="status">
+                  Estás sin conexión. Tu avance queda guardado en este equipo y
+                  podrás radicar cuando vuelva internet.
+                </div>
               )}
-            </button>
-          )}
-        </div>
+              {borrador.recuperado && (
+                <div className="aviso aviso-borrador mb-6" role="status">
+                  <p>
+                    Recuperamos tu avance. Si ibas en los documentos, vuelve a
+                    adjuntarlos: por seguridad no se guardan.
+                  </p>
+                  <button
+                    type="button"
+                    className="enlace-texto"
+                    onClick={reiniciarFormulario}
+                  >
+                    Empezar de cero
+                  </button>
+                </div>
+              )}
+              {errorServidor && (
+                <div className="aviso aviso-alerta mb-6" role="alert">
+                  No fue posible radicar la postulación. {errorServidor}
+                </div>
+              )}
+
+              <MotionConfig reducedMotion="user">
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={pasoActual}
+                    initial={{
+                      opacity: 0,
+                      y: 36,
+                      clipPath: "inset(-2rem -2rem 100% -2rem)",
+                    }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                      clipPath: "inset(-2rem -2rem -2rem -2rem)",
+                    }}
+                    exit={{ opacity: 0, y: -18 }}
+                    transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    {pasoActual === 1 && (
+                      <Paso1Semillero
+                        datos={datos}
+                        actualizarDatos={actualizarDatos}
+                        errores={errores}
+                        limpiarError={limpiarError}
+                      />
+                    )}
+                    {pasoActual === 2 && (
+                      <Paso2Integrantes
+                        datos={datos}
+                        actualizarDatos={actualizarDatos}
+                        errores={errores}
+                        limpiarError={limpiarError}
+                      />
+                    )}
+                    {pasoActual === 3 && (
+                      <Paso3Motivacion
+                        datos={datos}
+                        actualizarDatos={actualizarDatos}
+                        errores={errores}
+                        limpiarError={limpiarError}
+                      />
+                    )}
+                    {pasoActual === 4 && (
+                      <Paso4Documentos
+                        datos={datos}
+                        actualizarDatos={actualizarDatos}
+                        errores={errores}
+                        limpiarError={limpiarError}
+                      />
+                    )}
+                    {pasoActual === 5 && (
+                      <Paso5RevisionTerminos
+                        datos={datos}
+                        actualizarDatos={actualizarDatos}
+                        errores={errores}
+                        limpiarError={limpiarError}
+                        irAPaso={irAPaso}
+                      />
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+              </MotionConfig>
+
+              <div className="controles-paso">
+                {pasoActual > 1 && (
+                  <button
+                    type="button"
+                    className="boton boton-suave"
+                    disabled={isPending}
+                    onClick={retrocederPaso}
+                  >
+                    Volver
+                  </button>
+                )}
+                {pasoActual < PASOS_INFO.length ? (
+                  <button
+                    type="button"
+                    className="boton boton-lima"
+                    onClick={avanzarPaso}
+                  >
+                    Seguir a {siguientePaso} <span className="flecha">→</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="boton boton-lima"
+                    disabled={isPending}
+                    onClick={manejarEnvio}
+                  >
+                    {isPending ? (
+                      <>
+                        <span className="girando" aria-hidden="true" />
+                        Radicando…
+                      </>
+                    ) : (
+                      <>
+                        Radicar postulación <span className="flecha">→</span>
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

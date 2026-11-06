@@ -1,6 +1,7 @@
 "use client";
 
-import { documentoTerminos } from "@/lib/contenido";
+import type { ReactNode } from "react";
+import { Casilla, TituloPaso } from "./campos";
 import type { PasoProps } from "./tipos";
 
 interface Paso5RevisionProps extends PasoProps {
@@ -12,6 +13,51 @@ const SLOTS_INTEGRANTES = [
   "estudiante-segundo-2",
   "estudiante-tercero-3",
 ] as const;
+
+interface BloqueResumenProps {
+  titulo: string;
+  paso: number;
+  irAPaso: (paso: number) => void;
+  children: ReactNode;
+}
+
+function BloqueResumen({
+  titulo,
+  paso,
+  irAPaso,
+  children,
+}: BloqueResumenProps) {
+  return (
+    <section className="resumen-bloque">
+      <header>
+        <h3>{titulo}</h3>
+        <button
+          type="button"
+          className="enlace-texto min-h-11 px-2"
+          onClick={() => irAPaso(paso)}
+        >
+          Editar<span className="sr-only">: {titulo}</span>
+        </button>
+      </header>
+      {children}
+    </section>
+  );
+}
+
+function Dato({
+  etiqueta,
+  children,
+}: {
+  etiqueta: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="mt-3 first:mt-0">
+      <dt className="resumen-etiqueta">{etiqueta}</dt>
+      <dd className="font-bold break-words">{children}</dd>
+    </div>
+  );
+}
 
 export function Paso5RevisionTerminos({
   datos,
@@ -25,324 +71,182 @@ export function Paso5RevisionTerminos({
     valor: boolean,
   ) => {
     actualizarDatos({ [campo]: valor });
-    if (limpiarError) {
-      limpiarError(campo);
-    }
+    limpiarError?.(campo);
   };
 
+  const hayMenoresDeEdad = datos.integrantes.some((i) => i.es_menor_edad);
+
+  const documentos = [
+    {
+      clave: "aval",
+      nombre: "Aval del semillero",
+      archivo: datos.aval_semillero,
+    },
+    {
+      clave: "id1",
+      nombre: "Documento del estudiante 1",
+      archivo: datos.doc_identidad_1,
+    },
+    {
+      clave: "id2",
+      nombre: "Documento del estudiante 2",
+      archivo: datos.doc_identidad_2,
+    },
+    {
+      clave: "id3",
+      nombre: "Documento del estudiante 3",
+      archivo: datos.doc_identidad_3,
+    },
+  ] as const;
+
   return (
-    <div className="space-y-8">
-      <div className="mb-6 sm:mb-8">
-        <h2 className="font-sans text-xl font-bold tracking-tight text-[#10384f] sm:text-2xl">
-          Revisión Consolidada y Términos Legales
-        </h2>
-        <p className="mt-2 text-sm leading-relaxed text-[#10384f]/75 sm:text-base">
-          Verifica con atención la información antes de generar el radicado
-          oficial. Puedes regresar a cualquier paso para corregir si es
-          necesario.
-        </p>
-      </div>
+    <div className="paso">
+      <TituloPaso titulo="Revisa y radica">
+        Mira que todo esté bien. Una vez radicada, la postulación no se puede
+        modificar.
+      </TituloPaso>
 
-      {/* Resumen Consolidado */}
-      <div className="space-y-6">
-        {/* Bloque 1: Institución y Semillero */}
-        <div className="rounded-2xl border border-[#10384f]/15 bg-[#faf9f5] p-6 shadow-2xs sm:p-7">
-          <div className="mb-4 flex items-center justify-between border-b border-[#10384f]/10 pb-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#006b5c] sm:text-sm">
-              1. Institución y Semillero
-            </h3>
-            <button
-              type="button"
-              onClick={() => irAPaso(1)}
-              className="text-xs font-bold text-[#006b5c] underline hover:text-[#10384f]"
-            >
-              Modificar ✎
-            </button>
-          </div>
-          <dl className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <dt className="text-xs font-semibold uppercase tracking-wide text-[#10384f]/60">
-                Institución Educativa:
-              </dt>
-              <dd className="mt-1 text-sm font-bold text-[#10384f]">
-                {datos.institucion_nombre || "—"}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs font-semibold uppercase tracking-wide text-[#10384f]/60">
-                Nivel de formación:
-              </dt>
-              <dd className="mt-1 text-sm font-bold text-[#10384f]">
-                {datos.institucion_tipo === "basica_media"
-                  ? "Básica y Media (Colegio)"
-                  : "Educación Superior"}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs font-semibold uppercase tracking-wide text-[#10384f]/60">
-                Semillero de Investigación:
-              </dt>
-              <dd className="mt-1 text-sm font-bold text-[#10384f]">
-                {datos.semillero_nombre || "—"}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs font-semibold uppercase tracking-wide text-[#10384f]/60">
-                Docente Tutor / Asesor:
-              </dt>
-              <dd className="mt-1 text-sm font-bold text-[#10384f]">
-                {datos.tutor_nombre || "—"}{" "}
-                <span className="font-normal text-xs text-[#10384f]/70">
-                  ({datos.tutor_email})
-                </span>
-              </dd>
-            </div>
+      <div className="resumen">
+        <BloqueResumen
+          titulo="Institución y semillero"
+          paso={1}
+          irAPaso={irAPaso}
+        >
+          <dl>
+            <Dato etiqueta="Institución">
+              {datos.institucion_nombre || "—"}
+            </Dato>
+            <Dato etiqueta="Nivel">
+              {datos.institucion_tipo === "basica_media"
+                ? "Educación básica y media"
+                : "Educación superior"}
+            </Dato>
+            <Dato etiqueta="Semillero">{datos.semillero_nombre || "—"}</Dato>
+            <Dato etiqueta="Tutor">
+              {datos.tutor_nombre || "—"}
+              {datos.tutor_email && (
+                <span className="block font-normal">{datos.tutor_email}</span>
+              )}
+            </Dato>
           </dl>
-        </div>
+        </BloqueResumen>
 
-        {/* Bloque 2: Integrantes */}
-        <div className="rounded-2xl border border-[#10384f]/15 bg-[#faf9f5] p-6 shadow-2xs sm:p-7">
-          <div className="mb-4 flex items-center justify-between border-b border-[#10384f]/10 pb-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#006b5c] sm:text-sm">
-              2. Integrantes del Equipo (3 Estudiantes)
-            </h3>
-            <button
-              type="button"
-              onClick={() => irAPaso(2)}
-              className="text-xs font-bold text-[#006b5c] underline hover:text-[#10384f]"
-            >
-              Modificar ✎
-            </button>
-          </div>
-          <div className="grid gap-4 md:grid-cols-3">
+        <BloqueResumen titulo="Equipo" paso={2} irAPaso={irAPaso}>
+          <dl>
             {SLOTS_INTEGRANTES.map((slotId, posicion) => {
-              const int = datos.integrantes[posicion];
-              if (!int) return null;
+              const integrante = datos.integrantes[posicion];
+              if (!integrante) return null;
               return (
-                <div
-                  key={slotId}
-                  className="rounded-xl border border-[#10384f]/10 bg-white p-4 text-xs shadow-2xs"
-                >
-                  <div className="flex items-center justify-between font-bold text-[#10384f]">
-                    <span>Estudiante 0{posicion + 1}</span>
-                    {int.es_menor_edad ? (
-                      <span className="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
-                        Menor de edad
-                      </span>
-                    ) : (
-                      <span className="rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-800">
-                        Mayor de edad
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-2 font-bold text-sm text-[#10384f]">
-                    {int.nombres_apellidos || "—"}
-                  </p>
-                  <p className="mt-0.5 text-[11px] text-[#10384f]/70">
-                    {int.tipo_documento}: {int.numero_documento || "—"}
-                  </p>
-                  <p className="mt-0.5 truncate text-[11px] text-[#10384f]/70">
-                    ✉ {int.correo_electronico}
-                  </p>
-                </div>
+                <Dato key={slotId} etiqueta={`Estudiante ${posicion + 1}`}>
+                  {integrante.nombres_apellidos || "—"}
+                  <span className="block font-normal">
+                    {integrante.tipo_documento}{" "}
+                    {integrante.numero_documento || "—"} ·{" "}
+                    {integrante.es_menor_edad
+                      ? "Menor de edad"
+                      : "Mayor de edad"}
+                  </span>
+                  {integrante.correo_electronico && (
+                    <span className="block font-normal">
+                      {integrante.correo_electronico}
+                    </span>
+                  )}
+                </Dato>
               );
             })}
-          </div>
-        </div>
+          </dl>
+        </BloqueResumen>
 
-        {/* Bloque 3: Motivación */}
-        <div className="rounded-2xl border border-[#10384f]/15 bg-[#faf9f5] p-6 shadow-2xs sm:p-7">
-          <div className="mb-4 flex items-center justify-between border-b border-[#10384f]/10 pb-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#006b5c] sm:text-sm">
-              3. Motivación e Intereses (Criterio TDR 30%)
-            </h3>
-            <button
-              type="button"
-              onClick={() => irAPaso(3)}
-              className="text-xs font-bold text-[#006b5c] underline hover:text-[#10384f]"
-            >
-              Modificar ✎
-            </button>
-          </div>
-          <p className="line-clamp-3 rounded-xl bg-white p-4 text-xs leading-relaxed text-[#10384f]/90 italic border border-[#10384f]/10">
-            &ldquo;{datos.motivacion_intereses}&rdquo;
+        <BloqueResumen titulo="Motivación" paso={3} irAPaso={irAPaso}>
+          <p className="line-clamp-3">{datos.motivacion_intereses}</p>
+          <p className="resumen-etiqueta mt-2">
+            {datos.motivacion_intereses.trim().length} caracteres
           </p>
-          <p className="mt-2.5 text-[11px] font-semibold text-[#10384f]/60">
-            Total caracteres: {datos.motivacion_intereses.trim().length}
-          </p>
-        </div>
+        </BloqueResumen>
 
-        {/* Bloque 4: Documentos */}
-        <div className="rounded-2xl border border-[#10384f]/15 bg-[#faf9f5] p-6 shadow-2xs sm:p-7">
-          <div className="mb-4 flex items-center justify-between border-b border-[#10384f]/10 pb-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#006b5c] sm:text-sm">
-              4. Documentos Adjuntos
-            </h3>
-            <button
-              type="button"
-              onClick={() => irAPaso(4)}
-              className="text-xs font-bold text-[#006b5c] underline hover:text-[#10384f]"
-            >
-              Modificar ✎
-            </button>
-          </div>
-          <ul className="divide-y divide-[#10384f]/10 text-xs">
-            <li className="flex items-center justify-between py-2">
-              <span className="text-[#10384f]/80">Aval del Semillero:</span>
-              <span className="font-semibold text-[#006b5c]">
-                {datos.aval_semillero?.name || "Pendiente"}
-              </span>
-            </li>
-            <li className="flex items-center justify-between py-2">
-              <span className="text-[#10384f]/80">Doc. Integrante 1:</span>
-              <span className="font-semibold text-[#006b5c]">
-                {datos.doc_identidad_1?.name || "Pendiente"}
-              </span>
-            </li>
-            <li className="flex items-center justify-between py-2">
-              <span className="text-[#10384f]/80">Doc. Integrante 2:</span>
-              <span className="font-semibold text-[#006b5c]">
-                {datos.doc_identidad_2?.name || "Pendiente"}
-              </span>
-            </li>
-            <li className="flex items-center justify-between py-2">
-              <span className="text-[#10384f]/80">Doc. Integrante 3:</span>
-              <span className="font-semibold text-[#006b5c]">
-                {datos.doc_identidad_3?.name || "Pendiente"}
-              </span>
-            </li>
-            <li className="flex items-center justify-between py-2">
-              <span className="text-[#10384f]/80">
-                Autorización de Menores:
-              </span>
-              <span className="font-semibold text-[#006b5c]">
-                {datos.autorizacion_menores?.name ||
-                  (datos.integrantes.some((i) => i.es_menor_edad)
-                    ? "Pendiente"
-                    : "No requerida")}
-              </span>
-            </li>
-          </ul>
-        </div>
+        <BloqueResumen titulo="Documentos" paso={4} irAPaso={irAPaso}>
+          <dl>
+            {documentos.map(({ clave, nombre, archivo }) => (
+              <Dato key={clave} etiqueta={nombre}>
+                {archivo?.name || "Pendiente"}
+              </Dato>
+            ))}
+            <Dato etiqueta="Autorización de menores">
+              {datos.autorizacion_menores?.name ||
+                (hayMenoresDeEdad ? "Pendiente" : "No se necesita")}
+            </Dato>
+          </dl>
+        </BloqueResumen>
       </div>
 
-      {/* Términos y Declaraciones Legales */}
-      <div className="rounded-2xl border-2 border-[#10384f]/25 bg-white p-6 shadow-sm sm:p-8">
-        <h3 className="mb-5 text-sm font-bold uppercase tracking-wider text-[#10384f] sm:text-base border-b border-[#10384f]/10 pb-3">
-          Declaraciones y Consentimiento Legal Obligatorio
-        </h3>
+      <section className="paso-bloque" aria-labelledby="bloque-declaraciones">
+        <h3 id="bloque-declaraciones">Declaraciones obligatorias</h3>
 
-        <div className="space-y-4">
-          {/* Checkbox 1: Términos y condiciones */}
-          <div className="rounded-xl border border-[#10384f]/15 bg-[#faf9f5] p-4.5 sm:p-5 transition hover:bg-[#f5f4ec]">
-            <label className="flex items-start gap-3.5 cursor-pointer">
-              <input
-                type="checkbox"
-                required
-                checked={datos.acepta_terminos}
-                onChange={(e) =>
-                  handleCheckboxChange("acepta_terminos", e.target.checked)
-                }
-                className="mt-1 h-5 w-5 shrink-0 rounded-md border-[#10384f]/40 text-[#006b5c] focus:ring-[#006b5c]"
-              />
-              <span className="text-xs leading-relaxed text-[#10384f] sm:text-sm">
-                Acepto los{" "}
-                <a
-                  href={documentoTerminos}
-                  download
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-bold text-[#006b5c] underline underline-offset-2 hover:text-[#10384f]"
-                >
-                  Términos de Referencia oficiales del Bootcamp Cauca INNOVA
-                  2026
-                </a>
-                , certificando que el semillero y sus 3 integrantes se
-                comprometen a la asistencia presencial completa a la jornada (14
-                de noviembre de 2026).
-              </span>
-            </label>
-            {errores.acepta_terminos && (
-              <p
-                className="mt-2 pl-8 text-xs font-semibold text-rose-600"
-                role="alert"
-              >
-                {errores.acepta_terminos}
-              </p>
-            )}
-          </div>
+        <Casilla
+          id="acepta_terminos"
+          marcada={datos.acepta_terminos}
+          alCambiar={(marcada) =>
+            handleCheckboxChange("acepta_terminos", marcada)
+          }
+          error={errores.acepta_terminos}
+        >
+          Acepto los{" "}
+          <a
+            href="/terminos-de-referencia"
+            target="_blank"
+            rel="noreferrer"
+            className="enlace-texto"
+          >
+            Términos de Referencia oficiales del Bootcamp Cauca INNOVA 2026
+          </a>
+          , certificando que el semillero y sus 3 integrantes se comprometen a
+          la asistencia presencial completa a la jornada (14 de noviembre de
+          2026).
+        </Casilla>
 
-          {/* Checkbox 2: Habeas data */}
-          <div className="rounded-xl border border-[#10384f]/15 bg-[#faf9f5] p-4.5 sm:p-5 transition hover:bg-[#f5f4ec]">
-            <label className="flex items-start gap-3.5 cursor-pointer">
-              <input
-                type="checkbox"
-                required
-                checked={datos.acepta_tratamiento_datos}
-                onChange={(e) =>
-                  handleCheckboxChange(
-                    "acepta_tratamiento_datos",
-                    e.target.checked,
-                  )
-                }
-                className="mt-1 h-5 w-5 shrink-0 rounded-md border-[#10384f]/40 text-[#006b5c] focus:ring-[#006b5c]"
-              />
-              <span className="text-xs leading-relaxed text-[#10384f] sm:text-sm">
-                Autorizo expresamente el tratamiento de datos personales de los
-                estudiantes y el docente tutor conforme a la{" "}
-                <strong>Ley Estatutaria 1581 de 2012 (Habeas Data)</strong> para
-                los fines organizativos, académicos, de evaluación y
-                certificación del evento por parte de la Gobernación del Cauca y
-                Uniautónoma.
-              </span>
-            </label>
-            {errores.acepta_tratamiento_datos && (
-              <p
-                className="mt-2 pl-8 text-xs font-semibold text-rose-600"
-                role="alert"
-              >
-                {errores.acepta_tratamiento_datos}
-              </p>
-            )}
-          </div>
+        <Casilla
+          id="acepta_tratamiento_datos"
+          marcada={datos.acepta_tratamiento_datos}
+          alCambiar={(marcada) =>
+            handleCheckboxChange("acepta_tratamiento_datos", marcada)
+          }
+          error={errores.acepta_tratamiento_datos}
+        >
+          Autorizo expresamente el tratamiento de datos personales de los
+          estudiantes y el docente tutor conforme a la{" "}
+          <a
+            href="/privacidad"
+            target="_blank"
+            rel="noreferrer"
+            className="enlace-texto"
+          >
+            <strong>Ley Estatutaria 1581 de 2012 (Habeas Data)</strong>
+          </a>{" "}
+          para los fines organizativos, académicos, de evaluación y
+          certificación del evento por parte de la Gobernación del Cauca y
+          Uniautónoma.
+        </Casilla>
 
-          {/* Checkbox 3: Veracidad */}
-          <div className="rounded-xl border border-[#10384f]/15 bg-[#faf9f5] p-4.5 sm:p-5 transition hover:bg-[#f5f4ec]">
-            <label className="flex items-start gap-3.5 cursor-pointer">
-              <input
-                type="checkbox"
-                required
-                checked={datos.declara_veracidad}
-                onChange={(e) =>
-                  handleCheckboxChange("declara_veracidad", e.target.checked)
-                }
-                className="mt-1 h-5 w-5 shrink-0 rounded-md border-[#10384f]/40 text-[#006b5c] focus:ring-[#006b5c]"
-              />
-              <span className="text-xs leading-relaxed text-[#10384f] sm:text-sm">
-                Certifico bajo la gravedad de juramento que la información
-                suministrada y los documentos adjuntos son legítimos, verídicos
-                y corresponden a estudiantes con matrícula activa en el
-                departamento del Cauca.
-              </span>
-            </label>
-            {errores.declara_veracidad && (
-              <p
-                className="mt-2 pl-8 text-xs font-semibold text-rose-600"
-                role="alert"
-              >
-                {errores.declara_veracidad}
-              </p>
-            )}
-          </div>
-        </div>
+        <Casilla
+          id="declara_veracidad"
+          marcada={datos.declara_veracidad}
+          alCambiar={(marcada) =>
+            handleCheckboxChange("declara_veracidad", marcada)
+          }
+          error={errores.declara_veracidad}
+        >
+          Certifico bajo la gravedad de juramento que la información
+          suministrada y los documentos adjuntos son legítimos, verídicos y
+          corresponden a estudiantes con matrícula activa en el departamento del
+          Cauca.
+        </Casilla>
 
-        <div className="mt-6 rounded-xl border border-[#10384f]/10 bg-[#10384f]/5 p-4 sm:p-5 text-xs leading-relaxed text-[#10384f]/80 sm:text-sm">
-          <strong>Aviso importante:</strong> Al hacer clic en &quot;Finalizar y
-          Radicar Inscripción&quot;, el sistema generará de forma automática tu
-          número de Radicado Oficial único. No se admitirán modificaciones
-          posteriores a los datos enviados.
-        </div>
-      </div>
+        <p className="aviso">
+          <strong>Antes de radicar:</strong> al pulsar &quot;Radicar
+          postulación&quot; el sistema te entrega un número de radicado único.
+          No se admiten cambios a los datos enviados.
+        </p>
+      </section>
     </div>
   );
 }
