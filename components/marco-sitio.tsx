@@ -397,7 +397,13 @@ export function MarcoSitio({ children }: { children: ReactNode }) {
               </strong>
               <span>Una jornada. Un territorio que crea.</span>
             </p>
-            <a className="button light" href={documentoTerminos} download>
+            <a
+              className="button light"
+              href={documentoTerminos}
+              download
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Leer términos de participación ↗
             </a>
           </div>

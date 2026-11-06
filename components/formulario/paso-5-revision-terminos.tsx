@@ -250,6 +250,8 @@ export function Paso5RevisionTerminos({
                 <a
                   href={documentoTerminos}
                   download
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="font-bold text-[#006b5c] underline underline-offset-2 hover:text-[#10384f]"
                 >
                   Términos de Referencia oficiales del Bootcamp Cauca INNOVA

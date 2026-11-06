@@ -170,8 +170,14 @@ export function Landing() {
           <a className="button" href="/postulacion">
             Postular Equipo al Bootcamp <span aria-hidden="true">↗</span>
           </a>
-          <a className="button light" href={documentoTerminos} download>
-            Descargar términos (DOCX) <span aria-hidden="true">↓</span>
+          <a
+            className="button light"
+            href={documentoTerminos}
+            download
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Descargar términos (PDF) <span aria-hidden="true">↓</span>
           </a>
         </div>
       </section>

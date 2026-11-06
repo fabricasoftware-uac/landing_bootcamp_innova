@@ -1,4 +1,4 @@
-export const documentoTerminos = "/documentos/terminos-de-referencia.docx";
+export const documentoTerminos = "/documentos/terminos-de-referencia.pdf";
 
 export const agenda = [
   {
