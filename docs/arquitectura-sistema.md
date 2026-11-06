@@ -3,8 +3,8 @@
 
 **Documento:** Especificación Técnica de Arquitectura, Modelo de Datos, Seguridad y Transaccionalidad.  
 **Fecha de Publicación:** 28 de octubre de 2026.  
-**Fecha del Evento Oficial:** 15 de noviembre de 2026 (Jornada única presencial).  
-**Capacidad Oficial:** 6 semilleros de investigación seleccionados (18 estudiantes participantes en total).  
+**Fecha del Evento Oficial:** 14 de noviembre de 2026 (Jornada presencial).  
+**Capacidad Oficial:** 7 semilleros de investigación seleccionados (máximo 21 estudiantes participantes en total).  
 
 ---
 

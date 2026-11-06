@@ -258,7 +258,7 @@ export function Paso5RevisionTerminos({
                   2026
                 </a>
                 , certificando que el semillero y sus 3 integrantes se
-                comprometen a la asistencia presencial completa a la jornada (15
+                comprometen a la asistencia presencial completa a la jornada (14
                 de noviembre de 2026).
               </span>
             </label>

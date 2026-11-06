@@ -134,7 +134,7 @@ export function TablaPostulaciones({
             <option value="pendiente">Pendientes</option>
             <option value="habilitado">Habilitados</option>
             <option value="no_habilitado">No Habilitados</option>
-            <option value="seleccionado">Seleccionados (6 cupos)</option>
+            <option value="seleccionado">Seleccionados (7 cupos)</option>
           </select>
 
           {/* Filtro Nivel */}
@@ -356,8 +356,8 @@ export function TablaPostulaciones({
           equipos
         </span>
         <span className="font-semibold text-[#006b5c]">
-          6 equipos de 3 estudiantes seleccionados para la jornada presencial
-          del 15 de noviembre
+          7 equipos de 3 estudiantes seleccionados (máximo 21 participantes)
+          para la jornada presencial del 14 de noviembre
         </span>
       </div>
     </div>

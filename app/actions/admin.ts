@@ -155,7 +155,7 @@ export async function obtenerPostulacionesAdminAction(): Promise<
       cupos_ocupados: postulacionesConDetalle.filter(
         (p) => p.estado === "seleccionado",
       ).length,
-      cupos_totales: 6, // 6 equipos máximo según actualización oficial
+      cupos_totales: 7, // 7 equipos máximo según actualización oficial (21 participantes)
       basica_media: postulacionesConDetalle.filter(
         (p) => p.institucion_tipo === "basica_media",
       ).length,

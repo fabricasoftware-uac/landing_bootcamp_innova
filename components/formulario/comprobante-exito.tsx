@@ -143,7 +143,7 @@ export function ComprobanteExito({
               superar los cupos establecidos en los Términos de Referencia, se
               aplicarán los criterios de selección (Motivación 30 %, Pertinencia
               30 %, Diversidad 20 % y Representación Institucional/Territorial
-              20 %). Los resultados y la agenda detallada de la jornada del 15
+              20 %). Los resultados y la agenda detallada de la jornada del 14
               de noviembre serán comunicados a los correos registrados.
             </p>
           </div>

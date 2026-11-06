@@ -23,10 +23,10 @@ export function Landing() {
           <span>Semilleros del Cauca</span>
         </div>
         <div className="equipos-poster">
-          <strong aria-hidden="true">6</strong>
+          <strong aria-hidden="true">7</strong>
           <div>
             <h2 id="equipos-title">
-              <span className="sr-only">6 </span>
+              <span className="sr-only">7 </span>
               EQUIPOS.
               <br />
               MUCHAS
@@ -34,7 +34,7 @@ export function Landing() {
               <em>POSIBILIDADES.</em>
             </h2>
             <p>
-              Tres estudiantes por equipo. Máximo 18 participantes de semilleros
+              Tres estudiantes por equipo. Máximo 21 participantes de semilleros
               de colegios e instituciones de educación superior del Cauca.
             </p>
           </div>
@@ -79,7 +79,7 @@ export function Landing() {
       >
         <div className="section-top">
           <span>Jornada presencial intensiva</span>
-          <span>15 de noviembre de 2026</span>
+          <span>14 de noviembre de 2026</span>
         </div>
         <div className="agenda-layout">
           <div>
@@ -93,7 +93,7 @@ export function Landing() {
               reales del territorio.
             </p>
             <div className="agenda-date">
-              15
+              14
               <span>
                 NOVIEMBRE
                 <br />

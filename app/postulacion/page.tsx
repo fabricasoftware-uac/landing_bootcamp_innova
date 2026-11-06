@@ -4,7 +4,7 @@ import { FormularioPostulacion } from "@/components/formulario/formulario-postul
 export const metadata: Metadata = {
   title: "Inscripción de Semilleros · Bootcamp Cauca INNOVA 2026",
   description:
-    "Formulario oficial de postulación para el Bootcamp de Semilleros de Investigación Cauca INNOVA. 15 de noviembre de 2026. Registra tu equipo de 3 estudiantes y docente tutor.",
+    "Formulario oficial de postulación para el Bootcamp de Semilleros de Investigación Cauca INNOVA. 14 de noviembre de 2026. Registra tu equipo de 3 estudiantes y docente tutor.",
   keywords: [
     "Cauca INNOVA",
     "Bootcamp de Semilleros",
@@ -51,7 +51,7 @@ export default function PostulacionPage() {
 
           <div className="flex items-center gap-3 sm:gap-4">
             <span className="hidden text-xs font-bold uppercase tracking-wider text-[#006b5c] sm:inline-block">
-              15 Noviembre 2026
+              14 Noviembre 2026
             </span>
             <a
               href="/"
@@ -78,13 +78,13 @@ export default function PostulacionPage() {
 
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#10384f]/75 sm:text-base">
             Bootcamp de Semilleros de Investigación Cauca INNOVA. Jornada
-            presencial intensiva de formación, mentoría y prototipado para seis
-            equipos de tres estudiantes.
+            presencial intensiva de formación, mentoría y prototipado para siete
+            equipos de tres estudiantes (máximo 21 participantes).
           </p>
 
           <div className="mt-4 flex flex-wrap items-center gap-2 sm:gap-2.5">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-[#10384f]/15 bg-white px-3 py-1 text-xs font-medium text-[#10384f]/80 shadow-2xs">
-              <span aria-hidden="true">📅</span> 15 de noviembre de 2026
+              <span aria-hidden="true">📅</span> 14 de noviembre de 2026
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-[#10384f]/15 bg-white px-3 py-1 text-xs font-medium text-[#10384f]/80 shadow-2xs">
               <span aria-hidden="true">📍</span> Departamento del Cauca

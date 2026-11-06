@@ -345,7 +345,7 @@ export function MarcoSitio({ children }: { children: ReactNode }) {
       <header ref={cabecera} className="site-header">
         <nav className="header-left" aria-label="Accesos principales">
           <a href="#experiencia">El bootcamp</a>
-          <a href="#agenda">15 NOV. 2026</a>
+          <a href="#agenda">14 NOV. 2026</a>
         </nav>
         <a className="brand" href="#inicio" aria-label="Cauca Innova, inicio">
           <Logo />
@@ -391,7 +391,7 @@ export function MarcoSitio({ children }: { children: ReactNode }) {
           <div className="closing-info">
             <p>
               <strong>
-                15
+                14
                 <br />
                 noviembre 2026
               </strong>
@@ -411,7 +411,8 @@ export function MarcoSitio({ children }: { children: ReactNode }) {
             <p>
               Inscripciones abiertas para semilleros de investigación del Cauca.
               <br />
-              Seis equipos de tres estudiantes. Una jornada presencial.
+              Siete equipos de tres estudiantes (máximo 21 participantes). Una
+              jornada presencial.
             </p>
             <a href="/postulacion">Inscribir equipo ahora ↗</a>
           </div>
@@ -560,7 +561,7 @@ export function MarcoSitio({ children }: { children: ReactNode }) {
               aria-hidden="true"
             />
             <div className="menu-bottom">
-              <span>15 noviembre 2026</span>
+              <span>14 noviembre 2026</span>
               <span>Del conocimiento a la solución</span>
             </div>
           </div>,

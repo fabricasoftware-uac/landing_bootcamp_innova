@@ -2,8 +2,8 @@
 ## Bootcamp de Semilleros de Investigación Cauca INNOVA 2026
 
 **Entidades Convocantes:** Gobernación del Cauca (Secretaría de Desarrollo Económico y Competitividad) en alianza académica con la Corporación Universitaria Autónoma del Cauca (Uniautónoma).  
-**Fecha Oficial del Evento:** 15 de noviembre de 2026 (Jornada única presencial intensiva de co-creación y prototipado).  
-**Cupos Convocatoria:** 6 equipos de semilleros seleccionados (exactamente 3 estudiantes y 1 docente tutor por equipo, 18 participantes en total).  
+**Fecha Oficial del Evento:** 14 de noviembre de 2026 (Jornada presencial intensiva de co-creación y prototipado).  
+**Cupos Convocatoria:** 7 equipos de semilleros seleccionados (máximo 21 participantes en total, hasta 3 por equipo).  
 **Módulo Web:** Panel Administrativo y de Evaluación Técnica (`/admin`).
 
 ---
@@ -67,7 +67,7 @@ En la parte superior del panel se despliega el componente de **Métricas Consoli
   * **Educación Superior:** Universidades, instituciones tecnológicas o técnicas del departamento.
 * **Pendientes de Revisión:** Postulaciones en estado `pendiente` que aún no han sido dictaminadas por el comité evaluador o que requieren validación de su aval institucional.
 * **Habilitados TDR:** Postulaciones que cumplen con la totalidad de los requisitos de participación y documentación exigida en los TDR.
-* **Cupos Oficiales (6 Equipos TDR 2026):** Indicador visual con barra de progreso que refleja el número de equipos en estado `seleccionado` frente al límite estricto de **6 cupos** (18 estudiantes en total) estipulados para el Bootcamp del **15 de noviembre de 2026**.
+* **Cupos Oficiales (7 Equipos TDR 2026):** Indicador visual con barra de progreso que refleja el número de equipos en estado `seleccionado` frente al límite estricto de **7 cupos** (máximo 21 estudiantes en total) estipulados para el Bootcamp del **14 de noviembre de 2026**.
 
 ---
 
@@ -89,7 +89,7 @@ El menú desplegable **"Todos los Estados"** permite segmentar el listado según
 * `Pendientes`: Equipos recién radicados en espera de calificación.
 * `Habilitados`: Equipos aprobados en fase documental que pueden ser ponderados.
 * `No Habilitados`: Equipos que no presentaron aval o incumplieron requisitos de elegibilidad.
-* `Seleccionados (6 cupos)`: Los 6 semilleros elegidos formalmente para asistir al Bootcamp el 15 de noviembre.
+* `Seleccionados (7 cupos)`: Los 7 semilleros elegidos formalmente para asistir al Bootcamp el 14 de noviembre.
 
 ### 4.3 Filtro por Nivel Formativo
 Permite filtrar entre:
@@ -169,7 +169,7 @@ Seleccione el dictamen formal en el menú **"Asignar Estado de Postulación"**:
 1. `Pendiente de revisión`: Aún en estudio.
 2. `Habilitado (Cumple TDR)`: Aprobó requisitos y cuenta con puntaje asignado.
 3. `No Habilitado`: Rechazado por inconsistencia documental o incumplimiento de TDR.
-4. `Seleccionado (Cupo oficial 1 de los 6)`: Asignado oficialmente como uno de los 6 equipos que asistirán a la jornada presencial del **15 de noviembre de 2026**.
+4. `Seleccionado (Cupo oficial 1 de los 7)`: Asignado oficialmente como uno de los 7 equipos que asistirán a la jornada presencial del **14 de noviembre de 2026**.
 
 Por último, haga clic en **"Guardar Calificación y Estado ✓"**. El sistema actualizará la base de datos de inmediato y refrescará el tablero de métricas.
 
@@ -177,7 +177,7 @@ Por último, haga clic en **"Guardar Calificación y Estado ✓"**. El sistema a
 
 ## 7. Procedimiento de Exportación a Microsoft Excel (.xlsx)
 
-Para efectos de auditoría pública, presentación de informes ante la Gobernación del Cauca o consolidación de listas de asistencia para la jornada del 15 de noviembre, el panel cuenta con un generador de reportes en Excel basado en la librería de alto rendimiento `ExcelJS`.
+Para efectos de auditoría pública, presentación de informes ante la Gobernación del Cauca o consolidación de listas de asistencia para la jornada del 14 de noviembre, el panel cuenta con un generador de reportes en Excel basado en la librería de alto rendimiento `ExcelJS`.
 
 ### 7.1 Pasos para Exportar
 1. En la cabecera de la tabla de postulaciones, ubique el botón verde con el icono:  

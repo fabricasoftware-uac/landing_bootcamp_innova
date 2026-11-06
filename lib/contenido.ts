@@ -27,7 +27,7 @@ export const requisitos = [
   "Estar matriculados en una institución educativa o de educación superior del departamento del Cauca.",
   "Pertenecer a un semillero de investigación reconocido, registrado o avalado por la institución.",
   "Conformar un equipo de tres estudiantes con interés en la investigación, la innovación, la creatividad y la solución de problemas.",
-  "Tener disponibilidad para asistir presencialmente a la jornada completa del 15 de noviembre.",
+  "Tener disponibilidad para asistir presencialmente a la jornada completa del 14 de noviembre.",
   "Presentar el aval del docente líder, tutor o responsable del semillero; diligenciar información veraz y completa y aceptar los términos de participación.",
   "Para menores de edad: presentar autorización escrita del padre, madre o representante legal y los documentos adicionales solicitados por la organización.",
 ] as const;
@@ -71,15 +71,15 @@ export const preguntas = [
   },
   {
     q: "¿Cuándo, dónde y cuánto cuesta?",
-    a: "El Bootcamp se realizará el 15 de noviembre de 2026. Se requiere asistencia presencial a la jornada completa. La sede, los horarios y el costo o gratuidad no están especificados en los términos y deben ser comunicados por la organización.",
+    a: "El Bootcamp se realizará el 14 de noviembre de 2026. Se requiere asistencia presencial a la jornada completa. La sede, los horarios y el costo o gratuidad no están especificados en los términos y deben ser comunicados por la organización.",
   },
   {
     q: "¿Cómo y hasta cuándo se presenta el equipo?",
-    a: "Mediante el formulario oficial dispuesto por la Gobernación del Cauca y Uniautónoma del Cauca. El enlace y las fechas de apertura, recepción, cierre, revisión, resultados y confirmación están pendientes de publicación por los canales oficiales. Esta página no recibe inscripciones ni datos personales. La organización podrá solicitar aclaraciones o documentación complementaria.",
+    a: "Mediante la plataforma oficial https://caucainnova.uniautonoma.edu.co/. Cronograma: recepción de postulaciones hasta el 10 de noviembre, evaluación el 11 de noviembre, publicación de seleccionados y confirmación el 12 de noviembre, y Bootcamp presencial el 14 de noviembre de 2026.",
   },
   {
     q: "¿Inscribirse asegura un cupo?",
-    a: "No. La participación está sujeta al cumplimiento de requisitos y a la confirmación oficial. Si las postulaciones superan los cupos, se aplicarán los criterios de selección publicados. La organización podrá promover diversidad institucional, disciplinar y territorial, definir desempates y conformar una lista de espera.",
+    a: "No. La participación está sujeta al cumplimiento de requisitos y a la confirmación oficial. Se cuenta con un máximo de 21 participantes distribuidos en siete (7) equipos de máximo tres (3) integrantes. La organización podrá promover diversidad institucional, disciplinar y territorial.",
   },
   {
     q: "¿Qué ocurre con los derechos sobre las propuestas?",
@@ -91,10 +91,10 @@ export const preguntas = [
   },
   {
     q: "¿Hay certificación y premiación?",
-    a: "Quienes cumplan las condiciones de asistencia y participación recibirán un diploma o certificado del Bootcamp. Al culminar, un jurado especializado seleccionará la propuesta ganadora del premio. Los términos no precisan el premio ni los criterios de evaluación final: las condiciones de evaluación y premiación serán comunicadas por la organización.",
+    a: "Quienes cumplan las condiciones de asistencia y participación recibirán un diploma o certificado del Bootcamp. Como reconocimiento a las propuestas más destacadas, se otorgarán premios tecnológicos consistentes en un computador y una impresora 3D para impulsar nuevas ideas y soluciones innovadoras.",
   },
   {
     q: "¿Qué compromisos asume el equipo?",
-    a: "Participar en la jornada completa del 15 de noviembre, aportar información veraz, seguir las instrucciones de facilitadores y mentores, colaborar con respeto, cuidar instalaciones y materiales, presentar propuestas de manera ética y transparente y cumplir las autorizaciones y condiciones comunicadas por la organización.",
+    a: "Participar en la jornada completa del 14 de noviembre, aportar información veraz, seguir las instrucciones de facilitadores y mentores, colaborar con respeto, cuidar instalaciones y materiales, presentar propuestas de manera ética y transparente y cumplir las autorizaciones y condiciones comunicadas por la organización.",
   },
 ] as const;
