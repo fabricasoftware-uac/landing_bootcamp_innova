@@ -1,6 +1,7 @@
 "use client";
 
 import { type DragEvent, useRef, useState } from "react";
+import { comprimirImagenEnNavegador } from "@/lib/utils/optimizar-imagen-cliente";
 import {
   ALLOWED_FILE_MIME_TYPES,
   MAX_FILE_SIZE_BYTES,
@@ -35,6 +36,7 @@ function SelectorArchivo({
   error,
 }: SelectorArchivoProps) {
   const [arrastrando, setArrastrando] = useState(false);
+  const [comprimiendo, setComprimiendo] = useState(false);
   const [errorLocal, setErrorLocal] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -46,7 +48,7 @@ function SelectorArchivo({
     ? "Solo formato PDF (.pdf)"
     : "Formatos admitidos: PDF, JPEG, PNG";
 
-  const validarYAsignar = (archivo: File) => {
+  const validarYAsignar = async (archivo: File) => {
     setErrorLocal(null);
 
     if (archivo.size > MAX_FILE_SIZE_BYTES) {
@@ -72,7 +74,19 @@ function SelectorArchivo({
       return;
     }
 
-    alSeleccionarArchivo(archivo);
+    let archivoProcesado = archivo;
+    if (archivo.type.startsWith("image/")) {
+      try {
+        setComprimiendo(true);
+        archivoProcesado = await comprimirImagenEnNavegador(archivo);
+      } catch {
+        archivoProcesado = archivo;
+      } finally {
+        setComprimiendo(false);
+      }
+    }
+
+    alSeleccionarArchivo(archivoProcesado);
   };
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
@@ -127,6 +141,12 @@ function SelectorArchivo({
       <p className="mb-5 text-xs leading-relaxed text-[#10384f]/70">
         {descripcion}
       </p>
+
+      {comprimiendo && (
+        <div className="mb-4 animate-pulse rounded-xl border border-teal-200 bg-teal-50 p-3 text-xs font-semibold text-[#006b5c]">
+          ⏳ Optimizando y reduciendo peso de la imagen...
+        </div>
+      )}
 
       {archivoActual ? (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#006b5c]/30 bg-white p-4 shadow-2xs">
@@ -239,6 +259,15 @@ export function Paso4Documentos({
     }
   };
 
+  const pesoTotalBytes =
+    (datos.aval_semillero?.size || 0) +
+    (datos.doc_identidad_1?.size || 0) +
+    (datos.doc_identidad_2?.size || 0) +
+    (datos.doc_identidad_3?.size || 0) +
+    (datos.autorizacion_menores?.size || 0);
+
+  const pesoExcedeLimite = pesoTotalBytes > 4.2 * 1024 * 1024;
+
   return (
     <div className="space-y-8">
       <div className="mb-6 sm:mb-8">
@@ -250,6 +279,33 @@ export function Paso4Documentos({
           tamaño máximo por cada archivo es de 10 MB.
         </p>
       </div>
+
+      {pesoTotalBytes > 0 && (
+        <div
+          className={`rounded-xl border p-4 text-xs transition-colors sm:text-sm ${
+            pesoExcedeLimite
+              ? "border-rose-300 bg-rose-50 text-rose-900"
+              : "border-[#006b5c]/30 bg-white text-[#10384f]"
+          }`}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span>
+              <strong>Peso acumulado de documentos:</strong>{" "}
+              {formatearTamano(pesoTotalBytes)} / Máx. 4.2 MB recomendado
+            </span>
+            {pesoExcedeLimite ? (
+              <span className="font-bold text-rose-700">
+                ⚠️ Supera el límite de subida. Por favor comprime tus archivos
+                PDF.
+              </span>
+            ) : (
+              <span className="text-xs font-semibold text-[#006b5c]">
+                ✓ Dentro del límite de subida
+              </span>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Alerta de menores de edad */}
       {hayMenoresDeEdad ? (

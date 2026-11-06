@@ -280,6 +280,23 @@ export function FormularioPostulacion() {
           formData.append("autorizacion_menores", datos.autorizacion_menores);
         }
 
+        // 5. Pre-validación de peso acumulado para prevenir rechazo HTTP 413 (Payload Too Large)
+        const pesoTotalBytes =
+          (datos.aval_semillero?.size || 0) +
+          (datos.doc_identidad_1?.size || 0) +
+          (datos.doc_identidad_2?.size || 0) +
+          (datos.doc_identidad_3?.size || 0) +
+          (datos.autorizacion_menores?.size || 0);
+
+        if (pesoTotalBytes > 4.4 * 1024 * 1024) {
+          const pesoMB = (pesoTotalBytes / (1024 * 1024)).toFixed(2);
+          setErrorServidor(
+            `El peso total acumulado de los archivos adjuntos (${pesoMB} MB) supera el límite máximo permitido de subida (4.4 MB). Por favor comprime tus archivos PDF o imágenes en el Paso 4 antes de finalizar la inscripción.`,
+          );
+          scrollAlInicioFormulario();
+          return;
+        }
+
         // Ejecutar Server Action
         const respuesta = await crearPostulacionAction(formData);
 
@@ -306,9 +323,22 @@ export function FormularioPostulacion() {
         }
       } catch (err) {
         console.error("Error al enviar postulación:", err);
-        setErrorServidor(
-          "No se pudo conectar con el servidor de inscripciones. Por favor verifica tu conexión e inténtalo de nuevo.",
-        );
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        if (
+          errorMsg.includes("413") ||
+          errorMsg.includes("Body exceeded") ||
+          errorMsg.includes("too large") ||
+          errorMsg.includes("Payload Too Large") ||
+          errorMsg.includes("Failed to fetch")
+        ) {
+          setErrorServidor(
+            "El servidor no pudo recibir los archivos adjuntos debido a su peso acumulado o una interrupción en la subida. Por favor asegúrate de que los PDFs escaneados estén comprimidos y pesen menos de 4 MB en total.",
+          );
+        } else {
+          setErrorServidor(
+            `No se pudo conectar con el servidor de inscripciones (${errorMsg || "Error de red"}). Por favor verifica tu conexión e inténtalo de nuevo.`,
+          );
+        }
       }
     });
   };
