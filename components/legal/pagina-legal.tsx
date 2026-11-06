@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import "@/app/legal.css";
+import { AccesoPostular } from "@/components/sitio/acceso-postular";
 import { CabeceraSitio } from "@/components/sitio/cabecera-sitio";
 import { PieSitio } from "@/components/sitio/pie-sitio";
 import { IndiceLegal } from "./indice-legal";
@@ -57,6 +58,7 @@ export function PaginaLegal({
           </div>
         </div>
       </main>
+      <AccesoPostular />
       <PieSitio />
     </>
   );

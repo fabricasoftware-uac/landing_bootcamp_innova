@@ -1,11 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
-  documentoTerminos,
-  enlacesSeccion,
-  paginaTerminos,
-} from "@/lib/contenido";
+import { enlacesSeccion, paginaTerminos } from "@/lib/contenido";
 import {
   gsap,
   prefiereMenosMovimiento,
@@ -192,8 +188,8 @@ export function MenuCompleto({
       <div className="menu-pie">
         <p>14 de noviembre de 2026</p>
         <a href={paginaTerminos}>Términos de referencia</a>
-        <a className="menu-postular" href={documentoTerminos} download>
-          Descargar PDF <span aria-hidden="true">↓</span>
+        <a className="menu-postular" href="/postulacion">
+          Inscribir a mi equipo <span aria-hidden="true">→</span>
         </a>
       </div>
     </div>

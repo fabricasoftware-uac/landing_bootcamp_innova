@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { enlacesSeccion, paginaTerminos } from "@/lib/contenido";
+import { enlacesSeccion } from "@/lib/contenido";
 import { MarcaAnimada } from "./marca-animada";
 import { MenuCompleto } from "./menu-completo";
 
@@ -137,8 +137,8 @@ export function CabeceraSitio({
           </nav>
           <div className="cabecera-derecha">
             {!sinPostular && (
-              <a className="cabecera-postular" href={paginaTerminos}>
-                Términos <span aria-hidden="true">→</span>
+              <a className="cabecera-postular" href="/postulacion">
+                Inscribirse <span aria-hidden="true">→</span>
               </a>
             )}
             <button

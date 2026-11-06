@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { paginaTerminos } from "@/lib/contenido";
 
-/* Botón flotante accesible que acompaña el scroll hacia la información de la convocatoria. */
+/* Botón flotante accesible que acompaña el scroll bajo el pulgar en móviles y pantallas táctiles. */
 export function AccesoPostular() {
   const [visible, setVisible] = useState(false);
 
@@ -12,7 +11,7 @@ export function AccesoPostular() {
     let cuadro = 0;
     const medir = () => {
       cuadro = 0;
-      setVisible(window.scrollY > window.innerHeight * 0.7 && !enPie);
+      setVisible(window.scrollY > 160 && !enPie);
     };
     const programar = () => {
       if (!cuadro) cuadro = requestAnimationFrame(medir);
@@ -33,9 +32,9 @@ export function AccesoPostular() {
 
   return (
     <div className="acceso-postular" data-visible={visible ? "" : undefined}>
-      <a href={paginaTerminos} tabIndex={visible ? 0 : -1}>
-        <span>Términos de referencia</span>
-        <small>14 nov · 21 cupos</small>
+      <a href="/postulacion" tabIndex={visible ? 0 : -1}>
+        <span>Inscribir equipo</span>
+        <small>5 pasos · 21 cupos</small>
       </a>
     </div>
   );

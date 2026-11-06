@@ -29,8 +29,8 @@ export function PieSitio() {
           <h2 className="pie-titulo" data-titular>
             Nos vemos <span className="acento">creando.</span>
           </h2>
-          <a className="pie-postular" href={paginaTerminos}>
-            Consultar términos de referencia <span aria-hidden="true">→</span>
+          <a className="pie-postular" href="/postulacion">
+            Inscribir a mi equipo <span aria-hidden="true">→</span>
           </a>
         </div>
 

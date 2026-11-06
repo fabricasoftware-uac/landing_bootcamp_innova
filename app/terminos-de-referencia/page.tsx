@@ -24,9 +24,14 @@ export default function TerminosDeReferenciaPage() {
       indice={indice}
       conProgreso
       acciones={
-        <a className="boton" href={documentoTerminos} download>
-          Descargar PDF
-        </a>
+        <>
+          <a className="boton boton-lima" href="/postulacion">
+            Inscribir a mi equipo <span aria-hidden="true">→</span>
+          </a>
+          <a className="boton" href={documentoTerminos} download>
+            Descargar PDF
+          </a>
+        </>
       }
     >
       <DocumentoTerminos bloques={bloquesTerminos} />
