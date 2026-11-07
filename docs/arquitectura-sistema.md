@@ -2,8 +2,8 @@
 ## Bootcamp de Semilleros de Investigación Cauca INNOVA 2026
 
 **Documento:** Especificación Técnica de Arquitectura, Modelo de Datos, Seguridad y Transaccionalidad.  
-**Fecha de Publicación:** 28 de octubre de 2026.  
-**Fecha del Evento Oficial:** 14 de noviembre de 2026 (Jornada presencial).  
+**Fecha de Publicación:** 28 de octubre de 2026 (Actualizado: Noviembre de 2026).  
+**Fecha del Evento Oficial:** 14 de noviembre de 2026 (Jornada presencial intensiva de co-creación y prototipado).  
 **Capacidad Oficial:** 7 semilleros de investigación seleccionados (máximo 21 estudiantes participantes en total).  
 
 ---
@@ -15,12 +15,12 @@ La plataforma web de **Cauca INNOVA 2026** fue concebida como un sistema desacop
 ### 1.1 Stack de Tecnologías
 
 * **Frontend y Aplicación:** Next.js 16 (App Router con Server Components y Client Components optimizados), React 19, TypeScript estricto (`strict: true`).
-* **Estilos y Experiencia Visual:** Tailwind CSS v4, animaciones suaves con GSAP y soporte preferente de accesibilidad (`prefers-reduced-motion`).
+* **Estilos y Experiencia Visual:** Tailwind CSS v4, animaciones suaves con GSAP / Motion y soporte preferente de accesibilidad (`prefers-reduced-motion`).
 * **Capa Backend y Base de Datos:** Supabase Platform (PostgreSQL 15+, Row Level Security nativo, Supabase Auth con JWTs enriquecidos en `app_metadata`, Supabase Storage privado).
 * **Conectores y SSR:** `@supabase/ssr` (manejo seguro de cookies de sesión en el cliente y en Server Actions).
 * **Motor de Exportación de Datos:** `ExcelJS` (construcción programática en memoria de libros de cálculo `.xlsx` con tipado y estilos corporativos).
-* **Validación de Datos:** `Zod` (validaciones isomórficas cliente/servidor con refinamiento condicional de menores de edad).
-* **Pruebas y Calidad de Código:** `Vitest` (suite de pruebas unitarias y de integración) y `Biome` (linter y formateador ultrarrápido).
+* **Validación de Datos y Tipos:** `Zod` (validaciones isomórficas cliente/servidor, sanitización de UUIDs y refinamiento condicional de menores de edad).
+* **Pruebas y Calidad de Código:** `Vitest` (suite completa de pruebas unitarias y de integración) y `Biome` (linter y formateador ultrarrápido).
 
 ---
 
@@ -35,7 +35,8 @@ flowchart TD
     subgraph Frontend["Capa de Presentación (Next.js 16 / React 19)"]
         Landing["Portal Principal (/)"]
         FormWizard["Formulario Postulación (/postulacion)<br/>Wizard de 5 Pasos"]
-        AdminDashboard["Panel Administrativo (/admin)<br/>Dashboard & Expediente"]
+        AdminDashboard["Panel Administrativo (/admin)<br/>Dashboard, Expediente & Diálogo"]
+        DialogoEliminar["DialogoConfirmarEliminar<br/>(WAI-ARIA alertdialog)"]
     end
 
     subgraph ServerActions["Capa de Negocio (Server Actions)"]
@@ -44,17 +45,18 @@ flowchart TD
         ActionSignedUrl["generarUrlDocumentoAction(path)"]
         ActionEval["guardarEvaluacionAction(input)"]
         ActionExcel["exportarPostulacionesExcelAction()"]
+        ActionDelete["eliminarPostulacionAdminAction(id)"]
     end
 
     subgraph Validacion["Validación y Procesamiento"]
-        ZodEngine["Esquema Zod<br/>(postulacionCompletaSchema)"]
+        ZodEngine["Esquema Zod<br/>(postulacionCompletaSchema / UUID)"]
         ExcelEngine["ExcelJS<br/>(3 Hojas Especializadas)"]
     end
 
     subgraph SupabasePlatform["Supabase Platform (Nivel de Datos y Seguridad)"]
         AuthService["Supabase Auth<br/>(JWT + app_metadata.role='admin')"]
         PrivateStorage["Storage Privado<br/>('postulaciones_docs' / 10MB)"]
-        PostgresDB[("PostgreSQL 15+<br/>RLS Habilitado")]
+        PostgresDB[("PostgreSQL 15+<br/>RLS Habilitado + CASCADE")]
     end
 
     Landing --> FormWizard
@@ -74,6 +76,12 @@ flowchart TD
     AdminDashboard --> ActionExcel
     ActionExcel --> PostgresDB
     ActionExcel --> ExcelEngine
+
+    AdminDashboard --> DialogoEliminar
+    DialogoEliminar -->|Confirmar| ActionDelete
+    ActionDelete --> AuthService
+    ActionDelete --> PrivateStorage
+    ActionDelete --> PostgresDB
 ```
 
 ---
@@ -148,15 +156,66 @@ sequenceDiagram
 
 ---
 
-### 2.4 Modelo Entidad-Relación (`erDiagram`)
+### 2.4 Secuencia de Eliminación Permanente y Depuración de Recursos (`sequenceDiagram`)
 
-El esquema de base de datos se encuentra completamente normalizado en tercera forma normal (3NF), garantizando integridad referencial, índices óptimos y restricciones estrictas:
+Detalla el protocolo de destrucción controlada implementado en `eliminarPostulacionAdminAction`:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Admin as Administrador / Evaluador
+    participant UI as Panel Admin (/admin)
+    participant Dialog as DialogoConfirmarEliminar
+    participant Action as eliminarPostulacionAdminAction
+    participant Auth as Supabase Auth (obtenerAdministrador)
+    participant DB as PostgreSQL
+    participant Storage as Supabase Storage (postulaciones_docs)
+
+    Admin->>UI: Solicita eliminar (desde tabla o expediente)
+    UI->>Dialog: Despliega alerta modal (foco en botón Cancelar)
+    Admin->>Dialog: Confirma clic en "Eliminar definitivamente"
+    Dialog->>Action: Invoca con postulacionId
+    
+    Action->>Auth: Valida rol de administrador
+    alt Sesión inválida o rol distinto a 'admin'
+        Auth-->>Action: null
+        Action-->>Dialog: Error 403 (Sesión sin acceso)
+        Dialog-->>Admin: Muestra aviso de error
+    else Sesión autorizada
+        Action->>Action: Valida id con z.string().uuid()
+        alt UUID malformado o inyección
+            Action-->>Dialog: Error 400 (Identificador inválido)
+        else UUID válido
+            Action->>DB: SELECT storage_path FROM documentos_postulacion WHERE postulacion_id = id
+            DB-->>Action: Lista de rutas físicas en storage
+            
+            opt Rutas existentes > 0
+                Action->>Storage: remove(storagePaths)
+                Storage-->>Action: Confirmación de purga de archivos
+            end
+            
+            Action->>DB: DELETE FROM postulaciones WHERE id = id
+            Note over DB: ON DELETE CASCADE elimina integrantes, docs y evaluación
+            DB-->>Action: Éxito en cascada
+            
+            Action-->>Dialog: success: true
+            Dialog->>UI: Cierra modal, cierra expediente y refresca listado
+            UI->>Admin: Actualiza tabla y métricas reactivas
+        end
+    end
+```
+
+---
+
+### 2.5 Modelo Entidad-Relación (`erDiagram`)
+
+El esquema de base de datos se encuentra completamente normalizado en tercera forma normal (3NF), garantizando integridad referencial, índices óptimos y restricciones estrictas con borrado en cascada:
 
 ```mermaid
 erDiagram
-    POSTULACIONES ||--|{ INTEGRANTES : "conforma (exactamente 3)"
-    POSTULACIONES ||--|{ DOCUMENTOS_POSTULACION : "soporta (4 o 5)"
-    POSTULACIONES ||--o| EVALUACIONES : "evaluada en (1 a 1)"
+    POSTULACIONES ||--|{ INTEGRANTES : "conforma (exactamente 3, CASCADE)"
+    POSTULACIONES ||--|{ DOCUMENTOS_POSTULACION : "soporta (4 o 5, CASCADE)"
+    POSTULACIONES ||--o| EVALUACIONES : "evaluada en (1 a 1, CASCADE)"
 
     POSTULACIONES {
         uuid id PK "Identificador único (UUIDv4)"
@@ -200,7 +259,7 @@ erDiagram
 
     EVALUACIONES {
         uuid id PK "Identificador único"
-        uuid postulacion_id FK,UK "Referencia única a postulaciones"
+        uuid postulacion_id FK,UK "Referencia única a postulaciones (cascade)"
         boolean cumple_requisitos_habilitante "Dictamen de requisitos mínimos"
         integer puntaje_motivacion "Check (0 a 30 pts / 30%)"
         integer puntaje_pertinencia "Check (0 a 30 pts / 30%)"
@@ -260,8 +319,9 @@ Almacena la relación de los tres (3) estudiantes postulados por cada equipo de 
 | `updated_at` | `timestamptz` | No | `now()` | Gestionado por trigger | Auditoría de actualización. |
 
 * **Restricción de Unicidad Compuesta:**  
-  `CONSTRAINT uq_postulacion_orden_integrante UNIQUE (postulacion_id, orden_integrante)`.  
-  *Garantiza que ningún equipo tenga posiciones duplicadas y que existan exactamente los integrantes ordenados del 1 al 3.*
+  `CONSTRAINT uq_postulacion_orden_integrante UNIQUE (postulacion_id, orden_integrante)`.
+* **Integridad Referencial:**  
+  Clave foránea con cláusula `ON DELETE CASCADE`: la eliminación de la postulación matriz destruye automáticamente los tres registros de integrantes asociados.
 * **Índice de Rendimiento:**  
   `idx_integrantes_postulacion_id` sobre `postulacion_id`.
 
@@ -281,6 +341,8 @@ Registra los metadatos de los soportes cargados en el bucket privado de Supabase
 | `mime_type` | `text` | No | — | `IN ('application/pdf', 'image/jpeg', 'image/png')` | Tipo MIME validado. |
 | `subido_el` | `timestamptz` | No | `now()` | — | Fecha y hora de carga. |
 
+* **Integridad Referencial:**  
+  Clave foránea con cláusula `ON DELETE CASCADE`: la eliminación de la postulación matriz remueve automáticamente los metadatos documentales de la base de datos.
 * **Índices de Rendimiento:**  
   * `idx_documentos_postulacion_postulacion_id` sobre `postulacion_id`.  
   * `idx_documentos_postulacion_tipo` sobre `tipo_documento`.
@@ -304,6 +366,8 @@ Almacena el veredicto oficial y las calificaciones ponderadas emitidas por el co
 | `evaluado_el` | `timestamptz` | No | `now()` | — | Fecha de registro de calificación. |
 | `updated_at` | `timestamptz` | No | `now()` | Gestionado por trigger | Fecha de modificación. |
 
+* **Integridad Referencial:**  
+  Clave foránea con cláusula `ON DELETE CASCADE`: la eliminación de la postulación matriz suprime la evaluación asociada sin dejar registros huérfanos.
 * **Índices de Rendimiento:**  
   * `idx_evaluaciones_postulacion_id` sobre `postulacion_id`.  
   * `idx_evaluaciones_evaluado_por` sobre `evaluado_por`.
@@ -355,7 +419,7 @@ alter table public.evaluaciones enable row level security;
 | `postulaciones` | INSERT | Permitido (`with check (true)`) | Permitido (`with check (true)`) | Permitido |
 | `postulaciones` | SELECT | **Denegado (0 filas)** | **Denegado (0 filas)** | Permitido (`(auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'`) |
 | `postulaciones` | UPDATE | **Denegado** | **Denegado** | Permitido |
-| `postulaciones` | DELETE | **Denegado** | **Denegado** | Permitido |
+| `postulaciones` | DELETE | **Denegado** | **Denegado** | Permitido (`(auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'`) |
 | `integrantes` | INSERT | Permitido (`with check (true)`) | Permitido (`with check (true)`) | Permitido |
 | `integrantes` | SELECT / MOD | **Denegado** | **Denegado** | Permitido (`app_metadata.role = 'admin'`) |
 | `documentos_postulacion` | INSERT | Permitido (`with check (true)`) | Permitido (`with check (true)`) | Permitido |
@@ -363,7 +427,7 @@ alter table public.evaluaciones enable row level security;
 | `evaluaciones` | INSERT / MOD | **Denegado** | **Denegado** | Permitido (`app_metadata.role = 'admin'`) |
 
 > [!WARNING]
-> **Protección contra IDOR en API pública:** Ningún usuario anónimo puede consultar información de otras postulaciones o adivinar radicados para obtener datos privados, teléfonos o correos. El permiso `SELECT` para el rol anónimo es inexistente.
+> **Protección contra IDOR en API pública:** Ningún usuario anónimo puede consultar información de otras postulaciones o adivinar radicados para obtener datos privados, teléfonos o correos. El permiso `SELECT` para el rol anónimo es inexistente. Igualmente, las operaciones destructivas de eliminación (`DELETE`) se encuentran vedadas para cualquier usuario que no acredite el rol `'admin'` en su JWT verificado.
 
 ### 4.2 Gestión del Bucket Privado en Supabase Storage (`postulaciones_docs`)
 
@@ -389,13 +453,14 @@ El sistema fue diseñado en concordancia con el marco jurídico colombiano de pr
 ### 5.1 Ley Estatutaria 1581 de 2012 y Decreto 1377 de 2013 (Habeas Data)
 * **Consentimiento Expreso:** En el Paso 5 del formulario (`paso-5-revision-terminos.tsx`), el aspirante debe marcar de forma obligatoria e informada la aceptación de los Términos de Referencia, la Política de Tratamiento de Datos Personales y la Declaración juramentada de veracidad.
 * **Principio de Libertad y Finalidad:** Los datos recaudados (identificación, teléfonos, correos y filiación académica) se utilizan exclusivamente para los fines logísticos y de evaluación del Bootcamp Cauca INNOVA 2026.
+* **Derecho de Supresión (Eliminación Definitiva):** Conforme al artículo 15 de la Constitución y la Ley 1581, el sistema proporciona el procedimiento técnico para que los administradores autorizados puedan ejecutar la eliminación total y física de los datos personales a solicitud del titular o al concluir el ciclo de evaluación.
 
 ### 5.2 Código de la Infancia y la Adolescencia (Ley 1098 de 2006)
 * **Detección Automática de Menores de Edad:**  
   En el Paso 2 (`paso-2-integrantes.tsx`), cada integrante declara mediante un interruptor booleano si es menor de 18 años.
 * **Exigencia Condicional Estricta:**  
   Si al menos uno de los tres estudiantes es menor de edad, el validador Zod (`postulacionCompletaSchema.superRefine`) exige de manera ineludible el archivo **"Autorización de Padres o Acudientes"** firmado. El formulario bloquea el envío si dicho soporte no es adjuntado.
-* **Custodia Restringida:** Los documentos de identidad y autorizaciones de menores se resguardan en el bucket privado con acceso restringido única y exclusivamente a los evaluadores designados por la Gobernación del Cauca.
+* **Custodia Restringida y Purga Física:** Los documentos de identidad y autorizaciones de menores se resguardan en el bucket privado. Al eliminarse una postulación, estos archivos son destruidos físicamente de inmediato para impedir cualquier retención indebida de documentos de menores de edad.
 
 ---
 
@@ -416,3 +481,59 @@ Dado que el envío de una postulación involucra dos subsistemas distribuidos (e
 ```
 
 Esta garantía transaccional previene la existencia de **archivos huérfanos** consumiendo espacio en disco y asegura que no se emitan radicados con datos a medio registrar.
+
+---
+
+## 7. Arquitectura de Eliminación Permanente y Depuración de Recursos
+
+La acción del servidor `eliminarPostulacionAdminAction` implementa una estrategia de depuración en 3 fases secuenciales, combinando validación estricta, purga de objetos en la nube y supresión relacional:
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│              FASE 1: AUTORIZACIÓN Y SANITIZACIÓN                       │
+│  - Verificación de sesión administrativa: obtenerAdministrador()       │
+│  - Validación formal de UUID: z.string().uuid().safeParse(id)          │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ (Válido)
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│              FASE 2: PURGA FÍSICA EN SUPABASE STORAGE                  │
+│  - Consulta de storage_path en documentos_postulacion                  │
+│  - adminClient.storage.from('postulaciones_docs').remove(paths)        │
+│  - Manejo tolerante a fallos: no aborta si un archivo ya no existía    │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│              FASE 3: SUPRESIÓN EN CASCADA EN POSTGRESQL                │
+│  - adminClient.from('postulaciones').delete().eq('id', id)             │
+│  - PostgreSQL propaga ON DELETE CASCADE:                               │
+│      * public.integrantes (3 filas)                                    │
+│      * public.documentos_postulacion (4 a 5 filas)                     │
+│      * public.evaluaciones (1 fila)                                    │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+### 7.1 Justificación Técnica del Orden de Operaciones
+1. **Consulta Previa de Metadatos:** Se consultan los `storage_path` antes de tocar la tabla `postulaciones`. Si se eliminara primero la fila en base de datos, la cascada borraría inmediatamente los registros de `documentos_postulacion`, perdiéndose la referencia a los archivos y dejando objetos huérfanos para siempre en Supabase Storage.
+2. **Tolerancia y Resiliencia en Storage:** Si la llamada a Storage lanza una excepción o un archivo individual ya no existe físicamente, la acción captura la advertencia en los registros del servidor (`console.error`) y prosigue con la supresión en base de datos. De este modo, un fallo puntual de red en el bucket no deja el registro bloqueado como zombi en el panel.
+
+---
+
+## 8. Verificación y Suite de Pruebas Automatizadas
+
+La integridad de la arquitectura y sus mecanismos de seguridad se validan de forma continua mediante **Vitest** en dos suites especializadas:
+
+### 8.1 Suite de Eliminación Administrativa (`tests/admin-eliminar.test.ts`)
+Consta de **13 pruebas unitarias exhaustivas** que evalúan:
+1. **Control de Acceso:** Rechazo estricto si no existe sesión (`obtenerAdministrador() === null`) o si la verificación es denegada.
+2. **Validación de Identificador:** Rechazo de identificadores vacíos, cadenas con espacios, valores no UUID (`"12345"`, `"postulacion-no-uuid"`), payloads de inyección SQL (`"uuid' OR 1=1;--"`), caracteres de escape y scripts XSS.
+3. **Flujo Exitoso:** Verificación de consulta previa a `documentos_postulacion`, invocación de `storage.from().remove()` con la lista exacta de rutas, y llamada final a `delete()` en `postulaciones`.
+4. **Casos Límite:** Postulaciones sin documentos adjuntos (omite llamada a storage sin error), tolerancia a errores en la API de Storage, y captura de excepciones no controladas.
+
+### 8.2 Suite de Seguridad Global y Autorización (`tests/seguridad.test.ts`)
+Consta de **75 pruebas unitarias y de integración**, abarcando:
+1. Verificación de autorización en todas las Server Actions administrativas (`eliminarPostulacionAdminAction`, `guardarEvaluacionAction`, `obtenerPostulacionesAdminAction`, `exportarPostulacionesExcelAction`, `generarUrlDocumentoAction`).
+2. Neutralización de inyecciones de fórmulas en la exportación de Excel (`neutralizarCelda`).
+3. Detección y bloqueo de PDFs con JavaScript embebido o scripts maliciosos.
+4. Límite de tasa (Rate Limiting) y mitigación de abusos en peticiones.

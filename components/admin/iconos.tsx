@@ -127,3 +127,10 @@ export const IconoMenos = () => (
     <path d="M4 9h10" />
   </Icono>
 );
+
+export const IconoPapelera = () => (
+  <Icono>
+    <path d="M3.5 5h11M7 5V3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2M4.5 5l.75 9.5a1.5 1.5 0 0 0 1.5 1.5h4.5a1.5 1.5 0 0 0 1.5-1.5L13.5 5" />
+    <path d="M7.5 8v5M10.5 8v5" />
+  </Icono>
+);

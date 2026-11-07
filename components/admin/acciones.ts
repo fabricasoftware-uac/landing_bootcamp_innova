@@ -1,5 +1,6 @@
 import {
   type EvaluacionInput,
+  eliminarPostulacionAdminAction,
   exportarPostulacionesExcelAction,
   generarUrlDocumentoAction,
   guardarEvaluacionAction,
@@ -17,10 +18,12 @@ export interface AccionesPanel {
   exportarExcel: () => Promise<
     RespuestaAdmin<{ base64: string; nombreArchivo: string }>
   >;
+  eliminarPostulacion: (id: string) => Promise<RespuestaAdmin<void>>;
 }
 
 export const ACCIONES_REALES: AccionesPanel = {
   guardarEvaluacion: guardarEvaluacionAction,
   urlDocumento: generarUrlDocumentoAction,
   exportarExcel: exportarPostulacionesExcelAction,
+  eliminarPostulacion: eliminarPostulacionAdminAction,
 };

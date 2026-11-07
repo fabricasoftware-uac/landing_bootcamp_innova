@@ -10,6 +10,7 @@ import {
   ACCIONES_REALES,
   type AccionesPanel,
 } from "@/components/admin/acciones";
+import { DialogoConfirmarEliminar } from "@/components/admin/dialogo-confirmar-eliminar";
 import { descargarExcel, horaCorta } from "@/components/admin/dominio";
 import type { BorradorEvaluacion } from "@/components/admin/expediente-evaluacion";
 import { ExpedienteModal } from "@/components/admin/expediente-modal";
@@ -276,10 +277,55 @@ export function PanelPostulaciones({
   const [filtroEstado, setFiltroEstado] = useState<FiltroEstado>("todos");
   const [filtroNivel, setFiltroNivel] = useState<FiltroNivel>("todos");
   const [orden, setOrden] = useState<Orden>(ORDEN_INICIAL);
+  const [postulacionAEliminar, setPostulacionAEliminar] = useState<P | null>(
+    null,
+  );
+  const [eliminando, setEliminando] = useState(false);
+  const [errorEliminar, setErrorEliminar] = useState<string | null>(null);
   const borradores = useRef(new Map<string, BorradorEvaluacion>());
   const hora = useHoraActualizacion(postulaciones);
   const { exportar, exportando, error: errorExportar } = useExportar(acciones);
   const expediente = useExpediente(postulaciones);
+
+  const solicitarEliminar = (postulacion: P) => {
+    setErrorEliminar(null);
+    setPostulacionAEliminar(postulacion);
+  };
+
+  const cancelarEliminar = () => {
+    if (!eliminando) {
+      setPostulacionAEliminar(null);
+      setErrorEliminar(null);
+    }
+  };
+
+  const confirmarEliminar = async () => {
+    if (!postulacionAEliminar) return;
+    setErrorEliminar(null);
+    setEliminando(true);
+    try {
+      const res = await acciones.eliminarPostulacion(postulacionAEliminar.id);
+      if (res.success) {
+        if (expediente.actual?.id === postulacionAEliminar.id) {
+          expediente.cerrar();
+        }
+        setPostulacionAEliminar(null);
+        alRecargar();
+      } else {
+        setErrorEliminar(
+          res.error ||
+            "No se pudo eliminar la postulación. Inténtalo de nuevo.",
+        );
+      }
+    } catch (err) {
+      console.error("Error al eliminar postulación:", err);
+      setErrorEliminar(
+        "Ocurrió un error inesperado al intentar eliminar la postulación.",
+      );
+    } finally {
+      setEliminando(false);
+    }
+  };
 
   // Los conteos respetan búsqueda y nivel; el estado es lo que ellos mismos filtran.
   const enAlcance = useMemo(() => {
@@ -368,6 +414,7 @@ export function PanelPostulaciones({
             visibles.map((v) => v.id),
           )
         }
+        alSolicitarEliminar={solicitarEliminar}
         alReintentar={alRecargar}
         alLimpiarFiltros={limpiarFiltros}
       />
@@ -384,6 +431,20 @@ export function PanelPostulaciones({
             alMover={expediente.moverA}
             alCerrar={expediente.cerrar}
             alActualizar={alRecargar}
+            alSolicitarEliminar={solicitarEliminar}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {postulacionAEliminar && (
+          <DialogoConfirmarEliminar
+            key="dialogo-eliminar"
+            postulacion={postulacionAEliminar}
+            eliminando={eliminando}
+            error={errorEliminar}
+            alConfirmar={confirmarEliminar}
+            alCancelar={cancelarEliminar}
           />
         )}
       </AnimatePresence>

@@ -311,6 +311,10 @@ export function PanelDemo({ vista }: { vista: VistaDemo }) {
       },
       urlDocumento: async () => ({ success: false, error: AVISO_MUESTRA }),
       exportarExcel: async () => ({ success: false, error: AVISO_MUESTRA }),
+      eliminarPostulacion: async (id: string) => {
+        setLista((previa) => previa.filter((p) => p.id !== id));
+        return { success: true };
+      },
     }),
     [],
   );

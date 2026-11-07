@@ -1,5 +1,6 @@
 "use server";
 
+import { z } from "zod";
 import { generarExcelPostulaciones } from "@/lib/excel/generador-excel";
 import { getAdminSupabaseClient } from "@/lib/supabase/admin";
 import { obtenerAdministrador } from "@/lib/supabase/autorizacion";
@@ -391,6 +392,89 @@ export async function exportarPostulacionesExcelAction(): Promise<
       success: false,
       error:
         "No pudimos generar el archivo de Excel en este momento. Inténtalo de nuevo en unos minutos.",
+    };
+  }
+}
+
+/**
+ * Elimina permanentemente una postulación, sus archivos físicos en Storage
+ * y sus registros relacionados en cascada (integrantes, documentos, evaluaciones).
+ */
+export async function eliminarPostulacionAdminAction(
+  postulacionId: string,
+): Promise<RespuestaAdmin<void>> {
+  if (!(await obtenerAdministrador())) {
+    return { success: false, error: MENSAJE_SIN_ACCESO };
+  }
+
+  const validacion = z.string().uuid().safeParse(postulacionId);
+  if (!validacion.success) {
+    return {
+      success: false,
+      error: "Identificador de postulación inválido.",
+    };
+  }
+
+  const idValido = validacion.data;
+
+  try {
+    const adminClient = getAdminSupabaseClient();
+
+    // 1. Consultar rutas de almacenamiento de los documentos adjuntos
+    const { data: documentos, error: errDocs } = await adminClient
+      .from("documentos_postulacion")
+      .select("storage_path")
+      .eq("postulacion_id", idValido);
+
+    if (errDocs) {
+      console.error(
+        "Error al consultar documentos de la postulación para eliminación:",
+        errDocs,
+      );
+    }
+
+    // 2. Eliminar archivos físicos del bucket privado de Storage si existen
+    const storagePaths = (documentos || [])
+      .map((doc) => doc.storage_path)
+      .filter((ruta): ruta is string => Boolean(ruta?.trim()));
+
+    if (storagePaths.length > 0) {
+      try {
+        const { error: errStorage } = await adminClient.storage
+          .from("postulaciones_docs")
+          .remove(storagePaths);
+
+        if (errStorage) {
+          console.error(
+            "Advertencia: no se pudieron eliminar algunos archivos en Storage:",
+            errStorage,
+          );
+        }
+      } catch (errorStorage) {
+        console.error(
+          "Excepción al intentar eliminar archivos de Storage:",
+          errorStorage,
+        );
+      }
+    }
+
+    // 3. Eliminar el registro en la tabla postulaciones (CASCADE en DB elimina integrantes, documentos y evaluaciones)
+    const { error: errDelete } = await adminClient
+      .from("postulaciones")
+      .delete()
+      .eq("id", idValido);
+
+    if (errDelete) {
+      throw new Error(`Error al eliminar postulación: ${errDelete.message}`);
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error al eliminar postulación:", error);
+    return {
+      success: false,
+      error:
+        "No pudimos eliminar la postulación. Inténtalo de nuevo en unos minutos.",
     };
   }
 }

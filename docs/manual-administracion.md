@@ -19,6 +19,7 @@ El sistema proporciona una interfaz centralizada, segura y reactiva que permite:
 4. Generar **enlaces temporales firmados (Signed URLs)** para la previsualización confidencial y segura de documentos alojados en almacenamiento privado.
 5. Aplicar la **Rúbrica de Calificación Oficial** establecida en los Términos de Referencia (TDR), registrando observaciones técnicas y determinando los equipos seleccionados.
 6. Exportar la totalidad de la información a un archivo estructurado en **Microsoft Excel (.xlsx)** con tres hojas especializadas.
+7. Ejecutar la **eliminación permanente y segura** de postulaciones descartadas, duplicadas o de prueba, garantizando la eliminación física de archivos en Supabase Storage y la eliminación relacional en cascada en la base de datos.
 
 ---
 
@@ -56,7 +57,7 @@ En la parte superior del panel se despliega el componente de **Métricas Consoli
 ```
 ┌─────────────────────────┬─────────────────────────┬─────────────────────────┬─────────────────────────┐
 │   TOTAL POSTULACIONES   │  PENDIENTES DE REVISIÓN │     HABILITADOS TDR     │     CUPOS OFICIALES     │
-│           XX            │           XX            │           XX            │          X / 6          │
+│           XX            │           XX            │           XX            │          X / 7          │
 │ Colegios: X | Univ: X   │ Requieren validación    │   Cumplen requisitos    │   [████████░░░░] %      │
 └─────────────────────────┴─────────────────────────┴─────────────────────────┴─────────────────────────┘
 ```
@@ -99,20 +100,25 @@ Permite filtrar entre:
 ### 4.4 Alerta de Menores de Edad (⚠️)
 En la columna **"Menores"**, el sistema destaca con un distintivo amarillo `⚠️ X menores` a los equipos que incluyen estudiantes menores de 18 años, recordando al evaluador la exigencia obligatoria de revisar el formato de autorización firmado por sus acudientes legales.
 
+### 4.5 Acciones Rápidas en Fila
+Al final de cada fila en la vista de escritorio y en cada tarjeta en dispositivos móviles, se disponen dos controles:
+1. **Ver Expediente:** Permite abrir el expediente completo del equipo.
+2. **Eliminar Postulación (Icono de papelera):** Dispara el protocolo de confirmación para eliminación definitiva (detallado en la Sección 8).
+
 ---
 
 ## 5. Apertura del Expediente Digital y Visualización Segura
 
-Para ingresar a la información pormenorizada de una postulación, haga clic en el botón **"Expediente ↗"** ubicado en la fila del equipo correspondiente. Se abrirá la ventana modal interactiva (`ExpedienteModal`).
+Para ingresar a la información pormenorizada de una postulación, haga clic sobre la fila del equipo correspondiente o use el botón de navegación. Se abrirá la ventana modal interactiva (`ExpedienteModal`).
 
-El expediente se organiza en cuatro secciones claras:
+El expediente se organiza en secciones claras:
 
-### 5.1 Ficha Técnica de la Postulación
-* Código de radicado oficial del semillero (`INNOVA-2026-XXXX`).
-* Datos institucionales y nivel de formación.
-* Datos de contacto del docente tutor (Nombre, correo electrónico, teléfono directo).
-* Fecha y hora exacta de registro en plataforma.
-* Estado actual y puntaje total obtenido.
+### 5.1 Barra Superior y Navegación Entre Expedientes
+* **Identificación del equipo:** Nombre del semillero, radicado oficial e institución educativa.
+* **Insignia de Estado:** Distintivo visual del estado actual de la postulación.
+* **Botón de Eliminación Rápida:** Botón con icono de papelera y texto "Eliminar" para descartar el expediente sin salir de la vista detallada.
+* **Paginación entre postulaciones:** Controles para avanzar a la siguiente postulación o retroceder a la anterior (también accionables mediante las flechas del teclado `←` y `→`).
+* **Botón Volver / Cerrar:** Cierra el expediente y regresa al listado general (accionable con la tecla `Escape`).
 
 ### 5.2 Estudiantes Integrantes (Equipo de 3)
 * Ficha individual de cada uno de los 3 estudiantes requeridos por TDR.
@@ -180,8 +186,8 @@ Por último, haga clic en **"Guardar Calificación y Estado ✓"**. El sistema a
 Para efectos de auditoría pública, presentación de informes ante la Gobernación del Cauca o consolidación de listas de asistencia para la jornada del 14 de noviembre, el panel cuenta con un generador de reportes en Excel basado en la librería de alto rendimiento `ExcelJS`.
 
 ### 7.1 Pasos para Exportar
-1. En la cabecera de la tabla de postulaciones, ubique el botón verde con el icono:  
-   **`[ 📊 Exportar a Excel (.xlsx) ]`**.
+1. En la cabecera de la tabla de postulaciones, ubique el botón con el icono de descarga y texto:  
+   **`[ Exportar Excel (.xlsx) ]`**.
 2. Haga clic sobre el botón. El sistema procesará el consolidado de datos en el servidor y convertirá las tres estructuras relacionales en un libro de Excel nativo.
 3. El archivo se descargará automáticamente en su equipo con una nomenclatura normalizada:
    ```text
@@ -233,14 +239,124 @@ Contiene el informe de dictamen técnico del comité evaluador con 10 columnas:
 
 ---
 
-## 8. Resolución de Incidencias Frecuentes
+## 8. Protocolo de Eliminación Permanente y Depuración de Recursos
 
+El sistema incorpora un mecanismo de **eliminación definitiva** diseñado para depurar postulaciones erróneas, duplicadas o de prueba durante las fases previas al cierre de la convocatoria.
+
+> [!CAUTION]
+> **Acción Irreversible:** La eliminación definitiva suprime permanentemente el registro de la base de datos y borra de forma irrevocable todos los archivos físicos adjuntos (PDFs e imágenes) en Supabase Storage. **No existe papelera de reciclaje ni recuperación posterior**.
+
+### 8.1 Procedimiento Paso a Paso para el Administrador
+
+El administrador dispone de dos puntos de acceso ergonómicos para iniciar el proceso:
+
+#### Opción A: Eliminación Directa desde la Tabla Maestra
+1. En la tabla de postulaciones, ubique la fila del semillero que desea eliminar.
+2. En la última columna a la derecha de la fila (o junto a la tarjeta en pantallas móviles), haga clic en el botón con el **icono de papelera** (`IconoPapelera`).
+3. El evento detiene la propagación del clic para evitar abrir accidentalmente el expediente y despliega de inmediato el diálogo de confirmación `DialogoConfirmarEliminar`.
+
+#### Opción B: Eliminación desde el Expediente Digital
+1. Si se encuentra revisando los detalles de una postulación dentro del modal `ExpedienteModal`, diríjase a la barra superior (`BarraExpediente`).
+2. Junto a la insignia de estado, haga clic en el botón **"Eliminar"** (icono de papelera).
+3. Se superpondrá el diálogo de confirmación `DialogoConfirmarEliminar` manteniendo el contexto del equipo actual.
+
+---
+
+### 8.2 Interacción con el Diálogo Modal de Confirmación (`DialogoConfirmarEliminar`)
+
+El diálogo de confirmación fue construido siguiendo los más estrictos estándares de accesibilidad y prevención de errores humanos:
+
+1. **Resumen de Seguridad:**  
+   El cuadro de diálogo presenta de forma explícita los datos de la postulación que va a ser destruida:
+   - Nombre del semillero de investigación en negrita.
+   - Código de radicado oficial (`INNOVA-2026-XXXX`).
+   - Institución educativa de procedencia.
+   - Nombre del docente tutor responsable.
+   - Conteo de estudiantes integrantes asociados.
+   - Conteo de archivos de soporte que serán borrados del Storage.
+2. **Foco Inicial Seguro:**  
+   Al abrirse el diálogo, **el foco del cursor se posiciona deliberadamente en el botón "Cancelar"**, impidiendo que un usuario que presione rápidamente la tecla `Enter` o la barra espaciadora elimine el registro por error.
+3. **Trampa de Foco y Navegación:**  
+   La navegación con la tecla `Tab` o `Shift + Tab` queda confinada dentro del diálogo modal.
+4. **Cancelación Inmediata:**  
+   Puede desistir de la eliminación en cualquier momento haciendo clic en el botón **"Cancelar"**, presionando la tecla **`Escape`** o haciendo clic en el fondo oscuro semi-transparente.
+5. **Confirmación Definitiva:**  
+   Para proceder, haga clic en el botón de peligro rojo **"Eliminar definitivamente"**.
+   - Mientras se ejecuta la operación, ambos botones se deshabilitan (`disabled`).
+   - El botón de confirmación cambia su texto a **"Eliminando…"**.
+   - Se bloquea el cierre por `Escape` o clic de fondo hasta completar la transacción en el servidor.
+6. **Finalización y Limpieza de UI:**  
+   - Si la eliminación es exitosa, el diálogo se cierra.
+   - Si el expediente modal estaba abierto para esta postulación, se cierra automáticamente (`expediente.cerrar()`).
+   - La tabla principal recarga los datos frescos de la base de datos (`alRecargar()`), actualizando el contador de cupos y las métricas consolidadas al instante.
+
+---
+
+### 8.3 Diagrama de Flujo de Eliminación Permanente
+
+```mermaid
+flowchart TD
+    Inicio([Administrador solicita eliminar postulación]) --> Origen{¿Desde dónde solicita?}
+    Origen -->|Tabla principal| ClickTabla["Clic en icono papelera (Fila / Tarjeta)"]
+    Origen -->|Expediente digital| ClickModal["Clic en botón 'Eliminar' (Barra superior)"]
+    
+    ClickTabla --> AbrirDialogo["Abre DialogoConfirmarEliminar<br/>(role='alertdialog', foco en 'Cancelar')"]
+    ClickModal --> AbrirDialogo
+    
+    AbrirDialogo --> Decision{¿El usuario confirma?}
+    Decision -->|Clic en 'Cancelar' o tecla Escape| Abortar([Cancela acción y cierra diálogo])
+    
+    Decision -->|Clic en 'Eliminar definitivamente'| InvocarAction["Invoca eliminarPostulacionAdminAction(id)"]
+    
+    subgraph Servidor["Ejecución en Servidor (Server Action)"]
+        InvocarAction --> AuthCheck{¿Sesión con rol 'admin'?}
+        AuthCheck -->|No| RetornarError403["Retorna error: Sesión sin acceso"]
+        AuthCheck -->|Sí| ValidaUUID{¿ID es UUID válido?}
+        ValidaUUID -->|No| RetornarErrorUUID["Retorna error: Identificador inválido"]
+        
+        ValidaUUID -->|Sí| ConsultarDocs["1. Consulta storage_path en documentos_postulacion"]
+        ConsultarDocs --> BorrarStorage["2. adminClient.storage.from('postulaciones_docs').remove(paths)"]
+        BorrarStorage --> BorrarDB["3. adminClient.from('postulaciones').delete().eq('id', id)"]
+        
+        BorrarDB --> CascadeDB[("PostgreSQL CASCADE:<br/>Borra integrantes, docs y evaluación")]
+        CascadeDB --> RetornarExito["Retorna success: true"]
+    end
+    
+    RetornarError403 --> MostrarErrorUI["Muestra aviso de error en el diálogo"]
+    RetornarErrorUUID --> MostrarErrorUI
+    
+    RetornarExito --> CerrarExpediente{¿Estaba abierto en el expediente?}
+    CerrarExpediente -->|Sí| CierraModal["Cierra ExpedienteModal"]
+    CerrarExpediente -->|No| RefrescarUI["Cierra diálogo de confirmación"]
+    CierraModal --> RefrescarUI
+    RefrescarUI --> RecargarLista["Recarga lista de postulaciones y métricas"]
+    RecargarLista --> Fin([Fin del flujo])
+```
+
+---
+
+### 8.4 Aspectos de Accesibilidad (WAI-ARIA)
+
+El diálogo `DialogoConfirmarEliminar` cumple con las pautas WCAG 2.2 AA y WAI-ARIA para diálogos modales de alerta:
+* **Rol Semántico:** Utiliza `role="alertdialog"` y `aria-modal="true"`.
+* **Identificación Accesible:** `aria-labelledby="titulo-dialogo-eliminar"` y `aria-describedby="desc-dialogo-eliminar"`.
+* **Restauración de Foco:** Al desmontarse el diálogo, el foco vuelve automáticamente al elemento de la interfaz que lo originó.
+* **Bloqueo de Desplazamiento:** Impide el scroll de fondo (`overflow: hidden` en el `body`) mientras el diálogo se encuentra visible.
+* **Movimiento Reducido:** Respeta la configuración de accesibilidad del sistema operativo (`prefers-reduced-motion`) desactivando transiciones y animaciones de escala.
+
+---
+
+## 9. Resolución de Incidencias Frecuentes
+
+* **"Tu sesión no tiene acceso a este panel. Inicia sesión de nuevo"**:
+  * Causa: La cookie de sesión JWT expiró o el usuario carece del rol `admin` en `app_metadata`.
+  * Solución: Cierre sesión y vuelva a ingresar con su cuenta institucional autorizada.
+* **"No pudimos eliminar la postulación. Inténtalo de nuevo en unos minutos"**:
+  * Causa: Error transitorio de red o bloqueo temporal en la base de datos de Supabase.
+  * Solución: Espere unos instantes y reintente la operación. Si la postulación ya no aparece en el listado tras refrescar (`alRecargar`), la eliminación se completó satisfactoriamente.
 * **"Error al generar enlace seguro de documento"**:
-  * Causa: La sesión administrativa pudo haberse vencido o la ruta del archivo fue alterada.
-  * Solución: Cierre sesión y vuelva a ingresar. Si el error persiste, verifique que la variable `SUPABASE_SERVICE_ROLE_KEY` se encuentre activa en el servidor.
-* **"Credenciales no válidas" al iniciar sesión**:
-  * Causa: Contraseña incorrecta o correo mal escrito.
-  * Solución: Asegúrese de usar el correo institucional exacto y sin espacios adicionales.
+  * Causa: La ruta de almacenamiento fue modificada o el archivo fue purgado previamente.
+  * Solución: Verifique si el expediente cuenta con documentos válidos o reintente la generación del enlace temporal.
 * **El botón de Exportar a Excel no descarga el archivo**:
   * Causa: Bloqueador de ventanas emergentes o descargas automáticas en el navegador.
   * Solución: Autorice las descargas desde el dominio del bootcamp en la barra de direcciones de su navegador web.

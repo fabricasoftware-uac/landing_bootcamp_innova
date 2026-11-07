@@ -236,6 +236,17 @@
     color: var(--color-azul);
   }
 
+  .adm-boton-peligro {
+    background: var(--color-alerta);
+    color: var(--color-papel);
+  }
+
+  .adm-boton-peligro-suave {
+    border-color: color-mix(in srgb, var(--color-alerta) 35%, transparent);
+    background: var(--color-papel);
+    color: var(--color-alerta);
+  }
+
   .adm-boton-ancho {
     width: 100%;
   }
@@ -476,7 +487,7 @@
     width: 76px;
   }
   .adm-tabla th:nth-child(9) {
-    width: 32px;
+    width: 68px;
   }
 
   .adm-tabla th {
@@ -604,6 +615,45 @@
     font-weight: 500;
   }
 
+  .adm-fila-celda-acciones {
+    padding-right: 12px;
+  }
+
+  .adm-fila-acciones {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  .adm-fila-accion-eliminar {
+    position: relative;
+    z-index: 2;
+    width: 28px;
+    height: 28px;
+    min-height: 28px;
+    border-radius: 6px;
+    opacity: 0.5;
+    transition:
+      opacity 120ms ease,
+      background-color 120ms ease,
+      border-color 120ms ease;
+  }
+
+  .adm-fila-accion-eliminar .adm-icono {
+    width: 15px;
+    height: 15px;
+  }
+
+  .adm-fila:hover .adm-fila-accion-eliminar,
+  .adm-fila:focus-within .adm-fila-accion-eliminar {
+    opacity: 1;
+  }
+
+  .adm-fila-accion-eliminar:hover {
+    opacity: 1;
+  }
+
   .adm-fila-flecha {
     color: var(--color-tinta-suave);
   }
@@ -616,6 +666,7 @@
       transform 120ms ease;
   }
 
+  .adm-fila:hover .adm-fila-flecha .adm-icono,
   .adm-fila:focus-within .adm-fila-flecha .adm-icono {
     opacity: 1;
     transform: none;
@@ -668,18 +719,40 @@
     display: none;
   }
 
+  .adm-item-envoltorio {
+    position: relative;
+    border-bottom: 1px solid var(--adm-regla);
+  }
+
+  .adm-lista li:last-child.adm-item-envoltorio {
+    border-bottom: 0;
+  }
+
   .adm-item {
     position: relative;
     display: grid;
     gap: 2px;
     width: 100%;
-    padding: 12px 36px 12px 16px;
-    border-bottom: 1px solid var(--adm-regla);
+    padding: 12px 76px 12px 16px;
+    border-bottom: 0;
     text-align: left;
   }
 
-  .adm-lista li:last-child .adm-item {
-    border-bottom: 0;
+  .adm-item-eliminar {
+    position: absolute;
+    top: 50%;
+    right: 36px;
+    transform: translateY(-50%);
+    z-index: 2;
+    width: 32px;
+    height: 32px;
+    min-height: 32px;
+    border-radius: var(--adm-radio-control);
+  }
+
+  .adm-item-eliminar .adm-icono {
+    width: 16px;
+    height: 16px;
   }
 
   .adm-item-linea {
@@ -1232,6 +1305,108 @@
     font-weight: 700;
   }
 
+  /* Diálogo de confirmación accesible (Eliminar postulación) */
+  .adm-dialogo-fondo {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    background: color-mix(in srgb, var(--color-azul) 60%, transparent);
+    backdrop-filter: blur(4px);
+  }
+
+  .adm-dialogo-tarjeta {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    padding: 24px;
+    border: 1px solid var(--color-linea);
+    border-radius: var(--adm-radio);
+    background: var(--color-papel);
+    box-shadow: 0 20px 45px -12px rgba(15, 53, 80, 0.35);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    outline: none;
+  }
+
+  .adm-dialogo-icono-peligro {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--color-alerta-fondo);
+    color: var(--color-alerta);
+  }
+
+  .adm-dialogo-icono-peligro .adm-icono {
+    width: 22px;
+    height: 22px;
+  }
+
+  .adm-dialogo-cuerpo {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .adm-dialogo-titulo {
+    font-family: var(--font-titular);
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--color-tinta);
+  }
+
+  .adm-dialogo-resumen {
+    display: grid;
+    gap: 4px;
+    padding: 12px 14px;
+    border: 1px solid var(--adm-regla);
+    border-radius: var(--adm-radio-control);
+    background: var(--color-nube);
+  }
+
+  .adm-dialogo-semillero strong {
+    color: var(--color-tinta);
+    font-size: 0.9375rem;
+  }
+
+  .adm-dialogo-meta {
+    color: var(--color-tinta-suave);
+    font-size: 0.8125rem;
+  }
+
+  .adm-dialogo-codigo {
+    font-weight: 700;
+    color: var(--color-tinta);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .adm-dialogo-datos-secundarios {
+    color: var(--color-tinta-suave);
+    font-size: 0.75rem;
+  }
+
+  .adm-dialogo-advertencia {
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: var(--color-tinta-suave);
+  }
+
+  .adm-dialogo-acciones {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--adm-regla);
+  }
+
   @media (hover: hover) {
     .adm-nav-item:hover {
       background: color-mix(in srgb, var(--color-papel) 12%, transparent);
@@ -1240,6 +1415,16 @@
 
     .adm-boton-primario:not(:disabled):hover {
       background: var(--color-azul-claro);
+    }
+
+    .adm-boton-peligro:not(:disabled):hover {
+      background: color-mix(in srgb, var(--color-alerta) 85%, black);
+    }
+
+    .adm-boton-peligro-suave:not(:disabled):hover {
+      border-color: var(--color-alerta);
+      background: var(--color-alerta-fondo);
+      color: var(--color-alerta);
     }
 
     .adm-boton-suave:not(:disabled):hover,

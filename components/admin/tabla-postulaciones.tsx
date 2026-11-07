@@ -14,6 +14,7 @@ import {
   IconoChevronDerecha,
   IconoFlechaDerecha,
   IconoOrden,
+  IconoPapelera,
 } from "@/components/admin/iconos";
 
 export type ColumnaOrden =
@@ -123,7 +124,15 @@ function Encabezado({
   );
 }
 
-function Fila({ p, alAbrir }: { p: P; alAbrir: (p: P) => void }) {
+function Fila({
+  p,
+  alAbrir,
+  alSolicitarEliminar,
+}: {
+  p: P;
+  alAbrir: (p: P) => void;
+  alSolicitarEliminar?: (p: P) => void;
+}) {
   return (
     <tr className="adm-fila">
       <td>
@@ -154,8 +163,26 @@ function Fila({ p, alAbrir }: { p: P; alAbrir: (p: P) => void }) {
         <EstadoMarca estado={p.estado} />
       </td>
       <td className="adm-num adm-suave">{fechaCorta(p.created_at)}</td>
-      <td className="adm-fila-flecha">
-        <IconoFlechaDerecha />
+      <td className="adm-fila-celda-acciones">
+        <div className="adm-fila-acciones">
+          {alSolicitarEliminar && (
+            <button
+              type="button"
+              className="adm-boton-icono adm-boton-peligro-suave adm-fila-accion-eliminar"
+              onClick={(e) => {
+                e.stopPropagation();
+                alSolicitarEliminar(p);
+              }}
+              title={`Eliminar postulación ${p.radicado_codigo}`}
+              aria-label={`Eliminar postulación ${p.radicado_codigo}`}
+            >
+              <IconoPapelera />
+            </button>
+          )}
+          <span className="adm-fila-flecha" aria-hidden="true">
+            <IconoFlechaDerecha />
+          </span>
+        </div>
       </td>
     </tr>
   );
@@ -170,9 +197,17 @@ function resumenFila(p: P): string {
   ].join(" · ");
 }
 
-function ItemLista({ p, alAbrir }: { p: P; alAbrir: (p: P) => void }) {
+function ItemLista({
+  p,
+  alAbrir,
+  alSolicitarEliminar,
+}: {
+  p: P;
+  alAbrir: (p: P) => void;
+  alSolicitarEliminar?: (p: P) => void;
+}) {
   return (
-    <li>
+    <li className="adm-item-envoltorio">
       <button type="button" className="adm-item" onClick={() => alAbrir(p)}>
         <span className="adm-item-linea">
           <Radicado codigo={p.radicado_codigo} />
@@ -189,6 +224,20 @@ function ItemLista({ p, alAbrir }: { p: P; alAbrir: (p: P) => void }) {
           <IconoChevronDerecha />
         </span>
       </button>
+      {alSolicitarEliminar && (
+        <button
+          type="button"
+          className="adm-boton-icono adm-boton-peligro-suave adm-item-eliminar"
+          onClick={(e) => {
+            e.stopPropagation();
+            alSolicitarEliminar(p);
+          }}
+          title={`Eliminar postulación ${p.radicado_codigo}`}
+          aria-label={`Eliminar postulación ${p.radicado_codigo}`}
+        >
+          <IconoPapelera />
+        </button>
+      )}
     </li>
   );
 }
@@ -237,6 +286,7 @@ interface TablaPostulacionesProps {
   error: string | null;
   alOrdenar: (columna: ColumnaOrden) => void;
   alSeleccionarPostulacion: (postulacion: P) => void;
+  alSolicitarEliminar?: (postulacion: P) => void;
   alReintentar: () => void;
   alLimpiarFiltros: () => void;
 }
@@ -249,6 +299,7 @@ export function TablaPostulaciones({
   error,
   alOrdenar,
   alSeleccionarPostulacion,
+  alSolicitarEliminar,
   alReintentar,
   alLimpiarFiltros,
 }: TablaPostulacionesProps) {
@@ -308,20 +359,30 @@ export function TablaPostulaciones({
                 alOrdenar={alOrdenar}
               />
             ))}
-            <th scope="col">
-              <span className="sr-only">Abrir</span>
+            <th scope="col" className="adm-col-acciones">
+              <span className="sr-only">Acciones</span>
             </th>
           </tr>
         </thead>
         <tbody>
           {postulaciones.map((p) => (
-            <Fila key={p.id} p={p} alAbrir={alSeleccionarPostulacion} />
+            <Fila
+              key={p.id}
+              p={p}
+              alAbrir={alSeleccionarPostulacion}
+              alSolicitarEliminar={alSolicitarEliminar}
+            />
           ))}
         </tbody>
       </table>
       <ul className="adm-lista">
         {postulaciones.map((p) => (
-          <ItemLista key={p.id} p={p} alAbrir={alSeleccionarPostulacion} />
+          <ItemLista
+            key={p.id}
+            p={p}
+            alAbrir={alSeleccionarPostulacion}
+            alSolicitarEliminar={alSolicitarEliminar}
+          />
         ))}
       </ul>
     </div>

@@ -8,6 +8,7 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PostulacionAdminDetalle } from "@/app/actions/admin";
 import {
+  eliminarPostulacionAdminAction,
   exportarPostulacionesExcelAction,
   generarUrlDocumentoAction,
   guardarEvaluacionAction,
@@ -104,6 +105,10 @@ describe("Autorización de las acciones admin", () => {
     ],
     ["guardarEvaluacionAction", () => guardarEvaluacionAction(entrada)],
     ["exportarPostulacionesExcelAction", exportarPostulacionesExcelAction],
+    [
+      "eliminarPostulacionAdminAction",
+      () => eliminarPostulacionAdminAction(POSTULACION_ID),
+    ],
   ] as const;
 
   beforeEach(() => {

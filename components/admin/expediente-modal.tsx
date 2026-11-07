@@ -25,6 +25,7 @@ import {
   IconoChevronDerecha,
   IconoChevronIzquierda,
   IconoFlechaIzquierda,
+  IconoPapelera,
 } from "@/components/admin/iconos";
 
 interface ExpedienteModalProps {
@@ -37,6 +38,7 @@ interface ExpedienteModalProps {
   alMover: (destino: number) => void;
   alCerrar: () => void;
   alActualizar: () => void;
+  alSolicitarEliminar?: (postulacion: PostulacionAdminDetalle) => void;
 }
 
 type Pestana =
@@ -149,12 +151,14 @@ function BarraExpediente({
   total,
   alCerrar,
   alPasar,
+  alSolicitarEliminar,
 }: {
   p: PostulacionAdminDetalle;
   posicion: number;
   total: number;
   alCerrar: () => void;
   alPasar: (paso: number) => void;
+  alSolicitarEliminar?: (p: PostulacionAdminDetalle) => void;
 }) {
   return (
     <header className="adm-exp-barra">
@@ -175,6 +179,18 @@ function BarraExpediente({
         </p>
       </div>
       <EstadoMarca estado={p.estado} />
+      {alSolicitarEliminar && (
+        <button
+          type="button"
+          className="adm-boton adm-boton-peligro-suave"
+          onClick={() => alSolicitarEliminar(p)}
+          title="Eliminar postulación definitivamente"
+          aria-label={`Eliminar postulación ${p.radicado_codigo}`}
+        >
+          <IconoPapelera />
+          <span className="adm-solo-ancho">Eliminar</span>
+        </button>
+      )}
       <nav className="adm-exp-paso" aria-label="Pasar de postulación">
         {posicion >= 0 && (
           <span aria-live="polite">
@@ -246,6 +262,7 @@ export function ExpedienteModal({
   alMover,
   alCerrar,
   alActualizar,
+  alSolicitarEliminar,
 }: ExpedienteModalProps) {
   const [elegida, setElegida] = useState<Pestana>("resumen");
   const columnaFija = useColumnaFija();
@@ -280,6 +297,7 @@ export function ExpedienteModal({
         total={total}
         alCerrar={alCerrar}
         alPasar={alPasar}
+        alSolicitarEliminar={alSolicitarEliminar}
       />
       <Pestanas
         activa={activa}
