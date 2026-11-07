@@ -390,9 +390,10 @@
     height: 34px;
   }
 
+  /* Lleva la Secretaría debajo: ocupa todo el alto de la marca para que se lea. */
   .marca-gobernacion {
     display: block;
-    height: 36px;
+    height: 46px;
   }
 
   .marca-universidad {

@@ -20,10 +20,6 @@ export function LogoCauca({ clase = "" }: { clase?: string }) {
 }
 
 const LOGOS = {
-  "gobernacion-compacto": {
-    proporcion: "1290 / 488",
-    alt: "Gobernación del Cauca",
-  },
   gobernacion: {
     proporcion: "1342 / 880",
     alt: "Gobernación del Cauca, Secretaría de Desarrollo Económico y Competitividad",

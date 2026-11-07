@@ -13,7 +13,7 @@ const CAPAS = ["uno", "dos", "tres", "cuatro", "lima", "seis"] as const;
 const LOGOS_CARGA = [
   "/logos/uniautonoma-grifo.svg",
   "/logos/uniautonoma-letras.svg",
-  "/logos/gobernacion-compacto.svg",
+  "/logos/gobernacion.svg",
 ];
 
 /**
@@ -44,7 +44,7 @@ export function CargaInicial() {
             <LogoCauca />
           </div>
           <div className="carga-gobernacion">
-            <LogoMascara nombre="gobernacion-compacto" />
+            <LogoMascara nombre="gobernacion" />
           </div>
         </div>
         <div className="carga-capas">

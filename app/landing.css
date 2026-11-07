@@ -89,7 +89,7 @@
 
   .carga-gobernacion .logo-mascara {
     display: block;
-    height: clamp(3.5rem, 6.4vw, 5.5rem);
+    height: clamp(4.5rem, 8vw, 7rem);
   }
 
   @keyframes carga-grifo {

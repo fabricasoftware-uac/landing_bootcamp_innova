@@ -17,7 +17,7 @@ export function MarcasAdmin() {
   return (
     <a href="/" title="Ir a la portada pública" className="marcas-admin">
       <LogoCauca />
-      <LogoMascara nombre="gobernacion-compacto" />
+      <LogoMascara nombre="gobernacion" />
       <LogoMascara nombre="uniautonoma" />
     </a>
   );

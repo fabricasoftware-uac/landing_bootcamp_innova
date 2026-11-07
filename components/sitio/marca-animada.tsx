@@ -105,7 +105,7 @@ export function MarcaAnimada() {
       <span className="marca-alianza">
         <LogoCauca />
         <span className="marca-gobernacion">
-          <LogoMascara nombre="gobernacion-compacto" />
+          <LogoMascara nombre="gobernacion" />
         </span>
       </span>
       <span className="marca-universidad">

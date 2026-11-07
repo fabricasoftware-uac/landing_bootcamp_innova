@@ -25,6 +25,11 @@
     height: 30px;
   }
 
+  /* La de la Gobernación lleva la Secretaría: más alta para que se lea. */
+  .ingreso .marcas-admin .logo-mascara[aria-label^="Gobernación"] {
+    height: 46px;
+  }
+
   .adm-exp h2,
   .adm-exp h3,
   .adm-exp h4 {
@@ -98,6 +103,12 @@
     align-items: center;
     gap: 12px;
     height: 24px;
+  }
+
+  /* La de la Gobernación lleva la Secretaría: sobresale del renglón para que se lea. */
+  .adm-marcas-aliados .logo-mascara[aria-label^="Gobernación"] {
+    flex: none;
+    height: 44px;
   }
 
   .adm-nav {
@@ -1606,6 +1617,10 @@
     .adm-marcas-aliados {
       gap: 8px;
       height: 18px;
+    }
+
+    .adm-marcas-aliados .logo-mascara[aria-label^="Gobernación"] {
+      height: 34px;
     }
 
     .adm-solo-ancho,

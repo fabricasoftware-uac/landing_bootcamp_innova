@@ -20,7 +20,7 @@ function Marcas() {
     <a href="/" className="adm-marcas" title="Ir a la portada pública">
       <LogoCauca />
       <span className="adm-marcas-aliados">
-        <LogoMascara nombre="gobernacion-compacto" />
+        <LogoMascara nombre="gobernacion" />
         <LogoMascara nombre="uniautonoma" />
       </span>
     </a>
