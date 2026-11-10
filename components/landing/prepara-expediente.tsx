@@ -6,6 +6,7 @@ import {
   PiezaCauca,
   SiluetaCauca,
 } from "@/components/sitio/pieza-cauca";
+import { ESTADO_CONVOCATORIA } from "@/lib/config/convocatoria";
 import { requisitos } from "@/lib/contenido";
 import { gsap, prefiereMenosMovimiento, useGSAP } from "@/lib/motion";
 import { CAPAS_PIEZA } from "@/lib/pieza-cauca";
@@ -95,10 +96,19 @@ export function PreparaExpediente() {
             <a
               className="boton requisitos-accion"
               data-listo={completa ? "" : undefined}
+              data-cerrado={!ESTADO_CONVOCATORIA.abierta ? "" : undefined}
               href="/postulacion"
             >
               <SiluetaCauca clase="sello-mapa" />
-              Inscribir a mi equipo <span className="flecha">→</span>
+              {ESTADO_CONVOCATORIA.abierta ? (
+                <>
+                  Inscribir a mi equipo <span className="flecha">→</span>
+                </>
+              ) : (
+                <>
+                  Cupos agotados <span className="flecha">→</span>
+                </>
+              )}
             </a>
           </div>
         </div>

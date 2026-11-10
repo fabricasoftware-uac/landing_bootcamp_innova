@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { Credito } from "@/components/sitio/con-credito";
 import { VideoPerezoso } from "@/components/sitio/video-perezoso";
+import { ESTADO_CONVOCATORIA } from "@/lib/config/convocatoria";
 import {
   criterios,
   documentos,
@@ -246,9 +247,25 @@ export function Recorrido() {
           ))}
 
           <div className="recorrido-cierre">
-            <h3>¿Listos para innovar?</h3>
-            <a className="boton boton-lima boton-grande" href="/postulacion">
-              Inscribir a mi equipo <span className="flecha">→</span>
+            <h3>
+              {ESTADO_CONVOCATORIA.abierta
+                ? "¿Listos para innovar?"
+                : "Convocatoria finalizada"}
+            </h3>
+            <a
+              className={`boton boton-grande ${ESTADO_CONVOCATORIA.abierta ? "boton-lima" : "banner-boton-cerrado"}`}
+              href="/postulacion"
+            >
+              {ESTADO_CONVOCATORIA.abierta ? (
+                <>
+                  Inscribir a mi equipo <span className="flecha">→</span>
+                </>
+              ) : (
+                <>
+                  <span className="pildora-punto-cerrado" aria-hidden="true" />
+                  Cupos agotados · Ver cronograma
+                </>
+              )}
             </a>
             <a className="enlace-banner" href={paginaTerminos}>
               Leer los términos de referencia

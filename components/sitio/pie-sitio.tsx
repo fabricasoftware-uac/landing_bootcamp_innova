@@ -1,3 +1,4 @@
+import { ESTADO_CONVOCATORIA } from "@/lib/config/convocatoria";
 import { paginaTerminos } from "@/lib/contenido";
 import { BotonSubir } from "./boton-subir";
 import { Credito } from "./con-credito";
@@ -29,8 +30,19 @@ export function PieSitio() {
           <h2 className="pie-titulo" data-titular>
             Nos vemos <span className="acento">creando.</span>
           </h2>
-          <a className="pie-postular" href="/postulacion">
-            Inscribir a mi equipo <span aria-hidden="true">→</span>
+          <a
+            className={`pie-postular ${!ESTADO_CONVOCATORIA.abierta ? "pie-postular-cerrado" : ""}`}
+            href="/postulacion"
+          >
+            {ESTADO_CONVOCATORIA.abierta ? (
+              <>
+                Inscribir a mi equipo <span aria-hidden="true">→</span>
+              </>
+            ) : (
+              <>
+                Cupos agotados <span aria-hidden="true">→</span>
+              </>
+            )}
           </a>
         </div>
 

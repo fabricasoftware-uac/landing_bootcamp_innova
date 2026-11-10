@@ -11,6 +11,20 @@ vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: vi.fn(),
 }));
 
+vi.mock("@/lib/config/convocatoria", () => ({
+  ESTADO_CONVOCATORIA: {
+    abierta: true,
+    motivo: "cupos_agotados",
+    badge: "Cupos agotados",
+    tituloCierre: "Inscripciones cerradas · Cupos agotados",
+    mensajeCierre:
+      "Agradecemos a todos los semilleros de investigación del departamento del Cauca por su extraordinaria acogida y participación. Los cupos disponibles para el Bootcamp Cauca INNOVA 2026 se han completado en su totalidad.",
+    subtituloCierre:
+      "El proceso de recepción de postulaciones ha finalizado. Nuestro equipo evaluador se encuentra revisando las propuestas radicadas.",
+    cronograma: [],
+  },
+}));
+
 vi.mock("@/lib/supabase/autorizacion", () => ({
   obtenerAdministrador: vi.fn(),
 }));

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ESTADO_CONVOCATORIA } from "@/lib/config/convocatoria";
 import { enlacesSeccion } from "@/lib/contenido";
 import { MarcaAnimada } from "./marca-animada";
 import { MenuCompleto } from "./menu-completo";
@@ -137,8 +138,23 @@ export function CabeceraSitio({
           </nav>
           <div className="cabecera-derecha">
             {!sinPostular && (
-              <a className="cabecera-postular" href="/postulacion">
-                Inscribirse <span aria-hidden="true">→</span>
+              <a
+                className={`cabecera-postular ${!ESTADO_CONVOCATORIA.abierta ? "cabecera-postular-cerrada" : ""}`}
+                href="/postulacion"
+              >
+                {ESTADO_CONVOCATORIA.abierta ? (
+                  <>
+                    Inscribirse <span aria-hidden="true">→</span>
+                  </>
+                ) : (
+                  <>
+                    <span
+                      className="cabecera-punto-cerrado"
+                      aria-hidden="true"
+                    />
+                    Cupos agotados
+                  </>
+                )}
               </a>
             )}
             <button

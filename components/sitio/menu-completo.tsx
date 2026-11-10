@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { ESTADO_CONVOCATORIA } from "@/lib/config/convocatoria";
 import { enlacesSeccion, paginaTerminos } from "@/lib/contenido";
 import {
   gsap,
@@ -188,8 +189,20 @@ export function MenuCompleto({
       <div className="menu-pie">
         <p>14 de noviembre de 2026</p>
         <a href={paginaTerminos}>Términos de referencia</a>
-        <a className="menu-postular" href="/postulacion">
-          Inscribir a mi equipo <span aria-hidden="true">→</span>
+        <a
+          className={`menu-postular ${!ESTADO_CONVOCATORIA.abierta ? "menu-postular-cerrado" : ""}`}
+          href="/postulacion"
+          onClick={alCerrar}
+        >
+          {ESTADO_CONVOCATORIA.abierta ? (
+            <>
+              Inscribir a mi equipo <span aria-hidden="true">→</span>
+            </>
+          ) : (
+            <>
+              Cupos agotados <span aria-hidden="true">→</span>
+            </>
+          )}
         </a>
       </div>
     </div>

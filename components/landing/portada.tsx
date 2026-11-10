@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { rutaVideo } from "@/components/sitio/video-perezoso";
+import { ESTADO_CONVOCATORIA } from "@/lib/config/convocatoria";
 import { paginaTerminos, versionesPrototipo } from "@/lib/contenido";
 import { prefiereMenosMovimiento } from "@/lib/motion";
 import { CONTORNO_SILUETA } from "@/lib/pieza-cauca";
@@ -135,9 +136,19 @@ export function Portada() {
             salen con un prototipo. 14 de noviembre de 2026.
           </p>
           <div className="banner-acciones">
-            <a className="boton boton-lima boton-grande" href="/postulacion">
-              Inscribir a mi equipo <span className="flecha">→</span>
-            </a>
+            {ESTADO_CONVOCATORIA.abierta ? (
+              <a className="boton boton-lima boton-grande" href="/postulacion">
+                Inscribir a mi equipo <span className="flecha">→</span>
+              </a>
+            ) : (
+              <a
+                className="boton boton-grande banner-boton-cerrado"
+                href="/postulacion"
+              >
+                <span className="pildora-punto-cerrado" aria-hidden="true" />
+                Cupos agotados · Ver cronograma
+              </a>
+            )}
             <a className="enlace-banner" href={paginaTerminos}>
               Términos de referencia
             </a>

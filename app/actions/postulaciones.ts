@@ -1,6 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
+import { ESTADO_CONVOCATORIA } from "@/lib/config/convocatoria";
 import { getAdminSupabaseClient } from "@/lib/supabase/admin";
 import type { TipoDocumentoAdjunto } from "@/lib/supabase/types";
 import { parseBooleanValue, sanitizeFileName } from "@/lib/utils/formatters";
@@ -98,6 +99,13 @@ export async function crearPostulacionAction(
   let adminClient: ReturnType<typeof getAdminSupabaseClient> | null = null;
 
   try {
+    if (!ESTADO_CONVOCATORIA.abierta) {
+      return {
+        success: false,
+        error: ESTADO_CONVOCATORIA.mensajeCierre,
+      };
+    }
+
     const ip = await obtenerIp();
     if (ip && !consumirIntento(ip)) {
       return { success: false, error: MENSAJE_LIMITE };

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ESTADO_CONVOCATORIA } from "@/lib/config/convocatoria";
 
 /* Botón flotante accesible que acompaña el scroll bajo el pulgar en móviles y pantallas táctiles. */
 export function AccesoPostular() {
@@ -31,10 +32,20 @@ export function AccesoPostular() {
   }, []);
 
   return (
-    <div className="acceso-postular" data-visible={visible ? "" : undefined}>
+    <div
+      className="acceso-postular"
+      data-visible={visible ? "" : undefined}
+      data-cerrado={!ESTADO_CONVOCATORIA.abierta ? "" : undefined}
+    >
       <a href="/postulacion" tabIndex={visible ? 0 : -1}>
-        <span>Inscribir equipo</span>
-        <small>5 pasos · 21 cupos</small>
+        <span>
+          {ESTADO_CONVOCATORIA.abierta ? "Inscribir equipo" : "Cupos agotados"}
+        </span>
+        <small>
+          {ESTADO_CONVOCATORIA.abierta
+            ? "5 pasos · 21 cupos"
+            : "Inscripciones cerradas"}
+        </small>
       </a>
     </div>
   );
