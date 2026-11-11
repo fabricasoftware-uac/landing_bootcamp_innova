@@ -134,16 +134,3 @@ export const IconoPapelera = () => (
     <path d="M7.5 8v5M10.5 8v5" />
   </Icono>
 );
-
-export const IconoCerrar = () => (
-  <Icono>
-    <path d="m4.5 4.5 9 9M13.5 4.5l-9 9" />
-  </Icono>
-);
-
-export const IconoOjo = () => (
-  <Icono>
-    <path d="M1.5 9s2.5-5 7.5-5 7.5 5 7.5 5-2.5 5-7.5 5-7.5-5-7.5-5z" />
-    <circle cx="9" cy="9" r="2.5" />
-  </Icono>
-);

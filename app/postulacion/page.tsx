@@ -50,11 +50,10 @@ export default function PostulacionPage() {
                   o{" "}
                   <a
                     href="/documentos/terminos-de-referencia.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    download
                     style={{ textDecoration: "underline" }}
                   >
-                    ver el PDF oficial
+                    descarga el PDF oficial
                   </a>
                   .
                 </p>

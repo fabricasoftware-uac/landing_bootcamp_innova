@@ -28,13 +28,8 @@ export default function TerminosDeReferenciaPage() {
           <a className="boton boton-lima" href="/postulacion">
             Inscribir a mi equipo <span aria-hidden="true">→</span>
           </a>
-          <a
-            className="boton"
-            href={documentoTerminos}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Ver PDF oficial
+          <a className="boton" href={documentoTerminos} download>
+            Descargar PDF
           </a>
         </>
       }

@@ -1139,22 +1139,6 @@
     margin-top: 6px;
   }
 
-  .adm-documento-acciones {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    margin-top: 6px;
-  }
-
-  .adm-documento-acciones .adm-boton {
-    margin-top: 0;
-  }
-
-  .adm-documento-acciones .adm-boton:first-child {
-    flex: 1;
-  }
-
   .adm-documento[data-falta="true"] {
     border-style: dashed;
     background: transparent;
@@ -1432,153 +1416,6 @@
     gap: 10px;
     padding-top: 10px;
     border-top: 1px solid var(--adm-regla);
-  }
-
-  /* Visor integrado de documentos */
-  .adm-visor-telon {
-    position: fixed;
-    inset: 0;
-    z-index: 80;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    background: color-mix(in srgb, var(--color-azul) 65%, transparent);
-    backdrop-filter: blur(4px);
-  }
-
-  .adm-visor-modal {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    width: min(1080px, 100%);
-    height: min(92vh, 920px);
-    border: 1px solid var(--color-linea);
-    border-radius: var(--adm-radio);
-    background: var(--color-papel);
-    box-shadow: 0 25px 50px -12px rgba(15, 53, 80, 0.35);
-    overflow: hidden;
-    outline: none;
-  }
-
-  .adm-visor-cabecera {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 14px 20px;
-    border-bottom: 1px solid var(--color-linea);
-    background: var(--color-papel);
-  }
-
-  .adm-visor-info {
-    min-width: 0;
-  }
-
-  .adm-visor-info h3 {
-    margin: 0;
-    color: var(--color-tinta);
-    font-size: 1rem;
-    font-weight: 700;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .adm-visor-info p {
-    margin: 2px 0 0;
-    font-size: 0.8125rem;
-  }
-
-  .adm-visor-acciones {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-  }
-
-  .adm-visor-cuerpo {
-    position: relative;
-    display: flex;
-    flex: 1;
-    min-height: 0;
-    background: var(--color-nube);
-    overflow: hidden;
-  }
-
-  .adm-visor-iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    background: #525659;
-  }
-
-  .adm-visor-img-contenedor {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    padding: 24px;
-    overflow: auto;
-  }
-
-  .adm-visor-img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    border-radius: 6px;
-    box-shadow: 0 4px 16px rgba(15, 53, 80, 0.12);
-    background: var(--color-papel);
-  }
-
-  .adm-visor-cargando,
-  .adm-visor-error,
-  .adm-visor-formato-no-soportado {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    padding: 24px;
-    text-align: center;
-    background: var(--color-papel);
-    z-index: 2;
-  }
-
-  .adm-visor-spinner {
-    width: 36px;
-    height: 36px;
-    border: 3px solid var(--color-linea);
-    border-top-color: var(--color-azul);
-    border-radius: 50%;
-    animation: adm-girar 0.8s linear infinite;
-  }
-
-  @keyframes adm-girar {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  .adm-visor-error-acciones {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-  }
-
-  .adm-visor-pie {
-    padding: 10px 20px;
-    border-top: 1px solid var(--color-linea);
-    background: var(--color-papel);
-    font-size: 0.8125rem;
-  }
-
-  .adm-visor-pie p {
-    margin: 0;
   }
 
   @media (hover: hover) {
@@ -1906,25 +1743,6 @@
 
     .adm-paso button {
       width: 44px;
-    }
-
-    .adm-visor-telon {
-      padding: 8px;
-    }
-
-    .adm-visor-modal {
-      width: 100%;
-      height: 100%;
-      max-height: 100%;
-      border-radius: var(--adm-radio-control);
-    }
-
-    .adm-visor-cabecera {
-      padding: 10px 12px;
-    }
-
-    .adm-visor-pie {
-      padding: 8px 12px;
     }
   }
 }

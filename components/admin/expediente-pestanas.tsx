@@ -18,9 +18,7 @@ import {
   IconoDocumento,
   IconoExterno,
   IconoFalta,
-  IconoOjo,
 } from "@/components/admin/iconos";
-import { VisorDocumentoModal } from "@/components/admin/visor-documento-modal";
 
 type P = PostulacionAdminDetalle;
 
@@ -217,10 +215,12 @@ export function PestanaMotivacion({ p }: { p: P }) {
 
 function TarjetaDocumento({
   documento,
-  alPrevisualizar,
+  cargando,
+  alAbrir,
 }: {
   documento: DocumentoEsperado;
-  alPrevisualizar: (doc: DocumentoEsperado) => void;
+  cargando: boolean;
+  alAbrir: (ruta: string) => void;
 }) {
   const { archivo } = documento;
   if (!archivo) {
@@ -232,9 +232,6 @@ function TarjetaDocumento({
       </li>
     );
   }
-
-  const urlDocumento = `/api/admin/documento?path=${encodeURIComponent(archivo.storage_path)}`;
-
   return (
     <li className="adm-documento">
       <IconoDocumento />
@@ -243,58 +240,72 @@ function TarjetaDocumento({
         {documento.categoria} · {tipoArchivo(archivo.mime_type)} ·{" "}
         {formatearPeso(archivo.tamano_bytes)}
       </p>
-      <div className="adm-documento-acciones">
-        <button
-          type="button"
-          className="adm-boton adm-boton-suave"
-          onClick={() => alPrevisualizar(documento)}
-          aria-label={`Vista previa de ${documento.nombre}`}
-        >
-          <IconoOjo />
-          Vista previa
-        </button>
-        <a
-          href={urlDocumento}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="adm-boton adm-boton-icono"
-          title="Abrir en pestaña nueva"
-          aria-label={`Abrir ${documento.nombre} en pestaña nueva`}
-        >
-          <IconoExterno />
-        </a>
-      </div>
+      <button
+        type="button"
+        className="adm-boton adm-boton-suave"
+        disabled={cargando}
+        onClick={() => alAbrir(archivo.storage_path)}
+        aria-label={`Ver ${documento.nombre}`}
+      >
+        <IconoExterno />
+        {cargando ? "Abriendo…" : "Ver documento"}
+      </button>
     </li>
   );
 }
 
+function useAbrirDocumento(acciones: AccionesPanel) {
+  const [cargando, setCargando] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const abrir = async (ruta: string) => {
+    setCargando(ruta);
+    setError(null);
+    try {
+      const res = await acciones.urlDocumento(ruta);
+      if (res.success && res.data?.signedUrl) {
+        window.open(res.data.signedUrl, "_blank", "noopener,noreferrer");
+      } else {
+        setError(res.error || "No se pudo obtener el documento.");
+      }
+    } catch (err) {
+      console.error("Error al abrir el documento:", err);
+      setError(
+        "No pudimos abrir el documento. Revisa tu conexión e inténtalo de nuevo.",
+      );
+    } finally {
+      setCargando(null);
+    }
+  };
+
+  return { abrir, cargando, error };
+}
+
 export function PestanaDocumentos({
   p,
-  acciones: _acciones,
+  acciones,
 }: {
   p: P;
-  acciones?: AccionesPanel;
+  acciones: AccionesPanel;
 }) {
-  const [documentoActivo, setDocumentoActivo] =
-    useState<DocumentoEsperado | null>(null);
-
+  const { abrir, cargando, error } = useAbrirDocumento(acciones);
   return (
     <>
+      {error && (
+        <p className="adm-aviso" role="alert">
+          {error}
+        </p>
+      )}
       <ul className="adm-documentos">
         {documentosEsperados(p).map((d) => (
           <TarjetaDocumento
             key={d.tipo}
             documento={d}
-            alPrevisualizar={setDocumentoActivo}
+            cargando={cargando === d.archivo?.storage_path}
+            alAbrir={abrir}
           />
         ))}
       </ul>
-      {documentoActivo && (
-        <VisorDocumentoModal
-          documento={documentoActivo}
-          alCerrar={() => setDocumentoActivo(null)}
-        />
-      )}
     </>
   );
 }
