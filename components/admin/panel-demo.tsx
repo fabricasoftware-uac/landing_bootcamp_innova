@@ -252,6 +252,13 @@ function calcularMetricas(lista: PostulacionAdminDetalle[]): MetricasAdmin {
   const contar = (estado: PostulacionEstado) =>
     lista.filter((p) => p.estado === estado).length;
   const seleccionados = contar("seleccionado");
+  const seleccionadosSuperior = lista.filter(
+    (p) => p.estado === "seleccionado" && p.institucion_tipo === "superior",
+  ).length;
+  const seleccionadosBasicaMedia = lista.filter(
+    (p) => p.estado === "seleccionado" && p.institucion_tipo === "basica_media",
+  ).length;
+
   return {
     total: lista.length,
     pendientes: contar("pendiente"),
@@ -259,7 +266,11 @@ function calcularMetricas(lista: PostulacionAdminDetalle[]): MetricasAdmin {
     no_habilitados: contar("no_habilitado"),
     seleccionados,
     cupos_ocupados: seleccionados,
-    cupos_totales: 7,
+    cupos_totales: 10,
+    meta_superior: 6,
+    meta_basica_media: 3,
+    seleccionados_superior: seleccionadosSuperior,
+    seleccionados_basica_media: seleccionadosBasicaMedia,
     basica_media: lista.filter((p) => p.institucion_tipo === "basica_media")
       .length,
     superior: lista.filter((p) => p.institucion_tipo === "superior").length,

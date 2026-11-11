@@ -283,7 +283,7 @@ export function ExpedienteEvaluacion({
             <option value="habilitado">Habilitado (cumple requisitos)</option>
             <option value="no_habilitado">No habilitado</option>
             <option value="seleccionado">
-              Seleccionado (uno de los 6 cupos)
+              Seleccionado (uno de los 10 cupos: 6 univ. / 3 col.)
             </option>
           </select>
         </section>

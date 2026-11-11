@@ -31,6 +31,10 @@ export interface MetricasAdmin {
   seleccionados: number;
   cupos_ocupados: number;
   cupos_totales: number;
+  meta_superior: number;
+  meta_basica_media: number;
+  seleccionados_superior: number;
+  seleccionados_basica_media: number;
   basica_media: number;
   superior: number;
 }
@@ -147,6 +151,14 @@ async function consultarListadoAdmin(): Promise<RespuestaAdmin<ListadoAdmin>> {
       };
     });
 
+    const seleccionadosSuperior = postulacionesConDetalle.filter(
+      (p) => p.estado === "seleccionado" && p.institucion_tipo === "superior",
+    ).length;
+    const seleccionadosBasicaMedia = postulacionesConDetalle.filter(
+      (p) =>
+        p.estado === "seleccionado" && p.institucion_tipo === "basica_media",
+    ).length;
+
     // 6. Calcular métricas consolidadas
     const metricas: MetricasAdmin = {
       total: postulacionesConDetalle.length,
@@ -165,7 +177,11 @@ async function consultarListadoAdmin(): Promise<RespuestaAdmin<ListadoAdmin>> {
       cupos_ocupados: postulacionesConDetalle.filter(
         (p) => p.estado === "seleccionado",
       ).length,
-      cupos_totales: 7, // 7 equipos máximo según actualización oficial (21 participantes)
+      cupos_totales: 10, // Hasta 10 cupos (meta: 6 universidades y 3 colegios)
+      meta_superior: 6,
+      meta_basica_media: 3,
+      seleccionados_superior: seleccionadosSuperior,
+      seleccionados_basica_media: seleccionadosBasicaMedia,
       basica_media: postulacionesConDetalle.filter(
         (p) => p.institucion_tipo === "basica_media",
       ).length,
