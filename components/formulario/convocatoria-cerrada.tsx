@@ -122,11 +122,12 @@ export function ConvocatoriaCerrada() {
             Términos de referencia
           </a>
           <a
-            className="enlace-texto"
+            className="boton-enlace"
             href="/documentos/terminos-de-referencia.pdf"
-            download
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            Descargar PDF oficial
+            Ver PDF oficial
           </a>
         </div>
       </div>

@@ -192,7 +192,7 @@ describe("Autorización de las acciones admin", () => {
     expect(createSignedUrl).not.toHaveBeenCalled();
   });
 
-  it("firma documentos registrados con vida corta y como descarga", async () => {
+  it("firma documentos registrados con vida corta para visualización en línea por defecto y permite descarga opcional", async () => {
     simularSesion({ id: "u1", app_metadata: { role: "admin" } });
     const createSignedUrl = vi.fn().mockResolvedValue({
       data: { signedUrl: "https://storage.test/firmado" },
@@ -218,6 +218,18 @@ describe("Autorización de las acciones admin", () => {
     const respuesta = await generarUrlDocumentoAction("carpeta/doc.pdf");
 
     expect(respuesta.success).toBe(true);
+    expect(createSignedUrl).toHaveBeenCalledWith(
+      "carpeta/doc.pdf",
+      60,
+      undefined,
+    );
+
+    const respuestaDescarga = await generarUrlDocumentoAction(
+      "carpeta/doc.pdf",
+      { descargar: true },
+    );
+
+    expect(respuestaDescarga.success).toBe(true);
     expect(createSignedUrl).toHaveBeenCalledWith("carpeta/doc.pdf", 60, {
       download: "doc.pdf",
     });

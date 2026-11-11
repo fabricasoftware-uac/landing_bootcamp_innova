@@ -14,6 +14,7 @@ export interface AccionesPanel {
   ) => Promise<RespuestaAdmin<unknown>>;
   urlDocumento: (
     ruta: string,
+    opciones?: { descargar?: boolean },
   ) => Promise<RespuestaAdmin<{ signedUrl: string }>>;
   exportarExcel: () => Promise<
     RespuestaAdmin<{ base64: string; nombreArchivo: string }>

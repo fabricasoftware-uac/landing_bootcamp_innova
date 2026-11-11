@@ -206,12 +206,13 @@ export async function obtenerPostulacionesAdminAction(): Promise<
 }
 
 /**
- * Genera una Signed URL de corta vida para descargar un documento del bucket privado
+ * Genera una Signed URL de corta vida para descargar o visualizar un documento del bucket privado
  * 'postulaciones_docs'. La ruta debe pertenecer a un expediente registrado, así una
  * ruta manipulada no alcanza otros objetos del bucket.
  */
 export async function generarUrlDocumentoAction(
   storagePath: string,
+  opciones?: { descargar?: boolean },
 ): Promise<RespuestaAdmin<{ signedUrl: string }>> {
   if (!(await obtenerAdministrador())) {
     return { success: false, error: MENSAJE_SIN_ACCESO };
@@ -238,12 +239,17 @@ export async function generarUrlDocumentoAction(
       return { success: false, error: MENSAJE_DOCUMENTO_NO_DISPONIBLE };
     }
 
-    // download fuerza Content-Disposition: attachment en la respuesta de Storage.
+    const opcionesStorage = opciones?.descargar
+      ? { download: sanitizeFileName(documento.nombre_original) }
+      : undefined;
+
     const { data, error } = await adminClient.storage
       .from("postulaciones_docs")
-      .createSignedUrl(documento.storage_path, VIGENCIA_ENLACE_SEGUNDOS, {
-        download: sanitizeFileName(documento.nombre_original),
-      });
+      .createSignedUrl(
+        documento.storage_path,
+        VIGENCIA_ENLACE_SEGUNDOS,
+        opcionesStorage,
+      );
 
     if (error || !data?.signedUrl) {
       throw new Error(
