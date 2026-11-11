@@ -18,8 +18,8 @@ import { metadata as postulacionMetadata } from "@/app/postulacion/page";
 import { ESTADO_CONVOCATORIA } from "@/lib/config/convocatoria";
 
 describe("Estado de convocatoria y control de postulaciones", () => {
-  it("la configuración de convocatoria define estado de inscripciones abiertas y conserva metadatos de cierre", () => {
-    expect(ESTADO_CONVOCATORIA.abierta).toBe(true);
+  it("la configuración de convocatoria define estado de inscripciones cerradas por cupos agotados", () => {
+    expect(ESTADO_CONVOCATORIA.abierta).toBe(false);
     expect(ESTADO_CONVOCATORIA.motivo).toBe("cupos_agotados");
     expect(ESTADO_CONVOCATORIA.badge).toBe("Cupos agotados");
     expect(ESTADO_CONVOCATORIA.tituloCierre).toContain(
@@ -38,40 +38,37 @@ describe("Estado de convocatoria y control de postulaciones", () => {
     }
   });
 
-  it("crearPostulacionAction bloquea inmediatamente cualquier intento si la convocatoria está cerrada", async () => {
+  it("crearPostulacionAction bloquea inmediatamente cualquier intento si la convocatoria está cerrada sin tocar BD", async () => {
     mockGetAdminSupabaseClient.mockClear();
-    (ESTADO_CONVOCATORIA as { abierta: boolean }).abierta = false;
 
-    try {
-      const formData = new FormData();
-      formData.append(
-        "datos",
-        JSON.stringify({ institucion_nombre: "Colegio Test" }),
-      );
+    const formData = new FormData();
+    formData.append(
+      "datos",
+      JSON.stringify({ institucion_nombre: "Colegio Test" }),
+    );
 
-      const resultado = await crearPostulacionAction(formData);
+    const resultado = await crearPostulacionAction(formData);
 
-      expect(resultado.success).toBe(false);
-      if (!resultado.success) {
-        expect(resultado.error).toBe(ESTADO_CONVOCATORIA.mensajeCierre);
-      }
-      // Asegurar que nunca se instanció el cliente de base de datos
-      expect(mockGetAdminSupabaseClient).not.toHaveBeenCalled();
-    } finally {
-      (ESTADO_CONVOCATORIA as { abierta: boolean }).abierta = true;
+    expect(resultado.success).toBe(false);
+    if (!resultado.success) {
+      expect(resultado.error).toBe(ESTADO_CONVOCATORIA.mensajeCierre);
     }
+    // Asegurar que nunca se instanció el cliente de base de datos
+    expect(mockGetAdminSupabaseClient).not.toHaveBeenCalled();
   });
 
-  it("la metadata de la página de postulación refleja el estado de convocatoria abierta", () => {
-    expect(postulacionMetadata.title).toContain("Postula a tu equipo");
-    expect(postulacionMetadata.description).toContain(
-      "Formulario oficial de postulación",
+  it("la metadata de la página de postulación refleja el estado de cierre", () => {
+    expect(postulacionMetadata.title).toContain(
+      ESTADO_CONVOCATORIA.tituloCierre,
+    );
+    expect(postulacionMetadata.description).toBe(
+      ESTADO_CONVOCATORIA.mensajeCierre,
     );
     expect(postulacionMetadata.openGraph?.title).toContain(
-      "Postula a tu equipo",
+      ESTADO_CONVOCATORIA.tituloCierre,
     );
-    expect(postulacionMetadata.openGraph?.description).toContain(
-      "Formulario oficial para semilleros",
+    expect(postulacionMetadata.openGraph?.description).toBe(
+      ESTADO_CONVOCATORIA.mensajeCierre,
     );
   });
 });

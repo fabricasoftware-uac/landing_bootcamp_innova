@@ -1,5 +1,5 @@
 export const ESTADO_CONVOCATORIA = {
-  abierta: true,
+  abierta: false,
   motivo: "cupos_agotados" as const,
   badge: "Cupos agotados",
   tituloCierre: "Inscripciones cerradas · Cupos agotados",
