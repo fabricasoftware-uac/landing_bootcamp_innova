@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { generarExcelPostulaciones } from "@/lib/excel/generador-excel";
+import { generarPdfSeleccionados } from "@/lib/pdf/generador-pdf-seleccionados";
 import { getAdminSupabaseClient } from "@/lib/supabase/admin";
 import { obtenerAdministrador } from "@/lib/supabase/autorizacion";
 import type {
@@ -408,6 +409,50 @@ export async function exportarPostulacionesExcelAction(): Promise<
       success: false,
       error:
         "No pudimos generar el archivo de Excel en este momento. Inténtalo de nuevo en unos minutos.",
+    };
+  }
+}
+
+/**
+ * Motor de exportación oficial en formato PDF para los 10 semilleros seleccionados:
+ * Genera el acta formal de resultados, tabla resumen, fichas técnicas individuales y firmas.
+ */
+export async function exportarSeleccionadosPdfAction(): Promise<
+  RespuestaAdmin<{
+    base64: string;
+    nombreArchivo: string;
+  }>
+> {
+  if (!(await obtenerAdministrador())) {
+    return { success: false, error: MENSAJE_SIN_ACCESO };
+  }
+
+  try {
+    const consulta = await consultarListadoAdmin();
+
+    if (!consulta.success || !consulta.data) {
+      throw new Error(
+        consulta.error || "No se pudieron obtener las postulaciones",
+      );
+    }
+
+    const { postulaciones } = consulta.data;
+    const { base64, nombreArchivo } =
+      await generarPdfSeleccionados(postulaciones);
+
+    return {
+      success: true,
+      data: {
+        base64,
+        nombreArchivo,
+      },
+    };
+  } catch (error) {
+    console.error("Error al exportar a PDF:", error);
+    return {
+      success: false,
+      error:
+        "No pudimos generar el documento PDF en este momento. Inténtalo de nuevo en unos minutos.",
     };
   }
 }

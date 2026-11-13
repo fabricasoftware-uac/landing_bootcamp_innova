@@ -11,7 +11,11 @@ import {
   type AccionesPanel,
 } from "@/components/admin/acciones";
 import { DialogoConfirmarEliminar } from "@/components/admin/dialogo-confirmar-eliminar";
-import { descargarExcel, horaCorta } from "@/components/admin/dominio";
+import {
+  descargarExcel,
+  descargarPdf,
+  horaCorta,
+} from "@/components/admin/dominio";
 import type { BorradorEvaluacion } from "@/components/admin/expediente-evaluacion";
 import { ExpedienteModal } from "@/components/admin/expediente-modal";
 import {
@@ -89,12 +93,13 @@ function fraseSituacion(metricas: MetricasAdmin): string {
 }
 
 function useExportar(acciones: AccionesPanel) {
-  const [exportando, setExportando] = useState(false);
+  const [exportandoExcel, setExportandoExcel] = useState(false);
+  const [exportandoPdf, setExportandoPdf] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const exportar = async () => {
+  const exportarExcel = async () => {
     setError(null);
-    setExportando(true);
+    setExportandoExcel(true);
     try {
       const res = await acciones.exportarExcel();
       if (res.success && res.data) {
@@ -111,11 +116,40 @@ function useExportar(acciones: AccionesPanel) {
         "No pudimos descargar el archivo de Excel. Revisa tu conexión e inténtalo de nuevo.",
       );
     } finally {
-      setExportando(false);
+      setExportandoExcel(false);
     }
   };
 
-  return { exportar, exportando, error };
+  const exportarPdf = async () => {
+    setError(null);
+    setExportandoPdf(true);
+    try {
+      const res = await acciones.exportarPdf();
+      if (res.success && res.data) {
+        descargarPdf(res.data.base64, res.data.nombreArchivo);
+      } else {
+        setError(
+          res.error ||
+            "No pudimos generar el documento PDF. Inténtalo de nuevo.",
+        );
+      }
+    } catch (err) {
+      console.error("Error al descargar el PDF:", err);
+      setError(
+        "No pudimos descargar el documento PDF. Revisa tu conexión e inténtalo de nuevo.",
+      );
+    } finally {
+      setExportandoPdf(false);
+    }
+  };
+
+  return {
+    exportarExcel,
+    exportandoExcel,
+    exportarPdf,
+    exportandoPdf,
+    error,
+  };
 }
 
 function useHoraActualizacion(postulaciones: P[]): string | null {
@@ -132,9 +166,11 @@ interface CabeceraProps {
   hora: string | null;
   cargando: boolean;
   conError: boolean;
-  exportando: boolean;
+  exportandoExcel: boolean;
+  exportandoPdf: boolean;
   alRecargar: () => void;
-  alExportar: () => void;
+  alExportarExcel: () => void;
+  alExportarPdf: () => void;
 }
 
 function Cabecera({
@@ -142,9 +178,11 @@ function Cabecera({
   hora,
   cargando,
   conError,
-  exportando,
+  exportandoExcel,
+  exportandoPdf,
   alRecargar,
-  alExportar,
+  alExportarExcel,
+  alExportarPdf,
 }: CabeceraProps) {
   const sinDatos = conError
     ? "Los expedientes no están disponibles por ahora."
@@ -173,13 +211,23 @@ function Cabecera({
         </button>
         <button
           type="button"
-          className="adm-boton adm-boton-primario"
-          onClick={alExportar}
-          disabled={exportando}
-          title="Descarga un archivo Excel con tres hojas"
+          className="adm-boton adm-boton-suave border-emerald-300 text-emerald-800 hover:bg-emerald-50"
+          onClick={alExportarPdf}
+          disabled={exportandoPdf}
+          title="Descarga el acta oficial en PDF con los 10 semilleros seleccionados"
         >
           <IconoDescarga />
-          {exportando ? "Generando Excel…" : "Exportar a Excel"}
+          {exportandoPdf ? "Generando PDF…" : "Acta Seleccionados (.pdf)"}
+        </button>
+        <button
+          type="button"
+          className="adm-boton adm-boton-primario"
+          onClick={alExportarExcel}
+          disabled={exportandoExcel}
+          title="Descarga un archivo Excel completo con cuatro hojas"
+        >
+          <IconoDescarga />
+          {exportandoExcel ? "Generando Excel…" : "Exportar a Excel"}
         </button>
       </div>
     </header>
@@ -284,7 +332,13 @@ export function PanelPostulaciones({
   const [errorEliminar, setErrorEliminar] = useState<string | null>(null);
   const borradores = useRef(new Map<string, BorradorEvaluacion>());
   const hora = useHoraActualizacion(postulaciones);
-  const { exportar, exportando, error: errorExportar } = useExportar(acciones);
+  const {
+    exportarExcel,
+    exportandoExcel,
+    exportarPdf,
+    exportandoPdf,
+    error: errorExportar,
+  } = useExportar(acciones);
   const expediente = useExpediente(postulaciones);
 
   const solicitarEliminar = (postulacion: P) => {
@@ -364,9 +418,11 @@ export function PanelPostulaciones({
         hora={hora}
         cargando={cargando}
         conError={error !== null}
-        exportando={exportando}
+        exportandoExcel={exportandoExcel}
+        exportandoPdf={exportandoPdf}
         alRecargar={alRecargar}
-        alExportar={exportar}
+        alExportarExcel={exportarExcel}
+        alExportarPdf={exportarPdf}
       />
 
       {errorExportar && (

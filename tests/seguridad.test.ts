@@ -10,6 +10,7 @@ import type { PostulacionAdminDetalle } from "@/app/actions/admin";
 import {
   eliminarPostulacionAdminAction,
   exportarPostulacionesExcelAction,
+  exportarSeleccionadosPdfAction,
   generarUrlDocumentoAction,
   guardarEvaluacionAction,
   obtenerPostulacionesAdminAction,
@@ -119,6 +120,7 @@ describe("Autorización de las acciones admin", () => {
     ],
     ["guardarEvaluacionAction", () => guardarEvaluacionAction(entrada)],
     ["exportarPostulacionesExcelAction", exportarPostulacionesExcelAction],
+    ["exportarSeleccionadosPdfAction", exportarSeleccionadosPdfAction],
     [
       "eliminarPostulacionAdminAction",
       () => eliminarPostulacionAdminAction(POSTULACION_ID),

@@ -2,6 +2,7 @@ import {
   type EvaluacionInput,
   eliminarPostulacionAdminAction,
   exportarPostulacionesExcelAction,
+  exportarSeleccionadosPdfAction,
   generarUrlDocumentoAction,
   guardarEvaluacionAction,
   type RespuestaAdmin,
@@ -18,6 +19,9 @@ export interface AccionesPanel {
   exportarExcel: () => Promise<
     RespuestaAdmin<{ base64: string; nombreArchivo: string }>
   >;
+  exportarPdf: () => Promise<
+    RespuestaAdmin<{ base64: string; nombreArchivo: string }>
+  >;
   eliminarPostulacion: (id: string) => Promise<RespuestaAdmin<void>>;
 }
 
@@ -25,5 +29,6 @@ export const ACCIONES_REALES: AccionesPanel = {
   guardarEvaluacion: guardarEvaluacionAction,
   urlDocumento: generarUrlDocumentoAction,
   exportarExcel: exportarPostulacionesExcelAction,
+  exportarPdf: exportarSeleccionadosPdfAction,
   eliminarPostulacion: eliminarPostulacionAdminAction,
 };

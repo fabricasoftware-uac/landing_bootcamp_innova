@@ -175,3 +175,19 @@ export function descargarExcel(base64: string, nombreArchivo: string): void {
   document.body.removeChild(enlace);
   URL.revokeObjectURL(url);
 }
+
+export function descargarPdf(base64: string, nombreArchivo: string): void {
+  const binario = atob(base64);
+  const bytes = Uint8Array.from(binario, (c) => c.charCodeAt(0));
+  const blob = new Blob([bytes], {
+    type: "application/pdf",
+  });
+  const url = URL.createObjectURL(blob);
+  const enlace = document.createElement("a");
+  enlace.href = url;
+  enlace.download = nombreArchivo;
+  document.body.appendChild(enlace);
+  enlace.click();
+  document.body.removeChild(enlace);
+  URL.revokeObjectURL(url);
+}
