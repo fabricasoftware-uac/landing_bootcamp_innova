@@ -26,14 +26,39 @@ type ClavePuntaje =
   | "diversidad"
   | "representacion";
 
-const CRITERIOS: { clave: ClavePuntaje; etiqueta: string; max: number }[] = [
-  { clave: "motivacion", etiqueta: "Motivación e intereses", max: 30 },
-  { clave: "pertinencia", etiqueta: "Pertinencia de la propuesta", max: 30 },
-  { clave: "diversidad", etiqueta: "Diversidad e inclusión", max: 20 },
+const CRITERIOS: {
+  clave: ClavePuntaje;
+  etiqueta: string;
+  max: number;
+  descripcion: string;
+}[] = [
+  {
+    clave: "motivacion",
+    etiqueta: "Motivación e intereses",
+    max: 30,
+    descripcion:
+      "Claridad en metas investigativas, interés manifiesto en ciencia y tecnología, compromiso y vocación para asistir a todas las jornadas presenciales del Bootcamp.",
+  },
+  {
+    clave: "pertinencia",
+    etiqueta: "Pertinencia territorial",
+    max: 30,
+    descripcion:
+      "Alineación de la propuesta con desafíos productivos, agropecuarios, ambientales, educativos y comunitarios del departamento del Cauca.",
+  },
+  {
+    clave: "diversidad",
+    etiqueta: "Diversidad e inclusión de habilidades",
+    max: 20,
+    descripcion:
+      "Complementariedad técnica de los 3 integrantes (roles analíticos, técnicos y creativos), equidad y trabajo en equipo multidisciplinario.",
+  },
   {
     clave: "representacion",
     etiqueta: "Representación institucional y territorial",
     max: 20,
+    descripcion:
+      "Aval formal de la institución o universidad, acompañamiento y compromiso del docente tutor, e inclusión de municipios del departamento.",
   },
 ];
 
@@ -74,12 +99,14 @@ function Criterio({
   id,
   etiqueta,
   max,
+  descripcion,
   valor,
   alCambiar,
 }: {
   id: string;
   etiqueta: string;
   max: number;
+  descripcion: string;
   valor: number;
   alCambiar: (valor: number) => void;
 }) {
@@ -87,38 +114,43 @@ function Criterio({
     alCambiar(Math.min(max, Math.max(0, Math.round(nuevo) || 0)));
 
   return (
-    <div className="adm-criterio">
-      <label htmlFor={id}>
-        {etiqueta}
-        <span>Pesa {max}%</span>
-      </label>
-      <div className="adm-paso">
-        <button
-          type="button"
-          aria-label={`Restar un punto a ${etiqueta}`}
-          disabled={valor <= 0}
-          onClick={() => fijar(valor - 1)}
-        >
-          <IconoMenos />
-        </button>
-        <input
-          id={id}
-          type="number"
-          inputMode="numeric"
-          min={0}
-          max={max}
-          value={valor}
-          onChange={(e) => fijar(Number(e.target.value))}
-        />
-        <button
-          type="button"
-          aria-label={`Sumar un punto a ${etiqueta}`}
-          disabled={valor >= max}
-          onClick={() => fijar(valor + 1)}
-        >
-          <IconoMas />
-        </button>
+    <div className="space-y-1 pb-2 border-b border-slate-100 last:border-b-0 last:pb-0">
+      <div className="adm-criterio">
+        <label htmlFor={id}>
+          {etiqueta}
+          <span>Pesa {max}%</span>
+        </label>
+        <div className="adm-paso">
+          <button
+            type="button"
+            aria-label={`Restar un punto a ${etiqueta}`}
+            disabled={valor <= 0}
+            onClick={() => fijar(valor - 1)}
+          >
+            <IconoMenos />
+          </button>
+          <input
+            id={id}
+            type="number"
+            inputMode="numeric"
+            min={0}
+            max={max}
+            value={valor}
+            onChange={(e) => fijar(Number(e.target.value))}
+          />
+          <button
+            type="button"
+            aria-label={`Sumar un punto a ${etiqueta}`}
+            disabled={valor >= max}
+            onClick={() => fijar(valor + 1)}
+          >
+            <IconoMas />
+          </button>
+        </div>
       </div>
+      <p className="adm-pista text-xs leading-relaxed text-slate-500 pl-0.5">
+        {descripcion}
+      </p>
     </div>
   );
 }
@@ -255,6 +287,7 @@ export function ExpedienteEvaluacion({
               id={`puntaje_${c.clave}`}
               etiqueta={c.etiqueta}
               max={c.max}
+              descripcion={c.descripcion}
               valor={borrador[c.clave]}
               alCambiar={(valor) => cambiar({ [c.clave]: valor })}
             />

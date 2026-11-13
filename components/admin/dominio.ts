@@ -14,9 +14,9 @@ export const ETIQUETA_ESTADO: Record<PostulacionEstado, string> = {
 };
 
 export const ORDEN_ESTADO: Record<PostulacionEstado, number> = {
-  pendiente: 0,
+  seleccionado: 0,
   habilitado: 1,
-  seleccionado: 2,
+  pendiente: 2,
   no_habilitado: 3,
 };
 

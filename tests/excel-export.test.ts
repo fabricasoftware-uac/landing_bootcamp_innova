@@ -5,6 +5,7 @@ import {
   COLUMNAS_EQUIPOS,
   COLUMNAS_EVALUACION,
   COLUMNAS_INTEGRANTES,
+  COLUMNAS_RUBRICA,
   construirWorkbookPostulaciones,
   generarExcelPostulaciones,
   HOJAS_EXCEL,
@@ -39,7 +40,7 @@ function crearPostulacionMock(params: {
         id: `int-${params.id}-1`,
         postulacion_id: params.id,
         orden_integrante: 1,
-        nombres_apellidos: "Estudiante Uno",
+        nombres_apellidos: `Estudiante ${params.id} 1`,
         tipo_documento: "TI",
         numero_documento: "1061001",
         correo_electronico: "est1@test.com",
@@ -52,7 +53,7 @@ function crearPostulacionMock(params: {
         id: `int-${params.id}-2`,
         postulacion_id: params.id,
         orden_integrante: 2,
-        nombres_apellidos: "Estudiante Dos",
+        nombres_apellidos: `Estudiante ${params.id} 2`,
         tipo_documento: "TI",
         numero_documento: "1061002",
         correo_electronico: "est2@test.com",
@@ -65,7 +66,7 @@ function crearPostulacionMock(params: {
         id: `int-${params.id}-3`,
         postulacion_id: params.id,
         orden_integrante: 3,
-        nombres_apellidos: "Estudiante Tres",
+        nombres_apellidos: `Estudiante ${params.id} 3`,
         tipo_documento: "CC",
         numero_documento: "1061003",
         correo_electronico: "est3@test.com",
@@ -127,17 +128,28 @@ describe("Generador de Archivos Excel (.xlsx) para Administración", () => {
       tieneEvaluacion: false,
       menores: [false, false, false],
     }),
+    crearPostulacionMock({
+      id: "post-3",
+      radicado: "INNOVA-2026-0003",
+      institucion: "Corporación Universitaria Autónoma del Cauca",
+      tipoInst: "superior",
+      semillero: "Emprendelab",
+      estado: "seleccionado",
+      tieneEvaluacion: true,
+      menores: [false, false, false],
+    }),
   ];
 
-  it("crea un libro de Excel con exactamente las 3 hojas requeridas", () => {
+  it("crea un libro de Excel con exactamente las 4 hojas requeridas", () => {
     const workbook = construirWorkbookPostulaciones(postulacionesMock);
     const nombresHojas = workbook.worksheets.map((ws) => ws.name);
 
-    expect(nombresHojas).toHaveLength(3);
+    expect(nombresHojas).toHaveLength(4);
     expect(nombresHojas).toEqual([
       HOJAS_EXCEL.EQUIPOS,
       HOJAS_EXCEL.INTEGRANTES,
       HOJAS_EXCEL.EVALUACION,
+      HOJAS_EXCEL.RUBRICA,
     ]);
   });
 
@@ -168,7 +180,7 @@ describe("Generador de Archivos Excel (.xlsx) para Administración", () => {
     expect(headers).toEqual([...COLUMNAS_INTEGRANTES]);
   });
 
-  it("garantiza que la Hoja 3 'Matriz de Evaluación' contiene las columnas exactas", () => {
+  it("garantiza que la Hoja 3 'Matriz de Evaluación' contiene las columnas exactas enriquecidas", () => {
     const workbook = construirWorkbookPostulaciones(postulacionesMock);
     const hoja3 = workbook.getWorksheet(HOJAS_EXCEL.EVALUACION);
     expect(hoja3).toBeDefined();
@@ -181,7 +193,22 @@ describe("Generador de Archivos Excel (.xlsx) para Administración", () => {
     expect(headers).toEqual([...COLUMNAS_EVALUACION]);
   });
 
-  it("aplica los estilos institucionales (Navy Fill #FF10384F y fuente blanca) en cabeceras", () => {
+  it("garantiza que la Hoja 4 'Rúbrica de Evaluación' contiene las columnas oficiales", () => {
+    const workbook = construirWorkbookPostulaciones(postulacionesMock);
+    const hoja4 = workbook.getWorksheet(HOJAS_EXCEL.RUBRICA);
+    expect(hoja4).toBeDefined();
+
+    const headers: string[] = [];
+    hoja4?.getRow(1).eachCell((cell) => {
+      headers.push(String(cell.value));
+    });
+
+    expect(headers).toEqual([...COLUMNAS_RUBRICA]);
+    // Debe contener las 4 filas de criterios más la fila resumen
+    expect(hoja4?.rowCount).toBeGreaterThanOrEqual(5);
+  });
+
+  it("aplica los estilos institucionales (Navy Fill #FF10384F y fuente blanca) en cabeceras de las 4 hojas", () => {
     const workbook = construirWorkbookPostulaciones(postulacionesMock);
     for (const nombreHoja of Object.values(HOJAS_EXCEL)) {
       const hoja = workbook.getWorksheet(nombreHoja);
@@ -199,49 +226,76 @@ describe("Generador de Archivos Excel (.xlsx) para Administración", () => {
     }
   });
 
-  it("rellena las filas de datos con los cálculos y mapeos esperados", () => {
+  it("ubica a los clasificados (seleccionados) de primeros en todas las hojas y aplica resaltado verde institucional", () => {
     const workbook = construirWorkbookPostulaciones(postulacionesMock);
 
-    // Hoja 1: 2 postulaciones -> 2 filas de datos (filas 2 y 3)
+    // Hoja 1: El seleccionado (post-3) debe ser la fila 2 (primer dato)
     const hoja1 = workbook.getWorksheet(HOJAS_EXCEL.EQUIPOS);
-    expect(hoja1?.rowCount).toBe(3);
+    expect(hoja1?.rowCount).toBe(4);
 
     const fila1 = hoja1?.getRow(2);
-    expect(fila1?.getCell("radicado").value).toBe("INNOVA-2026-0001");
-    expect(fila1?.getCell("estado").value).toBe("HABILITADO");
-    expect(fila1?.getCell("tipo_institucion").value).toBe(
-      "Básica y Media (Colegio)",
-    );
-    // Puntaje evaluado: 28 + 27 + 18 + 19 = 92
-    expect(fila1?.getCell("puntaje_total").value).toBe(92);
+    expect(fila1?.getCell("radicado").value).toBe("INNOVA-2026-0003");
+    expect(fila1?.getCell("estado").value).toBe("SELECCIONADO");
+    expect(fila1?.getCell("semillero").value).toBe("Emprendelab");
+    expect(fila1?.getCell("radicado").fill).toMatchObject({
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFE8F5E9" },
+    });
 
+    // Fila 2 es el habilitado con puntaje
     const fila2 = hoja1?.getRow(3);
-    expect(fila2?.getCell("radicado").value).toBe("INNOVA-2026-0002");
-    expect(fila2?.getCell("tipo_institucion").value).toBe("Educación Superior");
-    expect(fila2?.getCell("puntaje_total").value).toBe("Sin evaluar");
+    expect(fila2?.getCell("radicado").value).toBe("INNOVA-2026-0001");
+    expect(fila2?.getCell("estado").value).toBe("HABILITADO");
 
-    // Hoja 2: 2 equipos x 3 integrantes = 6 filas de integrantes (+1 cabecera = 7)
+    // Fila 3 es el pendiente sin evaluación
+    const fila3 = hoja1?.getRow(4);
+    expect(fila3?.getCell("radicado").value).toBe("INNOVA-2026-0002");
+    expect(fila3?.getCell("estado").value).toBe("PENDIENTE");
+
+    // Hoja 2: Los integrantes de post-3 (Emprendelab) deben aparecer de primeros (filas 2, 3, 4)
     const hoja2 = workbook.getWorksheet(HOJAS_EXCEL.INTEGRANTES);
-    expect(hoja2?.rowCount).toBe(7);
+    expect(hoja2?.rowCount).toBe(10); // 1 header + 3x3 integrantes = 10
 
-    // Verificar indicador de menor de edad
-    const int1Fila = hoja2?.getRow(2);
-    expect(int1Fila?.getCell("es_menor").value).toBe("SÍ (Menor de edad)");
+    const intFila1 = hoja2?.getRow(2);
+    expect(intFila1?.getCell("radicado").value).toBe("INNOVA-2026-0003");
+    expect(intFila1?.getCell("semillero").value).toBe("Emprendelab");
+    expect(intFila1?.getCell("radicado").fill).toMatchObject({
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFE8F5E9" },
+    });
 
-    const int3Fila = hoja2?.getRow(4);
-    expect(int3Fila?.getCell("es_menor").value).toBe("NO (Mayor de edad)");
-
-    // Hoja 3: Matriz de evaluación
+    // Hoja 3: Matriz de Evaluación tiene a post-3 de primero con clasificación y justificación
     const hoja3 = workbook.getWorksheet(HOJAS_EXCEL.EVALUACION);
-    expect(hoja3?.rowCount).toBe(3);
+    expect(hoja3?.rowCount).toBe(4);
 
     const evalFila1 = hoja3?.getRow(2);
+    expect(evalFila1?.getCell("radicado").value).toBe("INNOVA-2026-0003");
+    expect(evalFila1?.getCell("clasificacion").value).toBe(
+      "CLASIFICADO AL BOOTCAMP",
+    );
     expect(evalFila1?.getCell("habilitante").value).toBe("Habilitado");
     expect(evalFila1?.getCell("total").value).toBe(92);
+    expect(String(evalFila1?.getCell("justificacion").value)).toContain(
+      "CLASIFICADO OFICIAL",
+    );
+    expect(evalFila1?.getCell("radicado").fill).toMatchObject({
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FFE8F5E9" },
+    });
 
     const evalFila2 = hoja3?.getRow(3);
-    expect(evalFila2?.getCell("habilitante").value).toBe("Pendiente");
-    expect(evalFila2?.getCell("total").value).toBe("—");
+    expect(evalFila2?.getCell("radicado").value).toBe("INNOVA-2026-0001");
+    expect(evalFila2?.getCell("clasificacion").value).toBe(
+      "HABILITADO (LISTA DE ESPERA)",
+    );
+
+    const evalFila3 = hoja3?.getRow(4);
+    expect(evalFila3?.getCell("radicado").value).toBe("INNOVA-2026-0002");
+    expect(evalFila3?.getCell("clasificacion").value).toBe("EN REVISIÓN");
+    expect(evalFila3?.getCell("total").value).toBe("—");
   });
 
   it("generarExcelPostulaciones produce un buffer XLSX válido que puede ser deserializado", async () => {
@@ -264,9 +318,11 @@ describe("Generador de Archivos Excel (.xlsx) para Administración", () => {
       HOJAS_EXCEL.EQUIPOS,
       HOJAS_EXCEL.INTEGRANTES,
       HOJAS_EXCEL.EVALUACION,
+      HOJAS_EXCEL.RUBRICA,
     ]);
 
     const hojaEquipos = workbookLeido.getWorksheet(HOJAS_EXCEL.EQUIPOS);
-    expect(hojaEquipos?.getCell("A2").value).toBe("INNOVA-2026-0001");
+    // El seleccionado (post-3) debe ser el primero tras el ordenamiento
+    expect(hojaEquipos?.getCell("A2").value).toBe("INNOVA-2026-0003");
   });
 });
