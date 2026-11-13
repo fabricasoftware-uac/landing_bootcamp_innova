@@ -1,6 +1,6 @@
 import ExcelJS from "exceljs";
 import type { PostulacionAdminDetalle } from "@/app/actions/admin";
-import type { PostulacionEstado } from "@/lib/supabase/types";
+import type { Evaluacion, PostulacionEstado } from "@/lib/supabase/types";
 import { esTelefono } from "@/lib/validations/texto-seguro";
 
 export interface GeneracionExcelResultado {
@@ -94,36 +94,70 @@ function neutralizarHoja(hoja: ExcelJS.Worksheet): void {
   });
 }
 
+/**
+ * Extrae y normaliza el objeto de evaluación de una postulación, tolerando
+ * si viene como objeto único (PostulacionAdminDetalle) o como arreglo (select con join).
+ */
+export function normalizarEvaluacion(
+  evaluaciones: Evaluacion | Evaluacion[] | null | undefined,
+): Evaluacion | null {
+  if (!evaluaciones) return null;
+  if (Array.isArray(evaluaciones)) {
+    return (evaluaciones[0] as Evaluacion) ?? null;
+  }
+  return evaluaciones;
+}
+
+/** Formatea de manera segura fechas ISO al estándar colombiano (DD/MM/AAAA) */
+export function formatearFechaEvaluacion(fechaStr?: string | null): string {
+  if (!fechaStr) return "Pendiente";
+  const d = new Date(fechaStr);
+  if (Number.isNaN(d.getTime())) return "Pendiente";
+  return d.toLocaleDateString("es-CO", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+}
+
 /** Calcula el puntaje numérico total o -1 si no tiene evaluación registrada */
 function calcularPuntajeTotal(post: PostulacionAdminDetalle): number {
-  if (!post.evaluaciones) return -1;
+  const ev = normalizarEvaluacion(post.evaluaciones);
+  if (!ev) return -1;
   return (
-    (post.evaluaciones.puntaje_motivacion || 0) +
-    (post.evaluaciones.puntaje_pertinencia || 0) +
-    (post.evaluaciones.puntaje_diversidad || 0) +
-    (post.evaluaciones.puntaje_representacion || 0)
+    (ev.puntaje_motivacion || 0) +
+    (ev.puntaje_pertinencia || 0) +
+    (ev.puntaje_diversidad || 0) +
+    (ev.puntaje_representacion || 0)
   );
 }
 
 /** Convierte el estado interno en la etiqueta de clasificación final para comités */
-function obtenerClasificacionFinal(estado: PostulacionEstado): string {
-  switch (estado) {
-    case "seleccionado":
-      return "CLASIFICADO AL BOOTCAMP";
-    case "habilitado":
-      return "HABILITADO (LISTA DE ESPERA)";
-    case "no_habilitado":
-      return "NO HABILITADO";
-    case "pendiente":
-      return "EN REVISIÓN";
-    default:
-      return String(estado).toUpperCase();
+function obtenerClasificacionFinal(
+  estado: PostulacionEstado,
+  ev: Evaluacion | null,
+): string {
+  if (estado === "seleccionado") {
+    return "CLASIFICADO AL BOOTCAMP";
   }
+  if (estado === "habilitado") {
+    return "HABILITADO (LISTA DE ESPERA)";
+  }
+  if (estado === "no_habilitado") {
+    if (!ev?.cumple_requisitos_habilitante) {
+      return "NO HABILITADO (DOCUMENTAL)";
+    }
+    return "NO SELECCIONADO (CUPOS AGOTADOS)";
+  }
+  if (estado === "pendiente") {
+    return "EN REVISIÓN";
+  }
+  return String(estado).toUpperCase();
 }
 
 /** Genera la explicación detallada y motivada del resultado del equipo según la rúbrica */
 function generarJustificacionEvaluacion(post: PostulacionAdminDetalle): string {
-  const ev = post.evaluaciones;
+  const ev = normalizarEvaluacion(post.evaluaciones);
   const nivel =
     post.institucion_tipo === "basica_media"
       ? "Básica y Media (Colegio)"
@@ -134,13 +168,14 @@ function generarJustificacionEvaluacion(post: PostulacionAdminDetalle): string {
   }
 
   const total =
-    ev.puntaje_motivacion +
-    ev.puntaje_pertinencia +
-    ev.puntaje_diversidad +
-    ev.puntaje_representacion;
+    (ev.puntaje_motivacion || 0) +
+    (ev.puntaje_pertinencia || 0) +
+    (ev.puntaje_diversidad || 0) +
+    (ev.puntaje_representacion || 0);
 
-  if (!ev.cumple_requisitos_habilitante || post.estado === "no_habilitado") {
-    return `No cumple con la totalidad de requisitos habilitantes obligatorios o documentos reglamentarios requeridos por los términos de referencia (aval institucional o autorizaciones completas).`;
+  if (!ev.cumple_requisitos_habilitante) {
+    const obs = ev.observaciones ? ` Motivo: ${ev.observaciones}.` : "";
+    return `No cumple con la totalidad de requisitos habilitantes obligatorios según los términos de referencia (aval institucional o autorizaciones reglamentarias).${obs}`;
   }
 
   if (post.estado === "seleccionado") {
@@ -149,6 +184,10 @@ function generarJustificacionEvaluacion(post: PostulacionAdminDetalle): string {
 
   if (post.estado === "habilitado") {
     return `HABILITADO EN LISTA DE ESPERA (${total}/100 pts - ${nivel}). Cumple plenamente requisitos habilitantes. Calificación por rúbrica: Motivación ${ev.puntaje_motivacion}/30, Pertinencia Caucana ${ev.puntaje_pertinencia}/30, Diversidad ${ev.puntaje_diversidad}/20, Representación ${ev.puntaje_representacion}/20. Elegible por orden de mérito en caso de liberación de cupo en su categoría.`;
+  }
+
+  if (post.estado === "no_habilitado") {
+    return `NO CLASIFICADO POR PUNTAJE (${total}/100 pts - ${nivel}). Cumple requisitos habilitantes. Calificación por rúbrica: Motivación ${ev.puntaje_motivacion}/30, Pertinencia Caucana ${ev.puntaje_pertinencia}/30, Diversidad ${ev.puntaje_diversidad}/20, Representación ${ev.puntaje_representacion}/20. No alcanzó el punto de corte para clasificar dentro de los 10 cupos disponibles de la convocatoria.`;
   }
 
   return `En deliberación técnica (${total}/100 pts). Motivación: ${ev.puntaje_motivacion}/30, Pertinencia: ${ev.puntaje_pertinencia}/30, Diversidad: ${ev.puntaje_diversidad}/20, Representación: ${ev.puntaje_representacion}/20.`;
@@ -254,11 +293,12 @@ export function construirWorkbookPostulaciones(
 
   for (const post of postulacionesOrdenadas) {
     const esSeleccionado = post.estado === "seleccionado";
-    const puntaje = post.evaluaciones
-      ? post.evaluaciones.puntaje_motivacion +
-        post.evaluaciones.puntaje_pertinencia +
-        post.evaluaciones.puntaje_diversidad +
-        post.evaluaciones.puntaje_representacion
+    const ev = normalizarEvaluacion(post.evaluaciones);
+    const puntaje = ev
+      ? (ev.puntaje_motivacion || 0) +
+        (ev.puntaje_pertinencia || 0) +
+        (ev.puntaje_diversidad || 0) +
+        (ev.puntaje_representacion || 0)
       : "Sin evaluar";
 
     const fila = hoja1.addRow({
@@ -386,33 +426,31 @@ export function construirWorkbookPostulaciones(
 
   for (const post of postulacionesOrdenadas) {
     const esSeleccionado = post.estado === "seleccionado";
-    const ev = post.evaluaciones;
+    const ev = normalizarEvaluacion(post.evaluaciones);
     const totalPuntos = ev
-      ? ev.puntaje_motivacion +
-        ev.puntaje_pertinencia +
-        ev.puntaje_diversidad +
-        ev.puntaje_representacion
+      ? (ev.puntaje_motivacion || 0) +
+        (ev.puntaje_pertinencia || 0) +
+        (ev.puntaje_diversidad || 0) +
+        (ev.puntaje_representacion || 0)
       : null;
 
     const fila = hoja3.addRow({
       radicado: post.radicado_codigo,
       semillero: post.semillero_nombre,
-      clasificacion: obtenerClasificacionFinal(post.estado),
+      clasificacion: obtenerClasificacionFinal(post.estado, ev),
       habilitante: ev
         ? ev.cumple_requisitos_habilitante
           ? "Habilitado"
           : "No Habilitado"
         : "Pendiente",
-      motivacion: ev ? ev.puntaje_motivacion : "—",
-      pertinencia: ev ? ev.puntaje_pertinencia : "—",
-      diversidad: ev ? ev.puntaje_diversidad : "—",
-      representacion: ev ? ev.puntaje_representacion : "—",
+      motivacion: ev ? (ev.puntaje_motivacion ?? 0) : "—",
+      pertinencia: ev ? (ev.puntaje_pertinencia ?? 0) : "—",
+      diversidad: ev ? (ev.puntaje_diversidad ?? 0) : "—",
+      representacion: ev ? (ev.puntaje_representacion ?? 0) : "—",
       total: totalPuntos !== null ? totalPuntos : "—",
       justificacion: generarJustificacionEvaluacion(post),
       observaciones: ev?.observaciones || "Sin observaciones del comité",
-      fecha_eval: ev
-        ? new Date(ev.evaluado_el).toLocaleDateString("es-CO")
-        : "Pendiente",
+      fecha_eval: formatearFechaEvaluacion(ev?.evaluado_el),
     });
 
     fila.height = 36;
@@ -422,10 +460,23 @@ export function construirWorkbookPostulaciones(
       if (esSeleccionado) {
         celda.fill = fillSeleccionado;
       }
+      let horizontal: ExcelJS.Alignment["horizontal"] = "left";
+      if (c === 1 || c === 3 || c === 4 || (c >= 5 && c <= 9) || c === 12) {
+        horizontal = "center";
+      }
       celda.alignment = {
         vertical: "middle",
-        wrapText: c === 10 || c === 11, // wrapText para justificación y observaciones
+        horizontal,
+        wrapText: c === 10 || c === 11,
       };
+      if (c === 3 || c === 9) {
+        celda.font = {
+          name: "Arial",
+          size: 10,
+          bold: true,
+          color: esSeleccionado ? { argb: "FF1E4620" } : { argb: "FF333333" },
+        };
+      }
     }
   }
 

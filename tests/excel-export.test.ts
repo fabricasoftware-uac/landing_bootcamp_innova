@@ -325,4 +325,31 @@ describe("Generador de Archivos Excel (.xlsx) para Administración", () => {
     // El seleccionado (post-3) debe ser el primero tras el ordenamiento
     expect(hojaEquipos?.getCell("A2").value).toBe("INNOVA-2026-0003");
   });
+
+  it("normaliza evaluaciones tanto si vienen como objeto único o como arreglo (compatibilidad joins)", () => {
+    const postBase = postulacionesMock[2];
+    if (!postBase) throw new Error("Mock requerido");
+    const postConArreglo = {
+      ...postBase,
+      evaluaciones: [postBase.evaluaciones],
+    } as unknown as PostulacionAdminDetalle;
+
+    const wb = construirWorkbookPostulaciones([postConArreglo]);
+    const hojaEval = wb.getWorksheet(HOJAS_EXCEL.EVALUACION);
+    const fila = hojaEval?.getRow(2);
+
+    expect(fila?.getCell("radicado").value).toBe("INNOVA-2026-0003");
+    expect(fila?.getCell("motivacion").value).toBe(28);
+    expect(fila?.getCell("pertinencia").value).toBe(27);
+    expect(fila?.getCell("diversidad").value).toBe(18);
+    expect(fila?.getCell("representacion").value).toBe(19);
+    expect(fila?.getCell("total").value).toBe(92);
+    expect(fila?.getCell("habilitante").value).toBe("Habilitado");
+    expect(fila?.getCell("clasificacion").value).toBe(
+      "CLASIFICADO AL BOOTCAMP",
+    );
+    expect(String(fila?.getCell("justificacion").value)).toContain(
+      "CLASIFICADO OFICIAL (92/100 pts",
+    );
+  });
 });
